@@ -339,7 +339,11 @@ class StoryMenuState extends MusicBeatState
 	function updateText()
 	{
 		for (i in 0...grpWeekCharacters.length)
-			grpWeekCharacters.members[i].createCharacter(Main.weeks[curWeek].storyMenuCharacters[i]);
+		{
+			// check if the said character is not already created
+			if (grpWeekCharacters.members[i].character != Main.weeks[curWeek].storyMenuCharacters[i])
+				grpWeekCharacters.members[i].createCharacter(Main.weeks[curWeek].storyMenuCharacters[i]);
+		}
 
 		txtTracklist.text = "Tracks\n";
 
