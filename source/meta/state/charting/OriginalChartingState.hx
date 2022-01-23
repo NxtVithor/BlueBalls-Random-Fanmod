@@ -1056,7 +1056,7 @@ class OriginalChartingState extends MusicBeatState
 
 	function loadJson(song:String):Void
 	{
-		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase(), true);
+		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase());
 		PlayState.SONG = Song.loadFromJson(formattedSong, formattedSong);
 		FlxG.resetState();
 	}

@@ -1,6 +1,5 @@
 package meta.state.menus;
 
-import openfl.system.System;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -279,9 +278,6 @@ class FreeplayState extends MusicBeatState
 
 		changeDiff();
 
-		// force garbage collector to run for really get some memory
-		System.gc();
-
 		if (songThread == null)
 		{
 			songThread = Thread.create(function()
@@ -298,31 +294,35 @@ class FreeplayState extends MusicBeatState
 					if (index != null)
 					{
 						// TODO: find a way to fix the memory issue with spamming selection
-						if (index == curSelected && index != curSongPlaying)
+						if (threadSyncCheck(index))
 						{
-							if (!currentTrackedSongs.exists(index))
+							if (threadSyncCheck(index) && !currentTrackedSongs.exists(index))
 							{
 								currentTrackedSongs.set(index, new FlxSound().loadEmbedded(Paths.inst(songs[curSelected].songName), true, true).play());
 								FlxG.sound.list.add(currentTrackedSongs.get(index));
 							}
 
-							if (threadActive)
+							if (threadSyncCheck(index) && threadActive)
 							{
 								mutex.acquire();
-								mutex.release();
 
 								// kill unused songs so we will gain a little of memory
 								for (i in currentTrackedSongs.keys())
 								{
-									var song:FlxSound = currentTrackedSongs.get(i);
-									if (index == i)
+									if (threadSyncCheck(index))
 									{
-										song.revive();
-										song.play();
+										var song:FlxSound = currentTrackedSongs.get(i);
+										if (index == i)
+										{
+											song.revive();
+											song.play();
+										}
+										else
+											song.kill();
 									}
-									else
-										song.kill();
 								}
+
+								mutex.release();
 
 								curSongPlaying = index;
 
@@ -339,6 +339,11 @@ class FreeplayState extends MusicBeatState
 		}
 
 		songThread.sendMessage(curSelected);
+	}
+
+	// stupid hack for keep thread sync
+	inline function threadSyncCheck(index:Int) {
+		return index == curSelected && index != curSongPlaying;
 	}
 }
 

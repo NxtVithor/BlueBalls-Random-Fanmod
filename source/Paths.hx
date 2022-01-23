@@ -271,7 +271,7 @@ class Paths
 
 	inline static public function songJson(song:String, secondSong:String, ?library:String)
 	{
-		return json('songs/${CoolUtil.coolFormat(song, true)}/${CoolUtil.coolFormat(secondSong, true)}', library);
+		return json('songs/${CoolUtil.coolFormat(song)}/${CoolUtil.coolFormat(secondSong)}', library);
 	}
 
 	static public function sound(key:String, ?library:String):Dynamic
@@ -293,14 +293,14 @@ class Paths
 
 	inline static public function voices(song:String):Any
 	{
-		var songKey:String = '${CoolUtil.coolFormat(song, true)}/Voices';
+		var songKey:String = '${CoolUtil.coolFormat(song)}/Voices';
 		var voices = returnSound('songs', songKey);
 		return voices;
 	}
 
 	inline static public function inst(song:String):Any
 	{
-		var songKey:String = '${CoolUtil.coolFormat(song, true)}/Inst';
+		var songKey:String = '${CoolUtil.coolFormat(song)}/Inst';
 		var inst = returnSound('songs', songKey);
 		return inst;
 	}

@@ -42,15 +42,9 @@ class CoolUtil
 		return string.replace(" ", "-");
 	}
 
-	inline static public function coolFormat(string:String, ?invert:Bool = false)
+	inline static public function coolFormat(path:String)
 	{
-		var daString = string.toLowerCase();
-		var daCheck = daString.contains("-");
-
-		if (invert)
-			daCheck = !daCheck;
-
-		return daCheck ? dashToSpace(daString) : spaceToDash(daString);
+		return path.toLowerCase().replace(' ', '-');
 	}
 
 	public static function formatJson(jsonInput:String)
