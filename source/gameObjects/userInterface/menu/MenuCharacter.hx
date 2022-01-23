@@ -14,7 +14,7 @@ class MenuCharacter extends FlxSprite
 		// the format is currently
 		// name of character => id in atlas, fps, loop, scale, offsetx, offsety
 		'bf' => ["BF idle dance white", 24, true, 0.9, 100, 25],
-		'bfConfirm' => ['BF HEY!!', 24, false, 0.9, 100, 25],
+		'bfConfirm' => ['BF HEY!!', 24, false, 0.9, 0, 0],
 		'gf' => ["GF Dancing Beat WHITE", 24, true, 1, 25, 75],
 		'dad' => ["Dad idle dance BLACK LINE", 24, true, 0.5, 0, 0],
 		'spooky' => ["spooky dance idle BLACK LINES", 24, true, 0.5, 0, 90],
@@ -65,8 +65,8 @@ class MenuCharacter extends FlxSprite
 
 			// offset
 			setGraphicSize(Std.int(width * assortedValues[3]));
-			setPosition(baseX + assortedValues[4], baseY + assortedValues[5]);
 			updateHitbox();
+			setPosition(baseX + assortedValues[4], baseY + assortedValues[5]);
 
 			if (newCharacter == 'pico')
 				flipX = true;

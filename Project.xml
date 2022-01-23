@@ -29,7 +29,9 @@
 	<!-- ________________________________ Defines _______________________________ -->
 
 	<!-- Specific to Forever Engine -->
-	<define name="MODS_ALLOWED" if="desktop" />
+
+	<!-- Not activated by default because this engine is primarily designed for source code modifications -->
+	<!-- <define name="MODS_ALLOWED" if="desktop" /> -->
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
