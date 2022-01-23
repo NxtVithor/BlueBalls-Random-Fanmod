@@ -4,7 +4,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
-import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -13,6 +12,8 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
 import meta.data.dependency.Discord;
 import meta.data.font.Alphabet;
+import openfl.media.Sound;
+import openfl.system.System;
 import sys.FileSystem;
 import sys.thread.Mutex;
 import sys.thread.Thread;
@@ -35,6 +36,7 @@ class FreeplayState extends MusicBeatState
 	var songThread:Thread;
 	var threadActive:Bool = true;
 	var mutex:Mutex;
+	var songToPlay:Array<Dynamic> = [];
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
@@ -48,14 +50,9 @@ class FreeplayState extends MusicBeatState
 	private var existingSongs:Array<String> = [];
 	private var existingDifficulties:Array<Array<String>> = [];
 
-	// track all played songs
-	private var currentTrackedSongs:Map<Int, FlxSound> = [];
-
 	override function create()
 	{
 		super.create();
-
-		mutex = new Mutex();
 
 		/**
 			Wanna add songs? They're in your weeks files, so they are automatically loaded for you!.
@@ -69,6 +66,8 @@ class FreeplayState extends MusicBeatState
 		{
 			addWeek(Main.weeks[i], i);
 		}
+
+		mutex = new Mutex();
 
 		#if !html5
 		Discord.changePresence('FREEPLAY MENU', 'Main Menu');
@@ -113,8 +112,6 @@ class FreeplayState extends MusicBeatState
 		add(diffText);
 
 		add(scoreText);
-
-		FlxG.sound.music.destroy();
 
 		changeSelection();
 		changeDiff();
@@ -175,7 +172,7 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.BACK)
 		{
-			removeSongThread();
+			threadActive = false;
 			ForeverTools.resetMenuMusic(false, true);
 			Main.switchState(this, new MainMenuState());
 		}
@@ -192,7 +189,10 @@ class FreeplayState extends MusicBeatState
 			PlayState.storyWeek = songs[curSelected].week;
 			trace('CUR WEEK' + PlayState.storyWeek);
 
-			removeSongThread();
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.stop();
+
+			threadActive = false;
 
 			Main.switchState(this, new PlayState());
 		}
@@ -203,15 +203,6 @@ class FreeplayState extends MusicBeatState
 		scoreBG.width = scoreText.width + 8;
 		scoreBG.x = FlxG.width - scoreBG.width;
 		diffText.x = scoreBG.x + (scoreBG.width / 2) - (diffText.width / 2);
-
-		mutex.acquire();
-		mutex.release();
-	}
-
-	function removeSongThread()
-	{
-		threadActive = false;
-		FlxG.sound.destroy();
 	}
 
 	var lastDifficulty:String;
@@ -244,6 +235,33 @@ class FreeplayState extends MusicBeatState
 			curSelected = songs.length - 1;
 		if (curSelected >= songs.length)
 			curSelected = 0;
+
+		mutex.acquire();
+		if (songToPlay[1] != null)
+		{
+			var realSongToPlay:Sound = cast songToPlay[1];
+			if (songToPlay[0] != curSelected)
+			{
+				FlxG.sound.playMusic(realSongToPlay);
+
+				if (FlxG.sound.music.fadeTween != null)
+					FlxG.sound.music.fadeTween.cancel();
+
+				FlxG.sound.music.volume = 0.0;
+				FlxG.sound.music.fadeIn(1.0, 0.0, 1.0);
+
+				songToPlay = null;
+
+				// remove all previously loaded songs from memory
+				Paths.clearSoundsFromMemory();
+				System.gc();
+			}
+			else
+			{
+				trace("GONNA SKIP " + songToPlay[0]);
+			}
+		}
+		mutex.release();
 
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 
@@ -293,43 +311,22 @@ class FreeplayState extends MusicBeatState
 					var index:Null<Int> = Thread.readMessage(false);
 					if (index != null)
 					{
-						// TODO: find a way to fix the memory issue with spamming selection
-						if (threadSyncCheck(index))
+						if (index == curSelected && index != curSongPlaying)
 						{
-							if (threadSyncCheck(index) && !currentTrackedSongs.exists(index))
-							{
-								currentTrackedSongs.set(index, new FlxSound().loadEmbedded(Paths.inst(songs[curSelected].songName), true, true).play());
-								FlxG.sound.list.add(currentTrackedSongs.get(index));
-							}
+							// trace("Loading index " + index);
 
-							if (threadSyncCheck(index) && threadActive)
+							var inst:Sound = Paths.inst(songs[curSelected].songName);
+
+							if (threadActive)
 							{
 								mutex.acquire();
-
-								// kill unused songs so we will gain a little of memory
-								for (i in currentTrackedSongs.keys())
-								{
-									if (threadSyncCheck(index))
-									{
-										var song:FlxSound = currentTrackedSongs.get(i);
-										if (index == i)
-										{
-											song.revive();
-											song.play();
-										}
-										else
-											song.kill();
-									}
-								}
-
+								songToPlay = [index, inst];
 								mutex.release();
 
-								curSongPlaying = index;
-
-								// trace("Play index " + index);
+								curSongPlaying = curSelected;
 							}
 							else
-								trace("Thread no active, skipping " + index);
+								trace("Nevermind, skipping " + index);
 						}
 						else
 							trace("Skipping " + index);
@@ -339,11 +336,6 @@ class FreeplayState extends MusicBeatState
 		}
 
 		songThread.sendMessage(curSelected);
-	}
-
-	// stupid hack for keep thread sync
-	inline function threadSyncCheck(index:Int) {
-		return index == curSelected && index != curSongPlaying;
 	}
 }
 

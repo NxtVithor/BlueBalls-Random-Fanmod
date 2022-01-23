@@ -170,19 +170,22 @@ class Main extends Sprite
 	{
 		// Custom made Trans in
 		mainClassState = Type.getClass(target);
+		var swagSwitch = function()
+		{
+			// load the state
+			FlxG.switchState(target);
+		}
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
 			curState.openSubState(new FNFTransition(transSpeed, false));
-			FNFTransition.finishCallback = function()
-			{
-				FlxG.switchState(target);
-			};
-			// trace('changed state')
-			return;
+			FNFTransition.finishCallback = swagSwitch;
 		}
-		FlxTransitionableState.skipNextTransIn = false;
-		// load the state
-		FlxG.switchState(target);
+		else
+		{
+			FlxTransitionableState.skipNextTransIn = false;
+			swagSwitch();
+		}
+		// trace('changed state')
 	}
 
 	public static function updateFramerate(newFramerate:Int)
