@@ -1,11 +1,13 @@
 {
-    "name": "Tutorial",
-    "directory": "",
-    "songs": ["Tutorial"],
-    "freeplayIcons": ["gf"],
-    "storyMenuCharacters": ["", "gf", "bf"],
-    "color": [129, 100, 223],
-	"unlocked": true,
-    "hideWeek": false,
-    "hideOnFreeplay": []
+    "songs": [["Tutorial", "gf", [165, 0, 77]]],
+
+    "weekCharacters": ["", "gf", "bf"],
+
+    "storyName": "",
+    "weekBefore": "tutorial",
+    "weekName": "Tutorial",
+    "startUnlocked": true,
+
+    "hideStoryMode": false,
+    "hideFreeplay": false
 }

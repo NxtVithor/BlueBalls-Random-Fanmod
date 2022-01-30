@@ -7,43 +7,38 @@ using StringTools;
 
 typedef SwagWeek =
 {
-	var name:String;
-	var directory:String;
-
-	var songs:Array<String>;
-	var freeplayIcons:Array<String>;
-	var storyMenuCharacters:Array<String>;
-	var color:Array<Int>;
-	var unlocked:Bool;
-	var hideWeek:Bool;
-	var hideOnFreeplay:Array<String>;
+	var songs:Array<Array<Dynamic>>;
+	var weekCharacters:Array<String>;
+	var weekBefore:String;
+	var storyName:String;
+	var weekName:String;
+	var freeplayColor:Array<Int>;
+	var startUnlocked:Bool;
+	var hideStoryMode:Bool;
+	var hideFreeplay:Bool;
 };
 
-// enjoyable weeks unharcode
 class Week
 {
-	public var name:String = 'Test Week';
-	public var directory:String = '';
-
-	public var songs:Array<String> = ['Test'];
-	public var freeplayIcons:Array<String> = ['bf'];
-	public var storyMenuCharacters:Array<String> = ['', 'bf', 'gf'];
-	public var color:Array<Int> = [255, 255, 255];
-	public var unlocked:Bool = true;
-	public var hideWeek:Bool = false;
-	public var hideOnFreeplay:Array<String> = [];
+	public var songs:Array<Array<Dynamic>> = [['Test', 'bf', [255, 255, 255]]];
+	public var weekCharacters:Array<String> = ['', 'gf', 'bf'];
+	public var weekBefore:String = 'tutorial';
+	public var storyName:String = '';
+	public var weekName:String = 'Test';
+	public var startUnlocked:Bool = true;
+	public var hideStoryMode:Bool = false;
+	public var hideFreeplay:Bool = false;
 
 	public function new(weekFile:SwagWeek)
 	{
-		this.name = weekFile.name;
-		this.directory = weekFile.directory;
-		this.songs = weekFile.songs;
-		this.freeplayIcons = weekFile.freeplayIcons;
-		this.storyMenuCharacters = weekFile.storyMenuCharacters;
-		this.color = weekFile.color;
-		this.unlocked = weekFile.unlocked;
-		this.hideWeek = weekFile.hideWeek;
-		this.hideOnFreeplay = weekFile.hideOnFreeplay;
+		songs = weekFile.songs;
+		weekCharacters = weekFile.weekCharacters;
+		weekBefore = weekFile.weekBefore;
+		storyName = weekFile.storyName;
+		weekName = weekFile.weekName;
+		startUnlocked = weekFile.startUnlocked;
+		hideStoryMode = weekFile.hideStoryMode;
+		hideFreeplay = weekFile.hideFreeplay;
 	}
 
 	public static function loadFromJson(path:String):SwagWeek

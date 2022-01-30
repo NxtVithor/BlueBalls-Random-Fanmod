@@ -97,7 +97,7 @@ class StoryMenuState extends MusicBeatState
 			// weekThing.updateHitbox();
 
 			// Needs an offset thingie
-			if (!Main.weeks[i].unlocked)
+			if (!Main.weeks[i].startUnlocked)
 			{
 				var lock:FlxSprite = new FlxSprite(weekThing.width + 10 + weekThing.x);
 				lock.frames = ui_tex;
@@ -111,7 +111,7 @@ class StoryMenuState extends MusicBeatState
 
 		for (char in 0...3)
 		{
-			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, Main.weeks[curWeek].storyMenuCharacters[char]);
+			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, Main.weeks[curWeek].weekCharacters[char]);
 			weekCharacterThing.antialiasing = true;
 			switch (weekCharacterThing.character)
 			{
@@ -186,12 +186,12 @@ class StoryMenuState extends MusicBeatState
 
 		scoreText.text = "WEEK SCORE:" + lerpScore;
 
-		txtWeekTitle.text = Main.weeks[curWeek].name.toUpperCase();
+		txtWeekTitle.text = Main.weeks[curWeek].storyName.toUpperCase();
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		// FlxG.watch.addQuick('font', scoreText.font);
 
-		difficultySelectors.visible = Main.weeks[curWeek].unlocked;
+		difficultySelectors.visible = Main.weeks[curWeek].startUnlocked;
 
 		grpLocks.forEach(function(lock:FlxSprite)
 		{
@@ -243,7 +243,7 @@ class StoryMenuState extends MusicBeatState
 
 	function selectWeek()
 	{
-		if (Main.weeks[curWeek].unlocked)
+		if (Main.weeks[curWeek].startUnlocked)
 		{
 			if (stopspamming == false)
 			{
@@ -256,7 +256,8 @@ class StoryMenuState extends MusicBeatState
 				stopspamming = true;
 			}
 
-			PlayState.storyPlaylist = Main.weeks[curWeek].songs.copy();
+			for (song in Main.weeks[curWeek].songs)
+				PlayState.storyPlaylist.push(song[0]);
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
@@ -324,7 +325,7 @@ class StoryMenuState extends MusicBeatState
 		for (item in grpWeekText.members)
 		{
 			item.targetY = bullShit - curWeek;
-			if (item.targetY == Std.int(0) && Main.weeks[curWeek].unlocked)
+			if (item.targetY == Std.int(0) && Main.weeks[curWeek].startUnlocked)
 				item.alpha = 1;
 			else
 				item.alpha = 0.6;
@@ -341,16 +342,14 @@ class StoryMenuState extends MusicBeatState
 		for (i in 0...grpWeekCharacters.length)
 		{
 			// check if the said character is not already created
-			if (grpWeekCharacters.members[i].character != Main.weeks[curWeek].storyMenuCharacters[i])
-				grpWeekCharacters.members[i].createCharacter(Main.weeks[curWeek].storyMenuCharacters[i]);
+			if (grpWeekCharacters.members[i].character != Main.weeks[curWeek].weekCharacters[i])
+				grpWeekCharacters.members[i].createCharacter(Main.weeks[curWeek].weekCharacters[i]);
 		}
 
 		txtTracklist.text = "Tracks\n";
 
-		var stringThing:Array<String> = Main.weeks[curWeek].songs;
-		for (i in stringThing)
-			txtTracklist.text += "\n" + i;
-
+		for (song in Main.weeks[curWeek].songs)
+			txtTracklist.text += "\n" + song[0];
 		txtTracklist.text += "\n"; // pain
 		txtTracklist.text = txtTracklist.text.toUpperCase();
 

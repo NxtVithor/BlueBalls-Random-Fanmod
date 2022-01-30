@@ -139,7 +139,7 @@ class PauseSubState extends MusicBeatSubState
 				case "Restart Song":
 					Main.switchState(this, new PlayState());
 				case "Exit to menu":
-					PlayState.resetMusic();
+					ForeverTools.resetMenuMusic();
 
 					if (PlayState.isStoryMode)
 						Main.switchState(this, new StoryMenuState());

@@ -1,11 +1,17 @@
 {
-    "name": "MOMMY MUST MURDER",
-    "directory": "",
-    "songs": ["Satin-Panties", "High", "Milf"],
-    "freeplayIcons": ["mom"],
-    "storyMenuCharacters": ["mom", "gf", "bf"],
-    "color": [203, 113, 170],
-	"unlocked": true,
-    "hideWeek": false,
-    "hideOnFreeplay": []
+    "songs": [
+        ["Satin Panties", "mom", [252, 150, 215]],
+        ["High", "mom", [252, 150, 215]],
+        ["Milf", "mom", [252, 150, 215]]
+    ],
+
+    "weekCharacters": ["mom", "gf", "bf"],
+
+    "storyName": "MOMMY MUST MURDER",
+    "weekBefore": "week3",
+    "weekName": "Week 4",
+    "startUnlocked": true,
+
+    "hideStoryMode": false,
+    "hideFreeplay": false
 }

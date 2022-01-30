@@ -1,13 +1,17 @@
 {
-    "name": "hating simulator ft. moawling",
-    "directory": "",
-    "songs": ["Senpai", "Roses", "Thorns"],
-    "freeplayIcons": [
-        "senpai", "senpai", "spirit"
+    "songs": [
+        ["Senpai", "senpai", [255, 120, 191]],
+        ["Roses", "senpai", [255, 120, 191]],
+        ["Thorns", "spirit", [255, 120, 191]]
     ],
-    "storyMenuCharacters": ["senpai", "gf", "bf"],
-    "color": [206, 106, 169],
-	"unlocked": true,
-    "hideWeek": false,
-    "hideOnFreeplay": []
+
+    "weekCharacters": ["senpai", "gf", "bf"],
+
+    "storyName": "hating simulator ft. moawling",
+    "weekBefore": "week5",
+    "weekName": "Week 6",
+    "startUnlocked": true,
+
+    "hideStoryMode": false,
+    "hideFreeplay": false
 }

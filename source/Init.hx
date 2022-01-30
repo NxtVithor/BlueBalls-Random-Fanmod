@@ -122,7 +122,7 @@ class Init extends FlxState
 			['none', 'Deuteranopia', 'Protanopia', 'Tritanopia']
 		],
 		"Clip Style" => [
-			'stepmania',
+			'fnf',
 			Selector,
 			"Chooses a style for hold note clippings; StepMania: Holds under Receptors; FNF: Holds over receptors",
 			NOT_FORCED,
@@ -138,14 +138,14 @@ class Init extends FlxState
 		"Note Skin" => ['default', Selector, 'Choose a note skin.', NOT_FORCED, ''],
 		"Framerate Cap" => [120, Selector, 'Define your maximum FPS.', NOT_FORCED, ['']],
 		"Opaque Arrows" => [
-			false,
+			true,
 			Checkmark,
 			"Makes the arrows at the top of the screen opaque again.",
 			NOT_FORCED
 		],
 		"Opaque Holds" => [false, Checkmark, "Huh, why isnt the trail cut off?", NOT_FORCED],
 		'Ghost Tapping' => [
-			false,
+			true,
 			Checkmark,
 			"Enables Ghost Tapping, allowing you to press inputs without missing.",
 			NOT_FORCED

@@ -1,11 +1,17 @@
 {
-    "name": "vs. Pico",
-    "directory": "",
-    "songs": ["Pico", "Philly-Nice", "Blammed"],
-    "freeplayIcons": ["pico"],
-    "storyMenuCharacters": ["pico", "gf", "bf"],
-    "color": [111, 19, 60],
-	"unlocked": true,
-    "hideWeek": false,
-    "hideOnFreeplay": []
+    "songs": [
+        ["Pico", "pico", [148, 22, 83]],
+        ["Philly Nice", "pico", [148, 22, 83]],
+        ["Blammed", "pico", [148, 22, 83]]
+    ],
+
+    "weekCharacters": ["pico", "gf", "bf"],
+
+    "storyName": "PICO",
+    "weekBefore": "week2",
+    "weekName": "Week 3",
+    "startUnlocked": true,
+
+    "hideStoryMode": false,
+    "hideFreeplay": false
 }

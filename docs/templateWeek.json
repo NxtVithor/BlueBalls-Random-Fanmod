@@ -1,11 +1,13 @@
 {
-    "name": "Template Week",
-    "directory": "",
-    "songs": ["Test"],
-    "freeplayIcons": ["face"],
-    "storyMenuCharacters": ["", "gf", "bf"],
-    "color": [255, 255, 255],
-	"unlocked": true,
-    "hideWeek": false,
-    "hideOnFreeplay": []
+    "songs": [["Test", "bf", [255, 255, 255]]],
+
+    "weekCharacters": ["", "gf", "bf"],
+
+    "storyName": "",
+    "weekBefore": "tutorial",
+    "weekName": "Test",
+    "startUnlocked": true,
+
+    "hideStoryMode": false,
+    "hideFreeplay": false
 }

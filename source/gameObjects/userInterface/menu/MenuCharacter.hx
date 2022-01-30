@@ -17,11 +17,11 @@ class MenuCharacter extends FlxSprite
 		'bfConfirm' => ['BF HEY!!', 24, false, 0.9, 0, 0],
 		'gf' => ["GF Dancing Beat WHITE", 24, true, 1, 25, 75],
 		'dad' => ["Dad idle dance BLACK LINE", 24, true, 0.5, 0, 0],
-		'spooky' => ["spooky dance idle BLACK LINES", 24, true, 0.5, 0, 90],
-		'pico' => ["Pico Idle Dance", 24, true, 0.5, 0, 100],
+		'spooky' => ["spooky dance idle BLACK LINES", 24, true, 0.5, -25, 90],
+		'pico' => ["Pico Idle Dance", 24, true, 0.5, -25, 100],
 		'mom' => ["Mom Idle BLACK LINES", 24, true, 0.4, 10, 5],
 		'parents-christmas' => ["Parent Christmas Idle", 24, true, 0.8, -100, 50],
-		'senpai' => ["SENPAI idle Black Lines", 24, true, 1.4 * 0.5, -50, 100],
+		'senpai' => ["SENPAI idle Black Lines", 24, true, 1.4 * 0.5, -50, 50],
 	];
 
 	var baseX:Float = 0;

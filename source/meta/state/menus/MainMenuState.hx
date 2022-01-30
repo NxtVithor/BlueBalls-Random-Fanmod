@@ -129,7 +129,7 @@ class MainMenuState extends MusicBeatState
 		updateSelection();
 
 		// from the base game lol
-		var versionShit:FlxText = new FlxText(10, FlxG.height - 25, 0,
+		var versionShit:FlxText = new FlxText(5, FlxG.height - 25, 0,
 			"Forever Modding v" + Main.gameVersion + " - Forever Engine v" + Main.foreverEngineVersion, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);

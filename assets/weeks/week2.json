@@ -1,11 +1,17 @@
 {
-    "name": "Spooky Month",
-    "directory": "",
-    "songs": ["Spookeez", "South", "Monster"],
-    "freeplayIcons": ["spooky", "spooky", "monster"],
-    "storyMenuCharacters": ["spooky", "gf", "bf"],
-    "color": [30, 45, 60],
-	"unlocked": true,
-    "hideWeek": false,
-    "hideOnFreeplay": []
+    "songs": [
+        ["Spookeez", "spooky", [34, 51, 68]],
+        ["South", "spooky", [34, 51, 68]],
+        ["Monster", "monster", [34, 51, 68]]
+    ],
+
+    "weekCharacters": ["spooky", "gf", "bf"],
+
+    "storyName": "Spooky Month",
+    "weekBefore": "week1",
+    "weekName": "Week 2",
+    "startUnlocked": true,
+
+    "hideStoryMode": false,
+    "hideFreeplay": false
 }

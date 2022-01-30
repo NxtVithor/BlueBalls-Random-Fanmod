@@ -1472,10 +1472,8 @@ class PlayState extends MusicBeatState
 		stageBuild.stageUpdate(curBeat, boyfriend, gf, dadOpponent);
 	}
 
-	/// substate stuffs
-	public static function resetMusic()
+	static function resetMusic()
 	{
-		// simply stated, resets the playstate's music for other states and substates
 		if (songMusic != null)
 			songMusic.stop();
 
