@@ -191,8 +191,7 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 	public function createSplash(coolNote:Note)
 	{
 		// play animation in existing notesplashes
-		var noteSplashRandom:String = Std.string(FlxG.random.int(0, 1) + 1);
-		splashNotes.members[coolNote.noteData].playAnim('anim' + noteSplashRandom);
+		splashNotes.members[coolNote.noteData].playAnim('anim' + Std.string(FlxG.random.int(0, 1) + 1));
 	}
 
 	public function push(newNote:Note)

@@ -61,17 +61,27 @@ class GameOverSubstate extends MusicBeatSubState
 	{
 		super.update(elapsed);
 
-		if (controls.ACCEPT)
-			endBullshit();
+		if (controls.ACCEPT && !isEnding)
+		{
+			isEnding = true;
+			bf.playAnim('deathConfirm', true);
+			FlxG.sound.music.stop();
+			FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
+			new FlxTimer().start(0.7, function(tmr:FlxTimer)
+			{
+				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
+				{
+					Main.switchState(this, new PlayState());
+				});
+			});
+		}
 
 		if (controls.BACK)
 		{
 			FlxG.sound.music.stop();
 
 			if (PlayState.isStoryMode)
-			{
 				Main.switchState(this, new StoryMenuState());
-			}
 			else
 				Main.switchState(this, new FreeplayState());
 		}
@@ -86,31 +96,5 @@ class GameOverSubstate extends MusicBeatSubState
 		//	Conductor.songPosition = FlxG.sound.music.time;
 	}
 
-	override function beatHit()
-	{
-		super.beatHit();
-
-		FlxG.log.add('beat');
-	}
-
 	var isEnding:Bool = false;
-
-	function endBullshit():Void
-	{
-		if (!isEnding)
-		{
-			isEnding = true;
-			bf.playAnim('deathConfirm', true);
-			FlxG.sound.music.stop();
-			FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
-			new FlxTimer().start(0.7, function(tmr:FlxTimer)
-			{
-				FlxG.camera.fade(FlxColor.BLACK, 1, false, function()
-				{
-					Main.switchState(this, new PlayState());
-				});
-			});
-			//
-		}
-	}
 }

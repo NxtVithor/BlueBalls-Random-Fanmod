@@ -1,5 +1,6 @@
 package meta.state.menus;
 
+import openfl.media.Sound;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -12,7 +13,6 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
 import meta.data.dependency.Discord;
 import meta.data.font.Alphabet;
-import openfl.media.Sound;
 import openfl.system.System;
 import sys.FileSystem;
 import sys.thread.Mutex;
@@ -36,10 +36,9 @@ class FreeplayState extends MusicBeatState
 	var songThread:Thread;
 	var threadActive:Bool = true;
 	var mutex:Mutex;
-	var songToPlay:Array<Dynamic> = [];
+	var songToPlay:Sound;
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
-	private var curPlaying:Bool = false;
 
 	private var iconArray:Array<HealthIcon> = [];
 
@@ -53,10 +52,6 @@ class FreeplayState extends MusicBeatState
 	override function create()
 	{
 		super.create();
-
-		/**
-			Wanna add songs? They're in your weeks files, so they are automatically loaded for you!.
-		**/
 
 		// reload weeks list
 		Main.weeks = ForeverAssets.generateWeeksList();
@@ -203,6 +198,21 @@ class FreeplayState extends MusicBeatState
 		scoreBG.width = scoreText.width + 8;
 		scoreBG.x = FlxG.width - scoreBG.width;
 		diffText.x = scoreBG.x + (scoreBG.width / 2) - (diffText.width / 2);
+
+		if (songToPlay != null)
+		{
+			FlxG.sound.playMusic(songToPlay);
+
+			if (FlxG.sound.music.fadeTween != null)
+				FlxG.sound.music.fadeTween.cancel();
+
+			FlxG.sound.music.volume = 0.0;
+			FlxG.sound.music.fadeIn(1.0, 0.0, 1.0);
+
+			songToPlay = null;
+
+			Paths.clearUnusedMemory();
+		}
 	}
 
 	var lastDifficulty:String;
@@ -235,33 +245,6 @@ class FreeplayState extends MusicBeatState
 			curSelected = songs.length - 1;
 		if (curSelected >= songs.length)
 			curSelected = 0;
-
-		mutex.acquire();
-		if (songToPlay[1] != null)
-		{
-			var realSongToPlay:Sound = cast songToPlay[1];
-			if (songToPlay[0] != curSelected)
-			{
-				FlxG.sound.playMusic(realSongToPlay);
-
-				if (FlxG.sound.music.fadeTween != null)
-					FlxG.sound.music.fadeTween.cancel();
-
-				FlxG.sound.music.volume = 0.0;
-				FlxG.sound.music.fadeIn(1.0, 0.0, 1.0);
-
-				songToPlay = null;
-
-				// remove all previously loaded songs from memory
-				Paths.clearSoundsFromMemory();
-				System.gc();
-			}
-			else
-			{
-				trace("GONNA SKIP " + songToPlay[0]);
-			}
-		}
-		mutex.release();
 
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 
@@ -303,24 +286,17 @@ class FreeplayState extends MusicBeatState
 				while (true)
 				{
 					if (!threadActive)
-					{
-						trace("Killing thread");
 						return;
-					}
 
 					var index:Null<Int> = Thread.readMessage(false);
 					if (index != null)
 					{
 						if (index == curSelected && index != curSongPlaying)
 						{
-							// trace("Loading index " + index);
-
-							var inst:Sound = Paths.inst(songs[curSelected].songName);
-
 							if (threadActive)
 							{
 								mutex.acquire();
-								songToPlay = [index, inst];
+								songToPlay = Paths.inst(songs[curSelected].songName);
 								mutex.release();
 
 								curSongPlaying = curSelected;

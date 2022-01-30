@@ -194,7 +194,6 @@ class OriginalChartingState extends MusicBeatState
 		check_voices.callback = function()
 		{
 			_song.needsVoices = check_voices.checked;
-			trace('CHECKED!');
 		};
 
 		var check_mute_inst = new FlxUICheckBox(10, 200, null, null, "Mute Instrumental (in editor)", 100);
@@ -511,14 +510,8 @@ class OriginalChartingState extends MusicBeatState
 
 		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
 		{
-			trace(curStep);
-			trace(_song.notes[curSection].lengthInSteps * (curSection + 1));
-			trace('DUMBSHIT');
-
 			if (_song.notes[curSection + 1] == null)
-			{
 				addSection();
-			}
 
 			changeSection(curSection + 1, false);
 		}
@@ -535,14 +528,9 @@ class OriginalChartingState extends MusicBeatState
 					if (FlxG.mouse.overlaps(note))
 					{
 						if (FlxG.keys.pressed.CONTROL)
-						{
 							selectNote(note);
-						}
 						else
-						{
-							trace('tryin to delete note...');
 							deleteNote(note);
-						}
 					}
 				});
 			}
@@ -762,8 +750,6 @@ class OriginalChartingState extends MusicBeatState
 
 	function changeSection(sec:Int = 0, ?updateMusic:Bool = true):Void
 	{
-		trace('changing section' + sec);
-
 		if (_song.notes[sec] != null)
 		{
 			curSection = sec;
@@ -993,9 +979,6 @@ class OriginalChartingState extends MusicBeatState
 			_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteType]);
 		}
 
-		trace(noteStrum);
-		trace(curSection);
-
 		updateGrid();
 		updateNoteUI();
 
@@ -1036,11 +1019,6 @@ class OriginalChartingState extends MusicBeatState
 			return daLength;
 	}*/
 	private var daSpacing:Float = 0.3;
-
-	function loadLevel():Void
-	{
-		trace(_song.notes);
-	}
 
 	function getNotes():Array<Dynamic>
 	{

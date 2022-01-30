@@ -37,7 +37,7 @@ class InfoHud extends TextField
 		selectable = false;
 		mouseEnabled = false;
 		// might as well have made it comic sans
-		defaultTextFormat = new TextFormat(Paths.font("vcr.ttf"), 14, color);
+		defaultTextFormat = new TextFormat(Paths.font("vcr.ttf"), 16, color);
 		// set text area for the time being
 		width = Main.gameWidth;
 		height = Main.gameHeight;

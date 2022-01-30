@@ -93,11 +93,6 @@ class Paths
 	public static function clearStoredMemory()
 	{
 		// clear anything not in the tracked assets and sounds lists
-		clearAssetsFromMemory();
-		clearSoundsFromMemory();
-	}
-
-	public static function clearAssetsFromMemory() {
 		@:privateAccess
 		for (key in FlxG.bitmap._cache.keys())
 		{
@@ -110,12 +105,10 @@ class Paths
 			}
 			localTrackedAssets.remove(key);
 		}
-	}
 
-	public static function clearSoundsFromMemory() {
+		// clear all sounds that are cached
 		for (key in currentTrackedSounds.keys())
 		{
-			trace(key);
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && key != null)
 			{
 				Assets.cache.clear(key);
@@ -123,6 +116,9 @@ class Paths
 				localTrackedAssets.remove(key);
 			}
 		}
+
+		// flags everything to be cleared out next unused memory clear
+		localTrackedAssets = [];
 	}
 
 	public static function returnGraphic(key:String, ?library:String, ?textureCompression:Bool = false)

@@ -121,13 +121,12 @@ class ForeverAssets
 			noteData:Int):NoteSplash
 	{
 		var tempSplash:NoteSplash = new NoteSplash(noteData);
-		var fps:Int = 17;
 		switch (assetModifier)
 		{
 			case 'pixel':
 				tempSplash.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('splash-pixel', assetModifier, changeableSkin, baseLibrary)), true, 34, 34);
-				tempSplash.animation.add('anim1', [noteData, 4 + noteData, 8 + noteData, 12 + noteData], fps, false);
-				tempSplash.animation.add('anim2', [16 + noteData, 20 + noteData, 24 + noteData, 28 + noteData], fps, false);
+				tempSplash.animation.add('anim1', [noteData, 4 + noteData, 8 + noteData, 12 + noteData], 24, false);
+				tempSplash.animation.add('anim2', [16 + noteData, 20 + noteData, 24 + noteData, 28 + noteData], 24, false);
 				tempSplash.animation.play('anim1');
 				tempSplash.addOffset('anim1', -120, -90);
 				tempSplash.addOffset('anim2', -120, -90);
@@ -142,14 +141,14 @@ class ForeverAssets
 					16 + (noteData * 2 + 1),
 					24 + (noteData * 2 + 1),
 					32 + (noteData * 2 + 1)
-				], fps, false);
+				], 24, false);
 				tempSplash.animation.add('anim2', [
 					(noteData * 2),
 					8 + (noteData * 2),
 					16 + (noteData * 2),
 					24 + (noteData * 2),
 					32 + (noteData * 2)
-				], fps, false);
+				], 24, false);
 				tempSplash.animation.play('anim1');
 				tempSplash.addOffset('anim1', -20, -10);
 				tempSplash.addOffset('anim2', -20, -10);

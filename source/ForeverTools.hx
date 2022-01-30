@@ -13,13 +13,11 @@ import sys.FileSystem;
 class ForeverTools
 {
 	// set up maps and stuffs
-	public static function resetMenuMusic(resetVolume:Bool = false, setVolumeToFull = false)
+	public static function resetMenuMusic(resetVolume:Bool = false, forceMusicToPlay:Bool = false)
 	{
-		// make sure the music is playing
-		if ((FlxG.sound.music != null && !FlxG.sound.music.playing) || FlxG.sound.music == null)
-		{
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), setVolumeToFull ? 1 : (resetVolume ? 0 : 0.7));
-			if (!setVolumeToFull && resetVolume)
+		if (forceMusicToPlay || FlxG.sound.music == null) {
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), resetVolume ? 0 : 0.7);
+			if (resetVolume)
 				FlxG.sound.music.fadeIn(4, 0, 0.7);
 			// placeholder bpm
 			Conductor.changeBPM(102);

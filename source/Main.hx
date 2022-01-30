@@ -1,14 +1,10 @@
 package;
 
 import meta.data.Week;
-import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxGame;
-import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.addons.transition.FlxTransitionableState;
-import flixel.util.FlxColor;
-import haxe.CallStack.StackItem;
 import haxe.CallStack;
 import haxe.io.Path;
 import lime.app.Application;
@@ -16,12 +12,8 @@ import meta.*;
 import meta.data.PlayerSettings;
 import meta.data.dependency.Discord;
 import meta.data.dependency.FNFTransition;
-import meta.data.dependency.FNFUIState;
-import openfl.Assets;
 import openfl.Lib;
-import openfl.display.FPS;
 import openfl.display.Sprite;
-import openfl.events.Event;
 import openfl.events.UncaughtErrorEvent;
 import sys.FileSystem;
 import sys.io.File;
@@ -33,6 +25,7 @@ import sys.io.Process;
 class Main extends Sprite
 {
 	/*
+		Note from Shubs:
 		This is the main class of the project, it basically connects everything together.
 		If you know what you're doing, go ahead and shoot! if you're looking for something more specific, however,
 		try accessing some game objects or meta files, meta files control the information (say what's playing on screen)
@@ -64,7 +57,17 @@ class Main extends Sprite
 
 		if you have any questions like I said, shoot me a message or something, I'm totally cool with it even if it's just help with programming or something
 		>	fair warning I'm not a very good programmer
-	 */
+
+		Note from Stilic:
+		This is a unofficial fork of Forever Engine.
+		This was intended to be a pull request for the original engine.
+		But because the owner of FE doesn't wanted to have merge it, I prefered to keep it as a separate thing.
+
+		It was created for adding some new cool features related to in-game modding (It supports anyways original source code modding, like the original FE).
+		I try to keep the same codebase, so merging the upstream code is easier for me.
+
+		If you have any questions, ask them on Discord (Stilic#5989).
+	*/
 	// class action variables
 	public static var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	public static var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
@@ -72,13 +75,12 @@ class Main extends Sprite
 	public static var mainClassState:Class<FlxState> = Init; // Determine the main class state of the game
 	public static var framerate:Int = 120; // How many frames per second the game should run at.
 
-	public static var gameVersion:String = '0.3';
+	public static var gameVersion:String = '1.0';
+	public static var foreverEngineVersion:String = '0.3';
 
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var infoCounter:InfoHud; // Initialize the heads up display that shows information before creating it.
-
-	public static var transSpeed:Float = 0.25; // The speed of each trans-in and trans-out in seconds (1 transition = transSpeed * 2 + [the loading time]).
 
 	// set up weeks list
 	public static var weeks:Array<Week> = [];
@@ -130,9 +132,7 @@ class Main extends Sprite
 		FlxTransitionableState.skipNextTransIn = true;
 
 		// here we set up the base game
-		var gameCreate:FlxGame;
-		gameCreate = new FlxGame(gameWidth, gameHeight, mainClassState, zoom, framerate, framerate, skipSplash);
-		addChild(gameCreate); // and create it afterwards
+		addChild(new FlxGame(gameWidth, gameHeight, mainClassState, zoom, framerate, framerate, skipSplash)); // and create it afterwards
 
 		// default game FPS settings, I'll probably comment over them later.
 		// addChild(new FPS(10, 3, 0xFFFFFF));
@@ -177,7 +177,7 @@ class Main extends Sprite
 		}
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
-			curState.openSubState(new FNFTransition(transSpeed, false));
+			curState.openSubState(new FNFTransition(0.6, false));
 			FNFTransition.finishCallback = swagSwitch;
 		}
 		else

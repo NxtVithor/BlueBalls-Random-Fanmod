@@ -3,8 +3,6 @@ package meta.data.dependency;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.transition.Transition;
-import flixel.addons.transition.TransitionData;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;

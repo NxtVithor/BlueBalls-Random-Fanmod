@@ -115,8 +115,6 @@ class PlayState extends MusicBeatState
 
 	public static var defaultCamZoom:Float = 1.05;
 
-	var camMoving:Bool = false;
-
 	public static var forceZoom:Array<Float>;
 
 	public static var songScore:Int = 0;
@@ -186,8 +184,10 @@ class PlayState extends MusicBeatState
 
 		FlxG.cameras.reset(camGame);
 		FlxCamera.defaultCameras = [camGame];
-		FlxG.cameras.add(camHUD);
 		allUIs.push(camHUD);
+
+		persistentUpdate = true;
+		persistentDraw = true;
 
 		// default song
 		if (SONG == null)
@@ -337,6 +337,9 @@ class PlayState extends MusicBeatState
 			// set this strumline's camera to the designated camera
 			strumLines.members[i].cameras = [strumHUD[i]];
 		}
+
+		FlxG.cameras.add(camHUD);
+
 		add(strumLines);
 
 		uiHUD = new ClassHUD();
@@ -510,13 +513,9 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.keys.enabled && !paused && (FlxG.state.active || FlxG.state.persistentUpdate))
 		{
-			resetCamMove();
-
 			// receptor reset
 			if (key >= 0 && boyfriendStrums.receptors.members[key] != null)
-			{
 				boyfriendStrums.receptors.members[key].playAnim('static');
-			}
 		}
 	}
 
@@ -543,8 +542,6 @@ class PlayState extends MusicBeatState
 
 		super.destroy();
 	}
-
-	var staticDisplace:Int = 0;
 
 	var lastSection:Int = 0;
 
@@ -598,6 +595,7 @@ class PlayState extends MusicBeatState
 			if (FlxG.keys.justPressed.SEVEN && !startingSong)
 			{
 				resetMusic();
+				persistentUpdate = false;
 				if (Init.trueSettings.get('Use Forever Chart Editor'))
 					Main.switchState(this, new ChartingState());
 				else
@@ -641,7 +639,6 @@ class PlayState extends MusicBeatState
 			}
 
 			// boyfriend.playAnim('singLEFT', true);
-			// */
 
 			if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
 			{
@@ -651,9 +648,11 @@ class PlayState extends MusicBeatState
 					// section reset stuff
 					var lastMustHit:Bool = PlayState.SONG.notes[lastSection].mustHitSection;
 					if (PlayState.SONG.notes[curSection].mustHitSection != lastMustHit)
-						resetCamMove();
-
-					lastSection = Std.int(curStep / 16);
+					{
+						camDisplaceX = 0;
+						camDisplaceY = 0;
+					}
+					lastSection = curSection;
 				}
 			}
 
@@ -862,16 +861,22 @@ class PlayState extends MusicBeatState
 					if (doKill)
 						destroyNote(strumline, daNote);
 				});
+
+				// unoptimised asf camera control based on strums
+				strumCameraRoll(strumline.receptors, (strumline == boyfriendStrums));
 			}
 		}
 
 		// reset bf's animation
 		var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-		if ((boyfriend != null && boyfriend.animation != null)
-			&& (boyfriend.holdTimer > Conductor.stepCrochet * (4 / 1000) && (!holdControls.contains(true) || boyfriendStrums.autoplay)))
+
+		if (boyfriend != null
+			&& boyfriend.animation != null
+			&& boyfriend.holdTimer > Conductor.stepCrochet * 4 / 1000
+			&& (!holdControls.contains(true) || boyfriendStrums.autoplay)
+			&& (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')))
 		{
-			if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
-				boyfriend.dance();
+			boyfriend.dance();
 		}
 	}
 
@@ -900,26 +905,6 @@ class PlayState extends MusicBeatState
 			characterPlayAnimation(coolNote, character);
 			if (characterStrums.receptors.members[coolNote.noteData] != null)
 				characterStrums.receptors.members[coolNote.noteData].playAnim('confirm', true);
-
-			// camera control shit
-			if (!Init.trueSettings.get('No Camera Note Movement'))
-			{
-				var camDisplaceExtend:Float = 15;
-
-				resetCamMove();
-
-				switch (coolNote.noteData)
-				{
-					case 0:
-						camDisplaceX -= camDisplaceExtend;
-					case 3:
-						camDisplaceX += camDisplaceExtend;
-					case 1:
-						camDisplaceY += camDisplaceExtend;
-					case 2:
-						camDisplaceY -= camDisplaceExtend;
-				}
-			}
 
 			// special thanks to sam, they gave me the original system which kinda inspired my idea for this new one
 			if (canDisplayJudgement)
@@ -1011,13 +996,6 @@ class PlayState extends MusicBeatState
 		character.holdTimer = 0;
 	}
 
-	function resetCamMove()
-	{
-		camDisplaceX = 0;
-		camDisplaceY = 0;
-		camMoving = false;
-	}
-
 	private function strumCallsAuto(cStrum:UIStaticArrow, ?callType:Int = 1, ?daNote:Note):Void
 	{
 		switch (callType)
@@ -1105,6 +1083,32 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	private function strumCameraRoll(cStrum:FlxTypedGroup<UIStaticArrow>, mustHit:Bool)
+	{
+		if (!Init.trueSettings.get('No Camera Note Movement'))
+		{
+			var camDisplaceExtend:Float = 15;
+			if (PlayState.SONG.notes[Std.int(curStep / 16)] != null)
+			{
+				if ((PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && mustHit)
+					|| (!PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && !mustHit))
+				{
+					camDisplaceX = 0;
+					if (cStrum.members[0].animation.curAnim.name == 'confirm')
+						camDisplaceX -= camDisplaceExtend;
+					if (cStrum.members[3].animation.curAnim.name == 'confirm')
+						camDisplaceX += camDisplaceExtend;
+
+					camDisplaceY = 0;
+					if (cStrum.members[1].animation.curAnim.name == 'confirm')
+						camDisplaceY += camDisplaceExtend;
+					if (cStrum.members[2].animation.curAnim.name == 'confirm')
+						camDisplaceY -= camDisplaceExtend;
+				}
+			}
+		}
+	}
+
 	override public function onFocus():Void
 	{
 		if (!paused)
@@ -1162,9 +1166,8 @@ class PlayState extends MusicBeatState
 	public function createSplash(coolNote:Note, strumline:Strumline)
 	{
 		// play animation in existing notesplashes
-		var noteSplashRandom:String = Std.string(FlxG.random.int(0, 1) + 1);
 		if (strumline.splashNotes != null)
-			strumline.splashNotes.members[coolNote.noteData].playAnim('anim' + noteSplashRandom, true);
+			strumline.splashNotes.members[coolNote.noteData].playAnim('anim' + Std.string(FlxG.random.int(0, 1) + 1), true);
 	}
 
 	private var createdColor = FlxColor.fromRGB(204, 66, 66);
@@ -1409,7 +1412,7 @@ class PlayState extends MusicBeatState
 
 	function resyncVocals():Void
 	{
-		trace('resyncing vocal time ${vocals.time}');
+		// trace('resyncing vocal time ${vocals.time}');
 		songMusic.pause();
 		vocals.pause();
 		Conductor.songPosition = songMusic.time;
@@ -1432,12 +1435,11 @@ class PlayState extends MusicBeatState
 			gf.dance();
 
 		if ((boyfriend.animation.curAnim.name.startsWith("idle") || boyfriend.animation.curAnim.name.startsWith("dance"))
-			&& (curBeat % 4 == 0 || boyfriend.characterData.quickDancer))
+			&& (curBeat % 2 == 0 || boyfriend.characterData.quickDancer))
 			boyfriend.dance();
 
-		// added this for opponent cus it wasn't here before and skater would just freeze
 		if ((dadOpponent.animation.curAnim.name.startsWith("idle") || dadOpponent.animation.curAnim.name.startsWith("dance"))
-			&& (curBeat % 4 == 0 || dadOpponent.characterData.quickDancer))
+			&& (curBeat % 2 == 0 || dadOpponent.characterData.quickDancer))
 			dadOpponent.dance();
 	}
 
@@ -1459,7 +1461,7 @@ class PlayState extends MusicBeatState
 		{
 			FlxG.camera.zoom += 0.015;
 			for (hud in allUIs)
-				hud.zoom += 0.045;
+				hud.zoom += 0.03;
 		}
 
 		uiHUD.beatHit();
@@ -1526,7 +1528,6 @@ class PlayState extends MusicBeatState
 	/*
 		Extra functions and stuffs
 	 */
-	// fun cam utils
 	function snapCamFollowToPos(x:Float, y:Float)
 	{
 		camFollow.set(x, y);
@@ -1542,30 +1543,22 @@ class PlayState extends MusicBeatState
 
 	public function moveCamera(isDad:Bool)
 	{
-		// fix the cringe moves of camera when multiples characters sings at same time
-		var displaceArray:Array<Float> = [camDisplaceX, camDisplaceY];
-		if (camMoving)
-		{
-			displaceArray = [0, 0];
-			camMoving = false;
-		}
+		var char:Character = boyfriend;
+
+		var getCenterX:Float = 0;
+		var getCenterY:Float = 0;
 
 		if (isDad)
 		{
-			var char = dadOpponent;
+			char = dadOpponent;
 
-			var getCenterX = char.getMidpoint().x + 100;
-			var getCenterY = char.getMidpoint().y - 100;
-
-			camFollow.x = getCenterX + displaceArray[0] + char.characterData.camOffsetX;
-			camFollow.y = getCenterY + displaceArray[1] + char.characterData.camOffsetY;
+			getCenterX = char.getMidpoint().x + 100;
+			getCenterY = char.getMidpoint().y - 100;
 		}
 		else
 		{
-			var char = boyfriend;
-
-			var getCenterX = char.getMidpoint().x - 100;
-			var getCenterY = char.getMidpoint().y - 100;
+			getCenterX = char.getMidpoint().x - 100;
+			getCenterY = char.getMidpoint().y - 100;
 			switch (curStage)
 			{
 				case 'limo':
@@ -1579,10 +1572,10 @@ class PlayState extends MusicBeatState
 					getCenterX = char.getMidpoint().x - 200;
 					getCenterY = char.getMidpoint().y - 200;
 			}
-
-			camFollow.x = getCenterX + displaceArray[0] - char.characterData.camOffsetX;
-			camFollow.y = getCenterY + displaceArray[1] + char.characterData.camOffsetY;
 		}
+
+		camFollow.x = getCenterX + camDisplaceX + char.characterData.camOffsetX;
+		camFollow.y = getCenterY + camDisplaceY + char.characterData.camOffsetY;
 	}
 
 	/// song end function at the end of the playstate lmao ironic I guess
@@ -1598,6 +1591,7 @@ class PlayState extends MusicBeatState
 
 		if (!isStoryMode)
 		{
+			persistentUpdate = false;
 			Main.switchState(this, new FreeplayState());
 		}
 		else
@@ -1619,6 +1613,8 @@ class PlayState extends MusicBeatState
 				transOut = FlxTransitionableState.defaultTransOut;
 
 				prevCamFollow = camFollow;
+
+				persistentUpdate = false;
 
 				// change to the menu state
 				Main.switchState(this, new StoryMenuState());
@@ -1652,7 +1648,8 @@ class PlayState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('Lights_Shut_off'));
 
 				// call the song end
-				var eggnogEndTimer:FlxTimer = new FlxTimer().start(Conductor.crochet / 1000, function(timer:FlxTimer) {
+				new FlxTimer().start(Conductor.crochet / 1000, function(timer:FlxTimer)
+				{
 					callDefaultSongEnd();
 				}, 1);
 
@@ -1671,6 +1668,8 @@ class PlayState extends MusicBeatState
 
 		PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
 		ForeverTools.killMusic([songMusic, vocals]);
+
+		persistentUpdate = false;
 
 		// deliberately did not use the main.switchstate as to not unload the assets
 		FlxG.switchState(new PlayState());
