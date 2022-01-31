@@ -23,7 +23,9 @@ typedef SwagWeek =
 class Week
 {
 	public static var loadedWeeks:Array<Week> = [];
-	public static var weeksList:Array<String> = [];
+
+	// used for menu item
+	public static var weeksNames:Array<String> = [];
 
 	public var songs:Array<Array<Dynamic>> = [['Test', 'bf', [255, 255, 255]]];
 	public var weekCharacters:Array<String> = ['', 'gf', 'bf'];
@@ -46,12 +48,18 @@ class Week
 		hideFreeplay = weekFile.hideFreeplay;
 	}
 
+	public static function loadFromJson(path:String):SwagWeek
+	{
+		var rawJson:String = CoolUtil.formatJson(File.getContent(path).trim());
+		return cast Json.parse(rawJson);
+	}
+
 	public static function loadWeeks()
 	{
 		var weeksFilesList:Array<String> = FileSystem.readDirectory('assets/weeks');
 
-		// custom modded week code because the original one is incomplete for our case
 		#if MODS_ALLOWED
+		// check for modded weeks
 		var moddedWeeksFilesList:Array<String> = FileSystem.readDirectory('${Paths.modFolder}/weeks');
 
 		if (moddedWeeksFilesList != null)
@@ -62,7 +70,7 @@ class Week
 
 				// make game crash if the week already exist in game files
 				if (weeksFilesList.contains(moddedWeeksFilesList[i]))
-					throw new Exception('TRYING TO OVERRIDE A BASE GAME WEEK????');
+					throw new Exception('TRYING TO OVERRIDE A GAME WEEK????');
 				// wanna add a custom week with a good name???
 				else if (Paths.isModded(path))
 					weeksFilesList.push(moddedWeeksFilesList[i]);
@@ -79,15 +87,12 @@ class Week
 				// remove .json extension
 				weeksFilesList[i] = weeksFilesList[i].substring(0, weeksFilesList[i].lastIndexOf('.'));
 
+				// add week name
+				weeksNames[i] = weeksFilesList[i].substring(weeksFilesList[i].lastIndexOf('/'), weeksFilesList[i].length);
+
 				// load week from the json
 				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/${weeksFilesList[i]}')));
 			}
 		}
-	}
-
-	public static function loadFromJson(path:String):SwagWeek
-	{
-		var rawJson:String = CoolUtil.formatJson(File.getContent(path).trim());
-		return cast Json.parse(rawJson);
 	}
 }

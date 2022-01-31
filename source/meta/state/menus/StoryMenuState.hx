@@ -50,9 +50,6 @@ class StoryMenuState extends MusicBeatState
 		Discord.changePresence('STORY MENU', 'Main Menu');
 		#end
 
-		// freeaaaky
-		ForeverTools.resetMenuMusic();
-
 		persistentUpdate = persistentDraw = true;
 
 		// reload weeks list
@@ -87,12 +84,13 @@ class StoryMenuState extends MusicBeatState
 
 		for (i in 0...Week.loadedWeeks.length)
 		{
-			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, i);
+			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weeksNames[i]);
 			weekThing.y += (weekThing.height + 20) * i;
 			weekThing.targetY = i;
 			grpWeekText.add(weekThing);
 
 			weekThing.screenCenter(X);
+			weekThing.x -= 25;
 			weekThing.antialiasing = true;
 			// weekThing.updateHitbox();
 
@@ -256,8 +254,10 @@ class StoryMenuState extends MusicBeatState
 				stopspamming = true;
 			}
 
+			PlayState.storyPlaylist = [];
 			for (song in Week.loadedWeeks[curWeek].songs)
 				PlayState.storyPlaylist.push(song[0]);
+
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 

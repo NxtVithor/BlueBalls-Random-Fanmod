@@ -56,11 +56,9 @@ class FreeplayState extends MusicBeatState
 		// reload weeks list
 		Week.loadWeeks();
 
-		// load songs from weeks data
+		// load songs from week data
 		for (i in 0...Week.loadedWeeks.length)
-		{
 			addWeek(Week.loadedWeeks[i], i);
-		}
 
 		mutex = new Mutex();
 

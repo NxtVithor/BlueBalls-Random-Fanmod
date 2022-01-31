@@ -186,8 +186,7 @@ class PlayState extends MusicBeatState
 		FlxCamera.defaultCameras = [camGame];
 		allUIs.push(camHUD);
 
-		persistentUpdate = true;
-		persistentDraw = true;
+		persistentUpdate = persistentDraw = true;
 
 		// default song
 		if (SONG == null)
@@ -673,8 +672,7 @@ class PlayState extends MusicBeatState
 			if (health <= 0 && startedCountdown)
 			{
 				// startTimer.active = false;
-				persistentUpdate = false;
-				persistentDraw = false;
+				persistentUpdate = persistentDraw = false;
 				paused = true;
 
 				resetMusic();
@@ -1604,7 +1602,7 @@ class PlayState extends MusicBeatState
 			if (storyPlaylist.length <= 0 && !endSongEvent)
 			{
 				// play menu music
-				ForeverTools.resetMenuMusic();
+				ForeverTools.resetMenuMusic(false, true);
 
 				// set up transitions
 				transIn = FlxTransitionableState.defaultTransIn;

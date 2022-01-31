@@ -82,9 +82,6 @@ class Main extends Sprite
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var infoCounter:InfoHud; // Initialize the heads up display that shows information before creating it.
 
-	// set up weeks list
-	public static var weeks:Array<Week> = [];
-
 	// most of these variables are just from the base game!
 	// be sure to mess around with these if you'd like.
 

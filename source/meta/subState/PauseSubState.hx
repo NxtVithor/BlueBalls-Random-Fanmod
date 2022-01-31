@@ -139,24 +139,14 @@ class PauseSubState extends MusicBeatSubState
 				case "Restart Song":
 					Main.switchState(this, new PlayState());
 				case "Exit to menu":
-					ForeverTools.resetMenuMusic();
-
-					if (PlayState.isStoryMode)
+					if (PlayState.isStoryMode) {
+						ForeverTools.resetMenuMusic(false, true);
 						Main.switchState(this, new StoryMenuState());
+					}
 					else
 						Main.switchState(this, new FreeplayState());
 			}
 		}
-
-		if (FlxG.keys.justPressed.J)
-		{
-			// for reference later!
-			// PlayerSettings.player1.controls.replaceBinding(Control.LEFT, Keys, FlxKey.J, null);
-		}
-
-		#if debug
-		// trace('music volume increased');
-		#end
 
 		if (pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
