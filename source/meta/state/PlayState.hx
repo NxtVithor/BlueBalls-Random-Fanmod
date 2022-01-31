@@ -724,7 +724,7 @@ class PlayState extends MusicBeatState
 			{
 				// set the notes x and y
 				var downscrollMultiplier = 1;
-				if (Init.trueSettings.get('Downscroll'))
+				if (strumline.downscroll)
 					downscrollMultiplier = -1;
 
 				strumline.allNotes.forEachAlive(function(daNote:Note)
@@ -754,7 +754,7 @@ class PlayState extends MusicBeatState
 						if (daNote.animation.curAnim.name.endsWith('holdend') && daNote.prevNote != null)
 						{
 							daNote.y -= (daNote.prevNote.height / 2) * downscrollMultiplier;
-							if (Init.trueSettings.get('Downscroll'))
+							if (strumline.downscroll)
 							{
 								daNote.y += (daNote.height * 2);
 								if (daNote.endHoldOffset == Math.NEGATIVE_INFINITY)
@@ -769,9 +769,9 @@ class PlayState extends MusicBeatState
 								daNote.y += (daNote.height / 2) * downscrollMultiplier;
 						}
 
-						if (Init.trueSettings.get('Downscroll'))
+						daNote.flipY = strumline.downscroll;
+						if (strumline.downscroll)
 						{
-							daNote.flipY = true;
 							if ((daNote.parentNote != null && daNote.parentNote.wasGoodHit)
 								&& daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center
 								&& (strumline.autoplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
@@ -854,7 +854,7 @@ class PlayState extends MusicBeatState
 
 					// if the note is off screen (above)
 					var doKill:Bool = daNote.y < -daNote.height;
-					if (Init.trueSettings.get('Downscroll'))
+					if (strumline.downscroll)
 						doKill = daNote.y > FlxG.height;
 					if (doKill)
 						destroyNote(strumline, daNote);

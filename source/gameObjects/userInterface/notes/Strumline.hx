@@ -124,7 +124,6 @@ class UIStaticArrow extends FlxSprite
 
 class Strumline extends FlxTypedGroup<FlxBasic>
 {
-	//
 	public var receptors:FlxTypedGroup<UIStaticArrow>;
 	public var splashNotes:FlxTypedGroup<NoteSplash>;
 	public var notesGroup:FlxTypedGroup<Note>;
@@ -132,6 +131,7 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 	public var allNotes:FlxTypedGroup<Note>;
 
 	public var autoplay:Bool = true;
+	public var downscroll:Bool = false;
 	public var character:Character;
 	public var playState:PlayState;
 	public var displayJudgements:Bool = false;
@@ -149,6 +149,7 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 		allNotes = new FlxTypedGroup<Note>();
 
 		this.autoplay = autoplay;
+		this.downscroll = downscroll;
 		this.character = character;
 		this.playState = playState;
 		this.displayJudgements = displayJudgements;
@@ -196,7 +197,6 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 
 	public function push(newNote:Note)
 	{
-		//
 		var chosenGroup = (newNote.isSustainNote ? holdsGroup : notesGroup);
 		chosenGroup.add(newNote);
 		allNotes.add(newNote);
