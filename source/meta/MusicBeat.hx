@@ -1,10 +1,9 @@
 package meta;
 
+import meta.state.ChartingState;
 import flixel.FlxG;
 import flixel.FlxSubState;
-import meta.*;
 import meta.data.*;
-import meta.data.Conductor.BPMChangeEvent;
 import meta.data.dependency.FNFUIState;
 
 /* 
@@ -33,7 +32,7 @@ class MusicBeatState extends FNFUIState
 	{
 		// dump
 		Paths.clearStoredMemory();
-		if (!Std.isOfType(this, meta.state.PlayState) && !Std.isOfType(this, meta.state.charting.OriginalChartingState))
+		if (!Std.isOfType(this, meta.state.PlayState) && !Std.isOfType(this, ChartingState))
 			Paths.clearUnusedMemory();
 
 		// if (transIn != null)

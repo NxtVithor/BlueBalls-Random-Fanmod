@@ -595,10 +595,7 @@ class PlayState extends MusicBeatState
 			{
 				resetMusic();
 				persistentUpdate = false;
-				if (Init.trueSettings.get('Use Forever Chart Editor'))
-					Main.switchState(this, new ChartingState());
-				else
-					Main.switchState(this, new OriginalChartingState());
+				Main.switchState(this, new ChartingState());
 			}
 
 			if (FlxG.keys.justPressed.SIX)
