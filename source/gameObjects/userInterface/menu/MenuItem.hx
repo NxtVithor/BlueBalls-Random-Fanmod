@@ -2,12 +2,10 @@ package gameObjects.userInterface.menu;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 
-class MenuItem extends FlxSpriteGroup
+class MenuItem extends FlxSprite
 {
 	public var targetY:Float = 0;
 	public var week:FlxSprite;
@@ -16,8 +14,7 @@ class MenuItem extends FlxSpriteGroup
 	public function new(x:Float, y:Float, weekNum:Int = 0)
 	{
 		super(x, y);
-		week = new FlxSprite().loadGraphic(Paths.image('menus/base/storymenu/weeks/week' + weekNum));
-		add(week);
+		loadGraphic(Paths.image('menus/base/storymenu/weeks/week' + weekNum));
 	}
 
 	private var isFlashing:Bool = false;

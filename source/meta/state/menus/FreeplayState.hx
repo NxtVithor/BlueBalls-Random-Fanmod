@@ -1,6 +1,5 @@
 package meta.state.menus;
 
-import openfl.media.Sound;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -13,6 +12,7 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
 import meta.data.dependency.Discord;
 import meta.data.font.Alphabet;
+import openfl.media.Sound;
 import openfl.system.System;
 import sys.FileSystem;
 import sys.thread.Mutex;
@@ -54,12 +54,12 @@ class FreeplayState extends MusicBeatState
 		super.create();
 
 		// reload weeks list
-		Main.weeks = ForeverAssets.generateWeeksList();
+		Week.loadWeeks();
 
 		// load songs from weeks data
-		for (i in 0...Main.weeks.length)
+		for (i in 0...Week.loadedWeeks.length)
 		{
-			addWeek(Main.weeks[i], i);
+			addWeek(Week.loadedWeeks[i], i);
 		}
 
 		mutex = new Mutex();

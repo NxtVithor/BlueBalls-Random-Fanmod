@@ -56,7 +56,7 @@ class StoryMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		// reload weeks list
-		Main.weeks = ForeverAssets.generateWeeksList();
+		Week.loadWeeks();
 
 		scoreText = new FlxText(10, 10, 0, "SCORE: 49324858", 36);
 		scoreText.setFormat("VCR OSD Mono", 32);
@@ -85,7 +85,7 @@ class StoryMenuState extends MusicBeatState
 		grpLocks = new FlxTypedGroup<FlxSprite>();
 		add(grpLocks);
 
-		for (i in 0...Main.weeks.length)
+		for (i in 0...Week.loadedWeeks.length)
 		{
 			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, i);
 			weekThing.y += (weekThing.height + 20) * i;
@@ -97,7 +97,7 @@ class StoryMenuState extends MusicBeatState
 			// weekThing.updateHitbox();
 
 			// Needs an offset thingie
-			if (!Main.weeks[i].startUnlocked)
+			if (!Week.loadedWeeks[i].startUnlocked)
 			{
 				var lock:FlxSprite = new FlxSprite(weekThing.width + 10 + weekThing.x);
 				lock.frames = ui_tex;
@@ -111,7 +111,7 @@ class StoryMenuState extends MusicBeatState
 
 		for (char in 0...3)
 		{
-			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, Main.weeks[curWeek].weekCharacters[char]);
+			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, Week.loadedWeeks[curWeek].weekCharacters[char]);
 			weekCharacterThing.antialiasing = true;
 			switch (weekCharacterThing.character)
 			{
@@ -186,12 +186,12 @@ class StoryMenuState extends MusicBeatState
 
 		scoreText.text = "WEEK SCORE:" + lerpScore;
 
-		txtWeekTitle.text = Main.weeks[curWeek].storyName.toUpperCase();
+		txtWeekTitle.text = Week.loadedWeeks[curWeek].storyName.toUpperCase();
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		// FlxG.watch.addQuick('font', scoreText.font);
 
-		difficultySelectors.visible = Main.weeks[curWeek].startUnlocked;
+		difficultySelectors.visible = Week.loadedWeeks[curWeek].startUnlocked;
 
 		grpLocks.forEach(function(lock:FlxSprite)
 		{
@@ -243,7 +243,7 @@ class StoryMenuState extends MusicBeatState
 
 	function selectWeek()
 	{
-		if (Main.weeks[curWeek].startUnlocked)
+		if (Week.loadedWeeks[curWeek].startUnlocked)
 		{
 			if (stopspamming == false)
 			{
@@ -256,7 +256,7 @@ class StoryMenuState extends MusicBeatState
 				stopspamming = true;
 			}
 
-			for (song in Main.weeks[curWeek].songs)
+			for (song in Week.loadedWeeks[curWeek].songs)
 				PlayState.storyPlaylist.push(song[0]);
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
@@ -315,17 +315,17 @@ class StoryMenuState extends MusicBeatState
 	{
 		curWeek += change;
 
-		if (curWeek >= Main.weeks.length)
+		if (curWeek >= Week.loadedWeeks.length)
 			curWeek = 0;
 		if (curWeek < 0)
-			curWeek = Main.weeks.length - 1;
+			curWeek = Week.loadedWeeks.length - 1;
 
 		var bullShit:Int = 0;
 
 		for (item in grpWeekText.members)
 		{
 			item.targetY = bullShit - curWeek;
-			if (item.targetY == Std.int(0) && Main.weeks[curWeek].startUnlocked)
+			if (item.targetY == Std.int(0) && Week.loadedWeeks[curWeek].startUnlocked)
 				item.alpha = 1;
 			else
 				item.alpha = 0.6;
@@ -342,13 +342,13 @@ class StoryMenuState extends MusicBeatState
 		for (i in 0...grpWeekCharacters.length)
 		{
 			// check if the said character is not already created
-			if (grpWeekCharacters.members[i].character != Main.weeks[curWeek].weekCharacters[i])
-				grpWeekCharacters.members[i].createCharacter(Main.weeks[curWeek].weekCharacters[i]);
+			if (grpWeekCharacters.members[i].character != Week.loadedWeeks[curWeek].weekCharacters[i])
+				grpWeekCharacters.members[i].createCharacter(Week.loadedWeeks[curWeek].weekCharacters[i]);
 		}
 
 		txtTracklist.text = "Tracks\n";
 
-		for (song in Main.weeks[curWeek].songs)
+		for (song in Week.loadedWeeks[curWeek].songs)
 			txtTracklist.text += "\n" + song[0];
 		txtTracklist.text += "\n"; // pain
 		txtTracklist.text = txtTracklist.text.toUpperCase();

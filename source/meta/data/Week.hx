@@ -1,5 +1,7 @@
 package meta.data;
 
+import haxe.Exception;
+import sys.FileSystem;
 import haxe.Json;
 import sys.io.File;
 
@@ -20,6 +22,9 @@ typedef SwagWeek =
 
 class Week
 {
+	public static var loadedWeeks:Array<Week> = [];
+	public static var weeksList:Array<String> = [];
+
 	public var songs:Array<Array<Dynamic>> = [['Test', 'bf', [255, 255, 255]]];
 	public var weekCharacters:Array<String> = ['', 'gf', 'bf'];
 	public var weekBefore:String = 'tutorial';
@@ -39,6 +44,45 @@ class Week
 		startUnlocked = weekFile.startUnlocked;
 		hideStoryMode = weekFile.hideStoryMode;
 		hideFreeplay = weekFile.hideFreeplay;
+	}
+
+	public static function loadWeeks()
+	{
+		var weeksFilesList:Array<String> = FileSystem.readDirectory('assets/weeks');
+
+		// custom modded week code because the original one is incomplete for our case
+		#if MODS_ALLOWED
+		var moddedWeeksFilesList:Array<String> = FileSystem.readDirectory('${Paths.modFolder}/weeks');
+
+		if (moddedWeeksFilesList != null)
+		{
+			for (i in 0...moddedWeeksFilesList.length)
+			{
+				var path:String = 'weeks/${moddedWeeksFilesList[i]}';
+
+				// make game crash if the week already exist in game files
+				if (weeksFilesList.contains(moddedWeeksFilesList[i]))
+					throw new Exception('TRYING TO OVERRIDE A BASE GAME WEEK????');
+				// wanna add a custom week with a good name???
+				else if (Paths.isModded(path))
+					weeksFilesList.push(moddedWeeksFilesList[i]);
+			}
+		}
+		#end
+
+		// load the weeks
+		for (i in 0...weeksFilesList.length)
+		{
+			// ignore other types of files
+			if (weeksFilesList[i].endsWith('.json'))
+			{
+				// remove .json extension
+				weeksFilesList[i] = weeksFilesList[i].substring(0, weeksFilesList[i].lastIndexOf('.'));
+
+				// load week from the json
+				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/${weeksFilesList[i]}')));
+			}
+		}
 	}
 
 	public static function loadFromJson(path:String):SwagWeek

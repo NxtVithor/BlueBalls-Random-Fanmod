@@ -153,7 +153,7 @@ class Main extends Sprite
 		addChild(infoCounter);
 
 		// create weeks list
-		weeks = ForeverAssets.generateWeeksList();
+		Week.loadWeeks();
 	}
 
 	public static function framerateAdjust(input:Float)
