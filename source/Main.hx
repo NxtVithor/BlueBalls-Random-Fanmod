@@ -67,7 +67,7 @@ class Main extends Sprite
 		I try to keep the same codebase, so merging the upstream code is easier for me.
 
 		If you have any questions, ask them on Discord (Stilic#5989).
-	*/
+	 */
 	// class action variables
 	public static var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	public static var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).

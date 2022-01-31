@@ -15,7 +15,8 @@ class ForeverTools
 	// set up maps and stuffs
 	public static function resetMenuMusic(resetVolume:Bool = false, forceMusicToPlay:Bool = false)
 	{
-		if (forceMusicToPlay || FlxG.sound.music == null) {
+		if (forceMusicToPlay || FlxG.sound.music == null)
+		{
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), resetVolume ? 0 : 0.7);
 			if (resetVolume)
 				FlxG.sound.music.fadeIn(4, 0, 0.7);
