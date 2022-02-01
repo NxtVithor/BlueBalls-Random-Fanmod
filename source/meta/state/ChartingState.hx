@@ -65,8 +65,6 @@ class ChartingState extends MusicBeatState
 
 	var strumLine:FlxSprite;
 
-	var camHUD:FlxCamera;
-	var camGame:FlxCamera;
 	var strumLineCam:FlxObject;
 
 	public static var songPosition:Float = 0;
@@ -97,7 +95,10 @@ class ChartingState extends MusicBeatState
 	var sectionsMax = 0;
 
 	// ui shit
-	private var infoTxt:FlxText;
+	var uiBox:FlxUITabMenu;
+	var typingShit:FlxInputText;
+
+	var infoTxt:FlxText;
 
 	override public function create()
 	{
@@ -147,9 +148,9 @@ class ChartingState extends MusicBeatState
 		curRenderedSections = new FlxTypedGroup<FlxBasic>();
 
 		// GENERATING THE GRID NOTES!
-
 		// pregenerate assets so it doesnt destroy your ram later
 		var extraSize:Int = 6;
+		var alphaShit:Float = 88 / 255;
 		var sectionLineGraphic:FlxGraphic = FlxG.bitmap.create(gridSize * keysTotal + extraSize, 2, FlxColor.WHITE);
 		var sectionCameraGraphic:FlxGraphic = FlxG.bitmap.create(Std.int(gridSize * (keysTotal / 2)), 16 * gridSize, FlxColor.fromRGB(43, 116, 219));
 		var sectionStepGraphic:FlxGraphic = FlxG.bitmap.create(gridSize * keysTotal + extraSize, 1, FlxColor.WHITE);
@@ -163,7 +164,7 @@ class ChartingState extends MusicBeatState
 			// oh and section information lol
 			var sectionLine:FlxSprite = new FlxSprite(FlxG.width / 2 - (gridSize * (keysTotal / 2)) - (extraSize / 2), placement);
 			sectionLine.frames = sectionLineGraphic.imageFrame;
-			sectionLine.alpha = (88 / 255);
+			sectionLine.alpha = alphaShit;
 
 			// section camera
 			var sectionExtend:Float = 0;
@@ -172,7 +173,7 @@ class ChartingState extends MusicBeatState
 
 			var sectionCamera:FlxSprite = new FlxSprite(FlxG.width / 2 - (gridSize * (keysTotal / 2)) + (sectionExtend), placement);
 			sectionCamera.frames = sectionCameraGraphic.imageFrame;
-			sectionCamera.alpha = (88 / 255);
+			sectionCamera.alpha = alphaShit;
 			curRenderedSections.add(sectionCamera);
 
 			// set up section numbers
@@ -211,7 +212,7 @@ class ChartingState extends MusicBeatState
 		strumLineCam.screenCenter(X);
 
 		// epic strum line
-		strumLine = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width / 2), 2);
+		strumLine = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width / 2.5), 2);
 		add(strumLine);
 		strumLine.screenCenter(X);
 
@@ -232,21 +233,14 @@ class ChartingState extends MusicBeatState
 			newArrow.alpha = 0.9;
 			newArrow.antialiasing = true;
 
+			newArrow.y += newArrow.height / 2;
+
 			// lol silly idiot
 			newArrow.playAnim('static');
 
 			arrowGroup.add(newArrow);
 		}
 		add(arrowGroup);
-
-		// code from the playstate so I can separate the camera and hud
-		camGame = new FlxCamera();
-		camHUD = new FlxCamera();
-		camHUD.bgColor.alpha = 0;
-
-		FlxG.cameras.reset(camGame);
-		FlxCamera.defaultCameras = [camGame];
-		FlxG.cameras.add(camHUD);
 
 		FlxG.camera.follow(strumLineCam);
 
@@ -255,6 +249,99 @@ class ChartingState extends MusicBeatState
 		infoTxt.scrollFactor.set();
 		add(infoTxt);
 
+		// init ui
+		uiBox = new FlxUITabMenu(null, [
+			{name: "Song", label: "Song"},
+			{name: "Section", label: "Section"},
+			{name: "Note", label: "Note"}
+		], true);
+		uiBox.resize(300, 400);
+		uiBox.x = 50;
+		uiBox.y = 20;
+		uiBox.scrollFactor.set();
+		add(uiBox);
+
+		// init song tab
+		var songTitleInput = new FlxUIInputText(10, 10, 70, _song.song, 8);
+		typingShit = songTitleInput;
+
+		var checkVoices = new FlxUICheckBox(10, 25, null, null, "Has voice track", 100);
+		checkVoices.checked = _song.needsVoices;
+		// _song.needsVoices = checkVoices.checked;
+		checkVoices.callback = function()
+		{
+			_song.needsVoices = checkVoices.checked;
+		};
+
+		var checkMuteInst = new FlxUICheckBox(10, 200, null, null, "Mute Instrumental (in editor)", 100);
+		checkMuteInst.checked = false;
+		checkMuteInst.callback = function()
+		{
+			songMusic.volume = checkMuteInst.checked ? 0 : 1;
+		};
+
+		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function()
+		{
+			save();
+		});
+
+		var reloadSong:FlxButton = new FlxButton(saveButton.x + saveButton.width + 10, saveButton.y, "Reload Audio", function()
+		{
+			loadSong(_song.song);
+		});
+
+		var reloadSongJson:FlxButton = new FlxButton(reloadSong.x, saveButton.y + 30, "Reload JSON", function()
+		{
+			loadJson(_song.song.toLowerCase());
+		});
+
+		var loadAutosaveBtn:FlxButton = new FlxButton(reloadSongJson.x, reloadSongJson.y + 30, 'Load Autosave', function()
+		{
+			PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
+			Main.resetState(this);
+		});
+
+		var stepperSpeed:FlxUINumericStepper = new FlxUINumericStepper(10, 80, 0.1, 1, 0.1, 10, 1);
+		stepperSpeed.value = _song.speed;
+
+		var stepperBPM:FlxUINumericStepper = new FlxUINumericStepper(10, 65, 1, 1, 1, 339, 0);
+		stepperBPM.value = Conductor.bpm;
+
+		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+
+		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		{
+			_song.player1 = characters[Std.parseInt(character)];
+		});
+		player1DropDown.selectedLabel = _song.player1;
+
+		var player2DropDown = new FlxUIDropDownMenu(140, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		{
+			_song.player2 = characters[Std.parseInt(character)];
+		});
+
+		player2DropDown.selectedLabel = _song.player2;
+
+		var songTab = new FlxUI(null, uiBox);
+		songTab.name = "Song";
+		songTab.add(songTitleInput);
+
+		songTab.add(checkVoices);
+		songTab.add(checkMuteInst);
+		songTab.add(saveButton);
+		songTab.add(reloadSong);
+		songTab.add(reloadSongJson);
+		songTab.add(loadAutosaveBtn);
+		songTab.add(stepperBPM);
+		songTab.add(stepperSpeed);
+		songTab.add(player1DropDown);
+		songTab.add(player2DropDown);
+
+		// add song tab
+		uiBox.addGroup(songTab);
+		uiBox.scrollFactor.set();
+
+		// hide mouse
 		FlxG.mouse.visible = true;
 	}
 
@@ -291,6 +378,8 @@ class ChartingState extends MusicBeatState
 
 		super.update(elapsed);
 
+		_song.song = typingShit.text;
+
 		infoTxt.text = "Section: " + curSection + " / " + _song.notes.length + "\nBeat: " + curBeat + "\nStep: " + curStep + "\n";
 
 		// strumline camera stuffs!
@@ -322,18 +411,30 @@ class ChartingState extends MusicBeatState
 					// add note funny
 					var noteStrum = getStrumTime(dummyArrow.y);
 
-					var notesSection = Math.floor(noteStrum / (Conductor.stepCrochet * 16));
-					var noteData = adjustSide(Math.floor((dummyArrow.x - fullGrid.x) / gridSize), _song.notes[notesSection].mustHitSection);
+					var noteData = adjustSide(Math.floor((dummyArrow.x - fullGrid.x) / gridSize), _song.notes[curSection].mustHitSection);
 					var noteSus = 0; // ninja you will NOT get away with this
 
 					_song.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, 0]);
 
 					curSelectedNote = _song.notes[curSection].sectionNotes[_song.notes[curSection].sectionNotes.length - 1];
 
+					curRenderedNotes.forEachAlive(function(note:Note)
+					{
+						note.alpha = 1;
+
+						if (curSelectedNote[0] == note.strumTime && curSelectedNote[1] % 4 == note.noteData)
+							note.alpha = selectedNoteAlpha;
+					});
+
 					if (FlxG.keys.pressed.CONTROL)
 						_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, 0]);
 
-					generateChartNote(noteData, noteStrum, noteSus, 0, notesSection, false, true);
+					FlxG.save.data.autosave = Json.stringify({
+						"song": _song
+					});
+					FlxG.save.flush();
+
+					generateNotes();
 				}
 				else
 				{
@@ -369,7 +470,7 @@ class ChartingState extends MusicBeatState
 								curRenderedNotes.remove(note);
 								note.destroy();
 							}
-							generateNotes(true);
+							generateNotes();
 						}
 					});
 				}
@@ -403,7 +504,7 @@ class ChartingState extends MusicBeatState
 		{
 			curSelectedNote[2] += value;
 			curSelectedNote[2] = Math.max(curSelectedNote[2], 0);
-			generateNotes(true);
+			generateNotes();
 		}
 	}
 
@@ -447,11 +548,16 @@ class ChartingState extends MusicBeatState
 		};
 	}
 
-	// unoptimized notes generator
-	private function generateNotes(?onlySustainNotes:Bool = false)
+	function loadJson(song:String):Void
 	{
-		if (!onlySustainNotes)
-			curRenderedNotes.clear();
+		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase());
+		PlayState.SONG = Song.loadFromJson(formattedSong, formattedSong);
+		Main.resetState(this);
+	}
+
+	private function generateNotes()
+	{
+		curRenderedNotes.clear();
 		curRenderedSustains.clear();
 
 		for (section in 0..._song.notes.length)
@@ -462,12 +568,12 @@ class ChartingState extends MusicBeatState
 				var daNoteAlt = 0;
 				if (i.length > 2)
 					daNoteAlt = i[3];
-				generateChartNote(i[1], i[0], i[2], daNoteAlt, section, onlySustainNotes);
+				generateChartNote(i[1], i[0], i[2], daNoteAlt, section);
 			}
 		}
 	}
 
-	private function generateChartNote(daNoteInfo, daStrumTime, daSus, daNoteAlt, noteSection, ?onlySus = false, ?isSelected = false)
+	private function generateChartNote(daNoteInfo, daStrumTime, daSus, daNoteAlt, noteSection)
 	{
 		var note:Note = ForeverAssets.generateArrow(PlayState.assetModifier, daStrumTime, daNoteInfo % 4, 0, daNoteAlt);
 		// I love how there's 3 different engines that use this exact same variable name lmao
@@ -476,35 +582,21 @@ class ChartingState extends MusicBeatState
 		note.setGraphicSize(gridSize, gridSize);
 		note.updateHitbox();
 
-		if (isSelected)
-		{
-			curRenderedNotes.forEachAlive(function(note:Note)
-			{
-				note.alpha = 1;
-			});
-			note.alpha = selectedNoteAlpha;
-		}
-
 		note.screenCenter(X);
 		note.x -= gridSize * keysTotal / 2 - gridSize / 2;
 		note.x += Math.floor(adjustSide(daNoteInfo, _song.notes[noteSection].mustHitSection) * gridSize);
 
 		note.y = Math.floor(getYfromStrum(daStrumTime));
 
-		if (!onlySus)
-			curRenderedNotes.add(note);
+		curRenderedNotes.add(note);
 
 		if (daSus > 0)
-		{
 			curRenderedSustains.add(new FlxSprite(note.x + gridSize / 2.5, note.y + gridSize).makeGraphic(8, Math.floor(getYfromStrum(daSus))));
-			if (onlySus)
-				note.destroy();
-		}
 	}
 
-	function adjustSide(noteData:Int, sectionTemp:Bool)
+	function adjustSide(noteData:Int, isDad:Bool)
 	{
-		return sectionTemp ? (noteData + 4) % 8 : noteData;
+		return isDad ? (noteData + 4) % 8 : noteData;
 	}
 
 	function pauseMusic()

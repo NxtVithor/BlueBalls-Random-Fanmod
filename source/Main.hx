@@ -170,7 +170,10 @@ class Main extends Sprite
 		var swagSwitch = function()
 		{
 			// load the state
-			FlxG.switchState(target);
+			if (curState == target)
+				FlxG.resetState();
+			else
+				FlxG.switchState(target);
 		}
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
@@ -183,6 +186,11 @@ class Main extends Sprite
 			swagSwitch();
 		}
 		// trace('changed state')
+	}
+
+	public static function resetState(curState:FlxState)
+	{
+		switchState(curState, curState);
 	}
 
 	public static function updateFramerate(newFramerate:Int)

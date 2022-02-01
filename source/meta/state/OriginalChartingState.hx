@@ -1036,13 +1036,13 @@ class OriginalChartingState extends MusicBeatState
 	{
 		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase());
 		PlayState.SONG = Song.loadFromJson(formattedSong, formattedSong);
-		FlxG.resetState();
+		Main.resetState(this);
 	}
 
 	function loadAutosave():Void
 	{
 		PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
-		FlxG.resetState();
+		Main.resetState(this);
 	}
 
 	function autosaveSong():Void
