@@ -33,9 +33,7 @@ class UIStaticArrow extends FlxSprite
 
 		uh hey you're cute ;)
 	 */
-	public var animOffsets:Map<String, Array<Dynamic>>;
-	public var babyArrowType:Int = 0;
-	public var canFinishAnimation:Bool = true;
+	private var assetModifier:String = '';
 
 	public var initialX:Int;
 	public var initialY:Int;
@@ -44,18 +42,34 @@ class UIStaticArrow extends FlxSprite
 	public var yTo:Float;
 	public var angleTo:Float;
 
+	public var resetAnim:Float = 0;
+
 	public var setAlpha:Float = (Init.trueSettings.get('Opaque Arrows')) ? 1 : 0.8;
 
-	public function new(x:Float, y:Float, ?babyArrowType:Int = 0)
+	public function new(x:Float, y:Float, ?assetModifier:String = '')
 	{
 		// this extension is just going to rely a lot on preexisting code as I wanna try to write an extension before I do options and stuff
 		super(x, y);
-		animOffsets = new Map<String, Array<Dynamic>>();
 
-		this.babyArrowType = babyArrowType;
+		this.assetModifier = assetModifier;
 
 		updateHitbox();
 		scrollFactor.set();
+	}
+
+	override function update(elapsed:Float)
+	{
+		if (resetAnim > 0)
+		{
+			resetAnim -= elapsed;
+			if (resetAnim <= 0)
+			{
+				playAnim('static');
+				resetAnim = 0;
+			}
+		}
+
+		super.update(elapsed);
 	}
 
 	// literally just character code
@@ -68,19 +82,8 @@ class UIStaticArrow extends FlxSprite
 
 		animation.play(AnimName, Force, Reversed, Frame);
 		centerOffsets();
-		updateHitbox();
-
-		var daOffset = animOffsets.get(AnimName);
-		if (animOffsets.exists(AnimName))
-		{
-			offset.set(daOffset[0], daOffset[1]);
-		}
-		else
-			offset.set(0, 0);
+		centerOrigin();
 	}
-
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
-		animOffsets[name] = [x, y];
 
 	public static function getArrowFromNumber(numb:Int)
 	{
@@ -99,7 +102,6 @@ class UIStaticArrow extends FlxSprite
 				stringSect = 'right';
 		}
 		return stringSect;
-		//
 	}
 
 	// that last function was so useful I gave it a sequel
@@ -118,7 +120,6 @@ class UIStaticArrow extends FlxSprite
 				stringSect = 'red';
 		}
 		return stringSect;
-		//
 	}
 }
 
@@ -156,7 +157,7 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 
 		for (i in 0...keyAmount)
 		{
-			var staticArrow:UIStaticArrow = ForeverAssets.generateUIArrows(-25 + x, 25 + (downscroll ? FlxG.height - 200 : 0), i, PlayState.assetModifier);
+			var staticArrow:UIStaticArrow = ForeverAssets.generateUIArrows(x, 40 - (downscroll ? FlxG.height - 300 : 0), i, PlayState.assetModifier);
 			staticArrow.ID = i;
 
 			staticArrow.x -= (keyAmount / 2 * Note.swagWidth);

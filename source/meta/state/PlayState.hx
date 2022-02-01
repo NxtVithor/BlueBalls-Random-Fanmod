@@ -694,17 +694,9 @@ class PlayState extends MusicBeatState
 
 	function noteCalls()
 	{
-		// reset strums
+		// set note splashes positions
 		for (strumline in strumLines)
 		{
-			// handle strumline stuffs
-			var i = 0;
-			for (uiNote in strumline.receptors)
-			{
-				if (strumline.autoplay)
-					strumCallsAuto(uiNote);
-			}
-
 			if (strumline.splashNotes != null)
 				for (i in 0...strumline.splashNotes.length)
 				{
@@ -726,24 +718,22 @@ class PlayState extends MusicBeatState
 				strumline.allNotes.forEachAlive(function(daNote:Note)
 				{
 					var roundedSpeed = FlxMath.roundDecimal(daNote.noteSpeed, 2);
-					var receptorPosY:Float = strumline.receptors.members[Math.floor(daNote.noteData)].y
-						+ Note.swagWidth / (assetModifier == 'pixel' ? 10 : 4.5);
+					var receptorPosY:Float = strumline.receptors.members[Math.floor(daNote.noteData)].y + Note.swagWidth / 6;
 					var psuedoY:Float = (downscrollMultiplier * -((Conductor.songPosition - daNote.strumTime) * (0.45 * roundedSpeed)));
-					var psuedoX = 25 + daNote.noteVisualOffset;
 
 					daNote.y = receptorPosY
 						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY
-						+ Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoX;
+						+ Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * daNote.noteVisualOffset;
 					// painful math equation
 					daNote.x = strumline.receptors.members[Math.floor(daNote.noteData)].x
-						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoX
+						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * daNote.noteVisualOffset
 						+ Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY;
 
 					// also set note rotation
 					daNote.angle = -daNote.noteDirection;
 
 					// shitty note hack I hate it so much
-					var center:Float = receptorPosY + Note.swagWidth / 2;
+					var center:Float = receptorPosY + Note.swagWidth / 3;
 					if (daNote.isSustainNote)
 					{
 						daNote.y -= (daNote.height / 2) * downscrollMultiplier;
@@ -897,8 +887,18 @@ class PlayState extends MusicBeatState
 			vocals.volume = 1;
 
 			characterPlayAnimation(coolNote, character);
-			if (characterStrums.receptors.members[coolNote.noteData] != null)
-				characterStrums.receptors.members[coolNote.noteData].playAnim('confirm', true);
+			var receptor:UIStaticArrow = characterStrums.receptors.members[coolNote.noteData];
+			if (receptor != null)
+			{
+				receptor.playAnim('confirm', true);
+				if (characterStrums.autoplay)
+				{
+					var time:Float = 0.15;
+					if (coolNote.isSustainNote && !coolNote.animation.curAnim.name.endsWith('end'))
+						time += 0.15;
+					receptor.resetAnim = time;
+				}
+			}
 
 			// special thanks to sam, they gave me the original system which kinda inspired my idea for this new one
 			if (canDisplayJudgement)
@@ -990,30 +990,6 @@ class PlayState extends MusicBeatState
 		character.holdTimer = 0;
 	}
 
-	private function strumCallsAuto(cStrum:UIStaticArrow, ?callType:Int = 1, ?daNote:Note):Void
-	{
-		switch (callType)
-		{
-			case 1:
-				// end the animation if the calltype is 1 and it is done
-				if (cStrum.animation.finished && cStrum.canFinishAnimation)
-					cStrum.playAnim('static');
-			default:
-				// check if it is the correct strum
-				if (daNote.noteData == cStrum.ID)
-				{
-					// if (cStrum.animation.curAnim.name != 'confirm')
-					cStrum.playAnim('confirm'); // play the correct strum's confirmation animation (haha rhymes)
-
-					// stuff for sustain notes
-					if (daNote.isSustainNote && !daNote.animation.curAnim.name.endsWith('holdend'))
-						cStrum.canFinishAnimation = false; // basically, make it so the animation can't be finished if there's a sustain note below
-					else
-						cStrum.canFinishAnimation = true;
-				}
-		}
-	}
-
 	private function mainControls(daNote:Note, char:Character, strumline:Strumline, autoplay:Bool):Void
 	{
 		var notesPressedAutoplay = [];
@@ -1024,15 +1000,6 @@ class PlayState extends MusicBeatState
 			// check if the note was a good hit
 			if (daNote.strumTime <= Conductor.songPosition)
 			{
-				// use a switch thing cus it feels right idk lol
-				// make sure the strum is played for the autoplay stuffs
-				/*
-					charStrum.forEach(function(cStrum:UIStaticArrow)
-					{
-						strumCallsAuto(cStrum, 0, daNote);
-					});
-				 */
-
 				// kill the note, then remove it from the array
 				var canDisplayJudgement = false;
 				if (strumline.displayJudgements)

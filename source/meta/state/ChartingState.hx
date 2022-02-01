@@ -61,7 +61,7 @@ class ChartingState extends MusicBeatState
 
 	var songMusic:FlxSound;
 	var vocals:FlxSound;
-	private var keysTotal = 8;
+	private var keysTotal:Int = 8;
 
 	var strumLine:FlxSprite;
 
@@ -89,10 +89,6 @@ class ChartingState extends MusicBeatState
 	private var curRenderedNotes:FlxTypedGroup<Note>;
 	private var curRenderedSustains:FlxTypedGroup<FlxSprite>;
 	private var curRenderedSections:FlxTypedGroup<FlxBasic>;
-
-	private var arrowGroup:FlxTypedSpriteGroup<UIStaticArrow>;
-
-	var sectionsMax = 0;
 
 	// ui shit
 	var uiBox:FlxUITabMenu;
@@ -157,7 +153,6 @@ class ChartingState extends MusicBeatState
 
 		for (section in 0..._song.notes.length)
 		{
-			sectionsMax = section;
 			var placement:Float = 16 * gridSize * section;
 
 			// this will be used to regenerate a box that shows what section the camera is focused on
@@ -202,7 +197,7 @@ class ChartingState extends MusicBeatState
 
 			curRenderedSections.add(sectionLine);
 		}
-		generateNotes();
+		updateGrid();
 
 		add(curRenderedSections);
 		add(curRenderedSustains);
@@ -212,35 +207,9 @@ class ChartingState extends MusicBeatState
 		strumLineCam.screenCenter(X);
 
 		// epic strum line
-		strumLine = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width / 2.5), 2);
+		strumLine = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width / 2), 2);
 		add(strumLine);
 		strumLine.screenCenter(X);
-
-		// and now the epic note thingies
-		arrowGroup = new FlxTypedSpriteGroup<UIStaticArrow>(-3, 0);
-		for (i in 0...keysTotal)
-		{
-			var typeReal:Int = i;
-			if (typeReal > 3)
-				typeReal -= 4;
-
-			var newArrow:UIStaticArrow = ForeverAssets.generateUIArrows((FlxG.width / 2 - keysTotal / 2 * gridSize) + (i - 1) * gridSize, -76, typeReal,
-				'chart editor');
-
-			newArrow.ID = i;
-			newArrow.setGraphicSize(gridSize);
-			newArrow.updateHitbox();
-			newArrow.alpha = 0.9;
-			newArrow.antialiasing = true;
-
-			newArrow.y += newArrow.height / 2;
-
-			// lol silly idiot
-			newArrow.playAnim('static');
-
-			arrowGroup.add(newArrow);
-		}
-		add(arrowGroup);
 
 		FlxG.camera.follow(strumLineCam);
 
@@ -356,31 +325,25 @@ class ChartingState extends MusicBeatState
 		if (FlxG.keys.justPressed.SPACE)
 		{
 			if (songMusic.playing)
-			{
-				songMusic.pause();
-				vocals.pause();
-			}
+				pauseMusic();
 			else
 			{
 				vocals.play();
 				songMusic.play();
 				resyncVocals();
 			}
-			Paths.clearUnusedMemory();
 		}
 
 		var scrollSpeed:Float = 0.75;
 		if (FlxG.mouse.wheel != 0)
 		{
-			songMusic.pause();
-			vocals.pause();
-
+			pauseMusic();
 			songMusic.time = Math.min(Math.max(songMusic.time - (FlxG.mouse.wheel * Conductor.stepCrochet * scrollSpeed), 0), songMusic.length);
 		}
 
-		Conductor.songPosition = songMusic.time;
-
 		curSection = Std.int(curStep / 16);
+
+		Conductor.songPosition = songMusic.time;
 
 		super.update(elapsed);
 
@@ -391,7 +354,6 @@ class ChartingState extends MusicBeatState
 		// strumline camera stuffs!
 		strumLine.y = getYfromStrum(Conductor.songPosition);
 		strumLineCam.y = strumLine.y + (FlxG.height / 3);
-		arrowGroup.y = strumLine.y;
 
 		coolGradient.y = strumLineCam.y - (FlxG.height / 2);
 		coolGrid.y = strumLineCam.y - (FlxG.height / 2);
@@ -440,7 +402,7 @@ class ChartingState extends MusicBeatState
 					});
 					FlxG.save.flush();
 
-					generateNotes();
+					updateGrid();
 				}
 				else
 				{
@@ -476,7 +438,7 @@ class ChartingState extends MusicBeatState
 								curRenderedNotes.remove(note);
 								note.destroy();
 							}
-							generateNotes();
+							updateGrid();
 						}
 					});
 				}
@@ -510,7 +472,7 @@ class ChartingState extends MusicBeatState
 		{
 			curSelectedNote[2] += value;
 			curSelectedNote[2] = Math.max(curSelectedNote[2], 0);
-			generateNotes();
+			updateGrid();
 		}
 	}
 
@@ -545,6 +507,9 @@ class ChartingState extends MusicBeatState
 
 		songPosition = 0;
 
+		songMusic.time = Math.max(songMusic.time, 0);
+		songMusic.time = Math.min(songMusic.time, songMusic.length);
+
 		pauseMusic();
 
 		songMusic.onComplete = function()
@@ -561,7 +526,7 @@ class ChartingState extends MusicBeatState
 		Main.resetState(this);
 	}
 
-	private function generateNotes()
+	private function updateGrid()
 	{
 		curRenderedNotes.clear();
 		curRenderedSustains.clear();
@@ -607,9 +572,6 @@ class ChartingState extends MusicBeatState
 
 	function pauseMusic()
 	{
-		songMusic.time = Math.max(songMusic.time, 0);
-		songMusic.time = Math.min(songMusic.time, songMusic.length);
-
 		resyncVocals();
 		songMusic.pause();
 		vocals.pause();
