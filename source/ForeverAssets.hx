@@ -126,14 +126,13 @@ class ForeverAssets
 			case 'pixel':
 				tempSplash.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('splash-pixel', assetModifier, changeableSkin, baseLibrary)), true, 34, 34);
 				tempSplash.animation.add('anim1', [noteData, 4 + noteData, 8 + noteData, 12 + noteData], 24, false);
-				// tempSplash.animation.add('anim2', [16 + noteData, 20 + noteData, 24 + noteData, 28 + noteData], 24, false);
+				tempSplash.animation.add('anim2', [16 + noteData, 20 + noteData, 24 + noteData, 28 + noteData], 24, false);
 				tempSplash.addOffset('anim1', -120, -90);
-				// tempSplash.addOffset('anim2', -120, -90);
+				tempSplash.addOffset('anim2', -120, -90);
 				tempSplash.animation.play('anim1');
 				tempSplash.setGraphicSize(Std.int(tempSplash.width * PlayState.daPixelZoom));
 
 			default:
-				// 'UI/$assetModifier/notes/noteSplashes'
 				tempSplash.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('noteSplashes', assetModifier, changeableSkin, baseLibrary)), true, 210, 210);
 				tempSplash.animation.add('anim1', [
 					(noteData * 2 + 1),
@@ -142,15 +141,13 @@ class ForeverAssets
 					24 + (noteData * 2 + 1),
 					32 + (noteData * 2 + 1)
 				], 24, false);
-				// tempSplash.animation.add('anim2', [
-				// 	(noteData * 2),
-				// 	8 + (noteData * 2),
-				// 	16 + (noteData * 2),
-				// 	24 + (noteData * 2),
-				// 	32 + (noteData * 2)
-				// ], 24, false);
-				// tempSplash.addOffset('anim1', -20, -10);
-				// tempSplash.addOffset('anim2', -20, -10);
+				tempSplash.animation.add('anim2', [
+					(noteData * 2),
+					8 + (noteData * 2),
+					16 + (noteData * 2),
+					24 + (noteData * 2),
+					32 + (noteData * 2)
+				], 24, false);
 				tempSplash.animation.play('anim1');
 		}
 
