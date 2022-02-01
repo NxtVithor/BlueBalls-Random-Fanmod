@@ -118,7 +118,6 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 				add(textAsset);
 			}
 		}
-		updateScoreText();
 	}
 
 	var counterTextSize:Int = 18;

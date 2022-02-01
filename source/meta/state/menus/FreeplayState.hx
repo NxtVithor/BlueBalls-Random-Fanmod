@@ -180,7 +180,7 @@ class FreeplayState extends MusicBeatState
 			PlayState.storyDifficulty = curDifficulty;
 
 			PlayState.storyWeek = songs[curSelected].week;
-			trace('CUR WEEK' + PlayState.storyWeek);
+			// trace('CUR WEEK' + PlayState.storyWeek);
 
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.stop();

@@ -70,7 +70,6 @@ class ChartingState extends MusicBeatState
 	var strumLineCam:FlxObject;
 
 	public static var songPosition:Float = 0;
-	public static var curSong:SwagSong;
 
 	/*
 	 * WILL BE THE CURRENT / LAST PLACED NOTE
@@ -96,6 +95,9 @@ class ChartingState extends MusicBeatState
 	private var arrowGroup:FlxTypedSpriteGroup<UIStaticArrow>;
 
 	var sectionsMax = 0;
+
+	// ui shit
+	private var infoTxt:FlxText;
 
 	override public function create()
 	{
@@ -248,10 +250,13 @@ class ChartingState extends MusicBeatState
 
 		FlxG.camera.follow(strumLineCam);
 
+		infoTxt = new FlxText(FlxG.width * 0.775, 50, 0, "", 22);
+		infoTxt.setFormat(Paths.font("vcr.ttf"), 22, FlxColor.WHITE, LEFT);
+		infoTxt.scrollFactor.set();
+		add(infoTxt);
+
 		FlxG.mouse.visible = true;
 	}
-
-	var hitSoundsPlayed:Array<Note> = [];
 
 	override public function update(elapsed:Float)
 	{
@@ -261,18 +266,14 @@ class ChartingState extends MusicBeatState
 			{
 				songMusic.pause();
 				vocals.pause();
-				// playButtonAnimation('pause');
 			}
 			else
 			{
 				vocals.play();
 				songMusic.play();
-
-				// reset note tick sounds
-				hitSoundsPlayed = [];
-
-				// playButtonAnimation('play');
+				resyncVocals();
 			}
+			Paths.clearUnusedMemory();
 		}
 
 		var scrollSpeed:Float = 0.75;
@@ -281,14 +282,16 @@ class ChartingState extends MusicBeatState
 			songMusic.pause();
 			vocals.pause();
 
-			songMusic.time = Math.max(songMusic.time - (FlxG.mouse.wheel * Conductor.stepCrochet * scrollSpeed), 0);
-			songMusic.time = Math.min(songMusic.time, songMusic.length);
-			vocals.time = songMusic.time;
+			songMusic.time = Math.min(Math.max(songMusic.time - (FlxG.mouse.wheel * Conductor.stepCrochet * scrollSpeed), 0), songMusic.length);
 		}
 
 		Conductor.songPosition = songMusic.time;
 
 		curSection = Std.int(curStep / 16);
+
+		super.update(elapsed);
+
+		infoTxt.text = "Section: " + curSection + " / " + _song.notes.length + "\nBeat: " + curBeat + "\nStep: " + curStep + "\n";
 
 		// strumline camera stuffs!
 		strumLine.y = getYfromStrum(Conductor.songPosition);
@@ -297,8 +300,6 @@ class ChartingState extends MusicBeatState
 
 		coolGradient.y = strumLineCam.y - (FlxG.height / 2);
 		coolGrid.y = strumLineCam.y - (FlxG.height / 2);
-
-		super.update(elapsed);
 
 		if (FlxG.mouse.x > fullGrid.x
 			&& FlxG.mouse.x < fullGrid.x + fullGrid.width
@@ -396,32 +397,6 @@ class ChartingState extends MusicBeatState
 			save();
 	}
 
-	override public function stepHit()
-	{
-		// call all rendered notes lol
-		curRenderedNotes.forEach(function(epicNote:Note)
-		{
-			if (epicNote.y > strumLineCam.y - FlxG.height / 2 - epicNote.height || epicNote.y < strumLineCam.y + FlxG.height / 2)
-			{
-				epicNote.alive = true;
-				epicNote.visible = true;
-				// do epic note calls for strum stuffs
-				if (Math.floor(Conductor.songPosition / Conductor.stepCrochet) == Math.floor(epicNote.strumTime / Conductor.stepCrochet)
-					&& (!hitSoundsPlayed.contains(epicNote)))
-				{
-					hitSoundsPlayed.push(epicNote);
-				}
-			}
-			else
-			{
-				epicNote.alive = false;
-				epicNote.visible = false;
-			}
-		});
-
-		super.stepHit();
-	}
-
 	function changeNoteSustain(value:Float)
 	{
 		if (curSelectedNote != null && curSelectedNote[2] != null)
@@ -461,9 +436,6 @@ class ChartingState extends MusicBeatState
 		songMusic.play();
 		vocals.play();
 
-		if (curSong == _song)
-			songMusic.time = songPosition;
-		curSong = _song;
 		songPosition = 0;
 
 		pauseMusic();

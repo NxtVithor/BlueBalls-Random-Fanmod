@@ -28,7 +28,6 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
 import meta.data.Section.SwagSection;
 import meta.data.Song.SwagSong;
-import meta.state.charting.*;
 import meta.state.menus.*;
 import meta.subState.*;
 import openfl.events.KeyboardEvent;
@@ -591,7 +590,7 @@ class PlayState extends MusicBeatState
 			}
 
 			// charting state (more on that later)
-			if (FlxG.keys.justPressed.SEVEN && !startingSong)
+			if (FlxG.keys.justPressed.SEVEN)
 			{
 				resetMusic();
 				persistentUpdate = false;
