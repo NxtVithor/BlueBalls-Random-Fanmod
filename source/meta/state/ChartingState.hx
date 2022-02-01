@@ -265,7 +265,7 @@ class ChartingState extends MusicBeatState
 		var songTitleInput = new FlxUIInputText(10, 10, 70, _song.song, 8);
 		typingShit = songTitleInput;
 
-		var checkVoices = new FlxUICheckBox(10, 25, null, null, "Has voice track", 100);
+		var checkVoices = new FlxUICheckBox(10, 30, null, null, "Has voice track", 100);
 		checkVoices.checked = _song.needsVoices;
 		// _song.needsVoices = checkVoices.checked;
 		checkVoices.callback = function()
@@ -273,7 +273,7 @@ class ChartingState extends MusicBeatState
 			_song.needsVoices = checkVoices.checked;
 		};
 
-		var checkMuteInst = new FlxUICheckBox(10, 200, null, null, "Mute Instrumental (in editor)", 100);
+		var checkMuteInst = new FlxUICheckBox(10, 90, null, null, "Mute Instrumental (in editor)", 100);
 		checkMuteInst.checked = false;
 		checkMuteInst.callback = function()
 		{
@@ -301,21 +301,23 @@ class ChartingState extends MusicBeatState
 			Main.resetState(this);
 		});
 
-		var stepperSpeed:FlxUINumericStepper = new FlxUINumericStepper(10, 80, 0.1, 1, 0.1, 10, 1);
-		stepperSpeed.value = _song.speed;
-
 		var stepperBPM:FlxUINumericStepper = new FlxUINumericStepper(10, 65, 1, 1, 1, 339, 0);
 		stepperBPM.value = Conductor.bpm;
+		stepperBPM.name = 'song_bpm';
+
+		var stepperSpeed:FlxUINumericStepper = new FlxUINumericStepper(stepperBPM.x + stepperBPM.width + 5, stepperBPM.y, 0.1, 1, 0.1, 10, 1);
+		stepperSpeed.value = _song.speed;
+		stepperSpeed.name = 'song_speed';
 
 		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
 
-		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		var player1DropDown = new FlxUIDropDownMenu(10, 125, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player1 = characters[Std.parseInt(character)];
 		});
 		player1DropDown.selectedLabel = _song.player1;
 
-		var player2DropDown = new FlxUIDropDownMenu(140, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		var player2DropDown = new FlxUIDropDownMenu(140, 125, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player2 = characters[Std.parseInt(character)];
 		});
@@ -332,8 +334,12 @@ class ChartingState extends MusicBeatState
 		songTab.add(reloadSong);
 		songTab.add(reloadSongJson);
 		songTab.add(loadAutosaveBtn);
+		songTab.add(new FlxText(stepperBPM.x - 2, stepperBPM.y - 15, 0, 'Song BPM'));
+		songTab.add(new FlxText(stepperSpeed.x - 2, stepperSpeed.y - 15, 0, 'Song Speed'));
 		songTab.add(stepperBPM);
 		songTab.add(stepperSpeed);
+		songTab.add(new FlxText(player1DropDown.x - 2, player1DropDown.y - 15, 0, 'Player'));
+		songTab.add(new FlxText(player2DropDown.x - 2, player2DropDown.y - 15, 0, 'Opponent'));
 		songTab.add(player1DropDown);
 		songTab.add(player2DropDown);
 
