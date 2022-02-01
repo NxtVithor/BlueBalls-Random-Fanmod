@@ -995,32 +995,22 @@ class PlayState extends MusicBeatState
 		var notesPressedAutoplay = [];
 
 		// here I'll set up the autoplay functions
-		if (autoplay)
+		// check if the note was a good hit
+		if (autoplay && daNote.strumTime <= Conductor.songPosition)
 		{
-			// check if the note was a good hit
-			if (daNote.strumTime <= Conductor.songPosition)
+			// kill the note, then remove it from the array
+			var canDisplayJudgement = false;
+			if (strumline.displayJudgements)
 			{
-				// kill the note, then remove it from the array
-				var canDisplayJudgement = false;
-				if (strumline.displayJudgements)
+				canDisplayJudgement = true;
+				for (noteDouble in notesPressedAutoplay)
 				{
-					canDisplayJudgement = true;
-					for (noteDouble in notesPressedAutoplay)
-					{
-						if (noteDouble.noteData == daNote.noteData)
-						{
-							// if (Math.abs(noteDouble.strumTime - daNote.strumTime) < 10)
-							canDisplayJudgement = false;
-							// removing the fucking check apparently fixes it
-							// god damn it that stupid glitch with the double judgements is annoying
-						}
-						//
-					}
-					notesPressedAutoplay.push(daNote);
+					if (noteDouble.noteData == daNote.noteData)
+						canDisplayJudgement = false;
 				}
-				goodNoteHit(daNote, char, strumline, canDisplayJudgement);
+				notesPressedAutoplay.push(daNote);
 			}
-			//
+			goodNoteHit(daNote, char, strumline, canDisplayJudgement);
 		}
 
 		var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
@@ -1105,7 +1095,7 @@ class PlayState extends MusicBeatState
 		// notesplashes
 		if (baseRating == "sick")
 			// create the note splash if you hit a sick
-			createSplash(coolNote, strumline);
+			strumline.createSplash(coolNote);
 		else
 			// if it isn't a sick, and you had a sick combo, then it becomes not sick :(
 			if (allSicks)
@@ -1118,13 +1108,6 @@ class PlayState extends MusicBeatState
 		songScore += score;
 
 		popUpCombo();
-	}
-
-	public function createSplash(coolNote:Note, strumline:Strumline)
-	{
-		// play animation in existing notesplashes
-		if (strumline.splashNotes != null)
-			strumline.splashNotes.members[coolNote.noteData].playAnim('anim' + Std.string(FlxG.random.int(0, 1) + 1), true);
 	}
 
 	private var createdColor = FlxColor.fromRGB(204, 66, 66);
