@@ -65,6 +65,8 @@ class ChartingState extends MusicBeatState
 	**/
 	var curSelectedNote:Array<Dynamic>;
 
+	var lastSection:Int = 0;
+
 	var curSection:Int = 0;
 
 	public static var selectedNoteAlpha:Float = 0.35;
@@ -436,10 +438,12 @@ class ChartingState extends MusicBeatState
 			songMusic.time = Math.min(Math.max(songMusic.time - (FlxG.mouse.wheel * Conductor.stepCrochet * 0.75), 0), songMusic.length);
 		}
 
-		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
+		curSection = Std.int(curStep / 16);
+
+		if (lastSection != curSection)
 			updateUI();
 
-		curSection = Std.int(curStep / 16);
+		lastSection = curSection;
 
 		Conductor.songPosition = songMusic.time;
 
