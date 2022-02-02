@@ -129,6 +129,10 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	override public function update(elapsed:Float)
 	{
+		// force score text to be updated on botplay
+		if (PlayState.cpuControlled)
+			updateScoreText();
+
 		// pain, this is like the 7th attempt
 		healthBar.percent = (PlayState.health * 50);
 
@@ -158,18 +162,19 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	public function updateScoreText()
 	{
-		var importSongScore = PlayState.songScore;
-		var importPlayStateCombo = PlayState.combo;
-		var importMisses = PlayState.misses;
-		scoreBar.text = 'Score: $importSongScore';
-		// testing purposes
-		var displayAccuracy:Bool = Init.trueSettings.get('Display Accuracy');
-		if (displayAccuracy)
+		if (!PlayState.cpuControlled)
 		{
-			scoreBar.text += divider + 'Accuracy: ' + Std.string(Math.floor(Timings.getAccuracy() * 100) / 100) + '%' + Timings.comboDisplay;
-			scoreBar.text += divider + 'Combo Breaks: ' + Std.string(PlayState.misses);
-			scoreBar.text += divider + 'Rank: ' + Std.string(Timings.returnScoreRating().toUpperCase());
+			scoreBar.text = 'Score: ' + PlayState.songScore;
+			// testing purposes
+			if (Init.trueSettings.get('Display Accuracy'))
+			{
+				scoreBar.text += divider + 'Misses: ' + PlayState.misses;
+				scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
+				scoreBar.text += divider + Timings.returnScoreRating().toUpperCase();
+			}
 		}
+		else
+			scoreBar.text = 'Botplay';
 
 		scoreBar.x = (FlxG.width / 2 - scoreBar.width / 2);
 

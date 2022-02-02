@@ -204,7 +204,6 @@ class MainMenuState extends MusicBeatState
 
 		if (controls.ACCEPT && !selectedSomethin)
 		{
-			//
 			selectedSomethin = true;
 			FlxG.sound.play(Paths.sound('confirmMenu'));
 

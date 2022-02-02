@@ -100,7 +100,6 @@ class PlayState extends MusicBeatState
 	var canPause:Bool = true;
 
 	var previousFrameTime:Int = 0;
-	var lastReportedPlayheadPosition:Int = 0;
 	var songTime:Float = 0;
 
 	public static var camHUD:FlxCamera;
@@ -144,6 +143,9 @@ class PlayState extends MusicBeatState
 	public static var lastRating:FlxSprite;
 	// stores the last combo objects in an array
 	public static var lastCombo:Array<FlxSprite>;
+
+	// botplay i think
+	public static var cpuControlled:Bool = false;
 
 	private var keyPressByController:Bool = false;
 
@@ -253,11 +255,6 @@ class PlayState extends MusicBeatState
 		add(boyfriend);
 
 		add(stageBuild.foreground);
-
-		// force them to dance
-		dadOpponent.dance();
-		gf.dance();
-		boyfriend.dance();
 
 		// set song position before beginning
 		Conductor.songPosition = -(Conductor.crochet * 4);
@@ -552,6 +549,10 @@ class PlayState extends MusicBeatState
 		if (health > 2)
 			health = 2;
 
+		// sync botplay to bf strums autoplay
+		if (boyfriendStrums.autoplay != cpuControlled)
+			boyfriendStrums.autoplay = cpuControlled;
+
 		// dialogue checks
 		if (dialogueBox != null && dialogueBox.alive)
 		{
@@ -596,9 +597,6 @@ class PlayState extends MusicBeatState
 				persistentUpdate = false;
 				Main.switchState(this, new ChartingState());
 			}
-
-			if (FlxG.keys.justPressed.SIX)
-				boyfriendStrums.autoplay = !boyfriendStrums.autoplay;
 
 			if (startingSong)
 			{
@@ -851,14 +849,11 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		// reset bf's animation
-		var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-
-		if (boyfriend != null
-			&& boyfriend.animation != null
-			&& boyfriend.holdTimer > Conductor.stepCrochet * 4 / 1000
-			&& (!holdControls.contains(true) || boyfriendStrums.autoplay)
-			&& (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')))
+		if (boyfriendStrums.autoplay
+			&& boyfriend != null
+			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
+			&& boyfriend.animation.curAnim.name.startsWith('sing')
+			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
 		{
 			boyfriend.dance();
 		}
@@ -1031,6 +1026,11 @@ class PlayState extends MusicBeatState
 						goodNoteHit(coolNote, char, strumline);
 				});
 			}
+			else if (boyfriend != null
+				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
+				&& boyfriend.animation.curAnim.name.startsWith('sing')
+				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
+				boyfriend.dance();
 		}
 	}
 
@@ -1285,7 +1285,6 @@ class PlayState extends MusicBeatState
 		startingSong = false;
 
 		previousFrameTime = FlxG.game.ticks;
-		lastReportedPlayheadPosition = 0;
 
 		if (!paused)
 		{
@@ -1374,13 +1373,13 @@ class PlayState extends MusicBeatState
 		if (curBeat % gfSpeed == 0 && (gf.animation.curAnim.name.startsWith("idle") || gf.animation.curAnim.name.startsWith("dance")))
 			gf.dance();
 
-		if ((boyfriend.animation.curAnim.name.startsWith("idle") || boyfriend.animation.curAnim.name.startsWith("dance"))
-			&& (curBeat % 2 == 0 || boyfriend.characterData.quickDancer))
-			boyfriend.dance();
-
-		if ((dadOpponent.animation.curAnim.name.startsWith("idle") || dadOpponent.animation.curAnim.name.startsWith("dance"))
-			&& (curBeat % 2 == 0 || dadOpponent.characterData.quickDancer))
-			dadOpponent.dance();
+		if (curBeat % 2 == 0)
+		{
+			if (boyfriend.animation.curAnim.name != null && !boyfriend.animation.curAnim.name.startsWith("sing"))
+				boyfriend.dance();
+			if (dadOpponent.animation.curAnim.name != null && !dadOpponent.animation.curAnim.name.startsWith("sing"))
+				dadOpponent.dance();
+		}
 	}
 
 	override function beatHit()
@@ -1529,6 +1528,7 @@ class PlayState extends MusicBeatState
 
 		if (!isStoryMode)
 		{
+			cpuControlled = false;
 			persistentUpdate = false;
 			Main.switchState(this, new FreeplayState());
 		}
@@ -1550,7 +1550,7 @@ class PlayState extends MusicBeatState
 				transIn = FlxTransitionableState.defaultTransIn;
 				transOut = FlxTransitionableState.defaultTransOut;
 
-				prevCamFollow = camFollow;
+				cpuControlled = false;
 
 				persistentUpdate = false;
 
@@ -1565,34 +1565,30 @@ class PlayState extends MusicBeatState
 				FlxG.save.flush();
 			}
 			else
-				songEndSpecificActions();
-		}
-		//
-	}
-
-	private function songEndSpecificActions()
-	{
-		switch (SONG.song.toLowerCase())
-		{
-			case 'eggnog':
-				// make the lights go out
-				var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom,
-					-FlxG.height * FlxG.camera.zoom).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
-				blackShit.scrollFactor.set();
-				add(blackShit);
-				camHUD.visible = false;
-
-				// oooo spooky
-				FlxG.sound.play(Paths.sound('Lights_Shut_off'));
-
-				// call the song end
-				new FlxTimer().start(Conductor.crochet / 1000, function(timer:FlxTimer)
+			{
+				switch (SONG.song.toLowerCase())
 				{
-					callDefaultSongEnd();
-				}, 1);
+					case 'eggnog':
+						// make the lights go out
+						var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom,
+							-FlxG.height * FlxG.camera.zoom).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
+						blackShit.scrollFactor.set();
+						add(blackShit);
+						camHUD.visible = false;
 
-			default:
-				callDefaultSongEnd();
+						// oooo spooky
+						FlxG.sound.play(Paths.sound('Lights_Shut_off'));
+
+						// call the song end
+						new FlxTimer().start(Conductor.crochet / 1000, function(timer:FlxTimer)
+						{
+							callDefaultSongEnd();
+						}, 1);
+
+					default:
+						callDefaultSongEnd();
+				}
+			}
 		}
 	}
 
@@ -1603,6 +1599,9 @@ class PlayState extends MusicBeatState
 
 		FlxTransitionableState.skipNextTransIn = true;
 		FlxTransitionableState.skipNextTransOut = true;
+
+		prevCamFollow = camFollow;
+		prevCamFollowPos = camFollowPos;
 
 		PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
 		ForeverTools.killMusic([songMusic, vocals]);

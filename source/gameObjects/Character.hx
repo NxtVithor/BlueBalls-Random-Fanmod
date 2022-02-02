@@ -31,6 +31,8 @@ class Character extends FNFSprite
 
 	public var holdTimer:Float = 0;
 
+	public var singDuration:Float = 4;
+
 	public var characterData:CharacterData;
 	public var adjustPos:Bool = true;
 
@@ -492,20 +494,16 @@ class Character extends FNFSprite
 		if (!isPlayer)
 		{
 			if (animation.curAnim.name.startsWith('sing'))
-			{
 				holdTimer += elapsed;
-			}
 
-			var dadVar:Float = 4;
-			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
+			if (holdTimer >= Conductor.stepCrochet * 0.001 * singDuration)
 			{
 				dance();
 				holdTimer = 0;
 			}
 		}
 
-		var curCharSimplified:String = simplifyCharacter();
-		switch (curCharSimplified)
+		switch (simplifyCharacter())
 		{
 			case 'gf':
 				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
