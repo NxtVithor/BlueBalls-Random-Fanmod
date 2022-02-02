@@ -326,7 +326,7 @@ class ChartingState extends MusicBeatState
 
 		stepperLength = new FlxUINumericStepper(10, 10, 4, 0, 0, 999, 0);
 		stepperLength.value = _song.notes[curSection].lengthInSteps;
-		stepperLength.name = "section_length";
+		stepperLength.name = 'section_length';
 
 		stepperSectionBPM = new FlxUINumericStepper(10, 80, 1, Conductor.bpm, 0, 999, 0);
 		stepperSectionBPM.value = Conductor.bpm;
@@ -348,20 +348,30 @@ class ChartingState extends MusicBeatState
 				var note = _song.notes[curSection].sectionNotes[i];
 				note[1] = (note[1] + 4) % 8;
 				_song.notes[curSection].sectionNotes[i] = note;
-				updateGrid();
 			}
+			updateGrid();
 		});
 
 		check_mustHitSection = new FlxUICheckBox(10, 30, null, null, "Must hit section", 100);
-		check_mustHitSection.name = 'check_mustHit';
-		check_mustHitSection.checked = true;
-		// _song.needsVoices = check_mustHit.checked;
+		check_mustHitSection.checked = _song.notes[curSection].mustHitSection;
+		check_mustHitSection.callback = function()
+		{
+			_song.notes[curSection].mustHitSection = check_mustHitSection.checked;
+		};
 
-		check_changeBPM = new FlxUICheckBox(10, 60, null, null, 'Change BPM', 100);
-		check_changeBPM.name = 'check_changeBPM';
+		check_changeBPM = new FlxUICheckBox(10, 60, null, null, "Change BPM", 100);
+		check_changeBPM.checked = _song.notes[curSection].changeBPM;
+		check_changeBPM.callback = function()
+		{
+			_song.notes[curSection].changeBPM = check_changeBPM.checked;
+		};
 
 		check_altAnim = new FlxUICheckBox(10, 90, null, null, "Alt Animation", 100);
-		check_altAnim.name = 'check_altAnim';
+		check_altAnim.checked = _song.notes[curSection].altAnim;
+		check_altAnim.callback = function()
+		{
+			_song.notes[curSection].altAnim = check_altAnim.checked;
+		};
 
 		// add section tab
 		sectionTab.add(stepperLength);
@@ -649,15 +659,15 @@ class ChartingState extends MusicBeatState
 		FlxG.sound.list.add(songMusic);
 		FlxG.sound.list.add(vocals);
 
-		songMusic.play();
-		vocals.play();
+		// songMusic.play();
+		// vocals.play();
 
 		songPosition = 0;
 
 		songMusic.time = Math.max(songMusic.time, 0);
 		songMusic.time = Math.min(songMusic.time, songMusic.length);
 
-		pauseMusic();
+		// pauseMusic();
 
 		songMusic.onComplete = function()
 		{
