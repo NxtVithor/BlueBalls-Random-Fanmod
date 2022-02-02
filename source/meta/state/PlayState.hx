@@ -49,6 +49,9 @@ class PlayState extends MusicBeatState
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 2;
 
+	// lazy moment
+	private var isTutorial:Bool = false;
+
 	public static var songMusic:FlxSound;
 	public static var vocals:FlxSound;
 
@@ -113,7 +116,7 @@ class PlayState extends MusicBeatState
 
 	public static var defaultCamZoom:Float = 1.05;
 
-	public static var forceZoom:Array<Float>;
+	public static var forceZoom:Array<Float> = [0, 0, 0, 0];
 
 	public static var songScore:Int = 0;
 
@@ -163,10 +166,6 @@ class PlayState extends MusicBeatState
 		misses = 0;
 		// sets up the combo object array
 		lastCombo = [];
-
-		defaultCamZoom = 1.05;
-		cameraSpeed = 1;
-		forceZoom = [0, 0, 0, 0];
 
 		Timings.callAccuracy();
 
@@ -359,6 +358,10 @@ class PlayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
 		Paths.clearUnusedMemory();
+
+		isTutorial = SONG.song.toLowerCase() == 'tutorial';
+		if (isTutorial)
+			tweenCamOut();
 
 		// call the funny intro cutscene depending on the song
 		if (!skipCutscenes())
@@ -826,15 +829,6 @@ class PlayState extends MusicBeatState
 				});
 			}
 		}
-
-		if (boyfriendStrums.autoplay
-			&& boyfriend != null
-			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-			&& boyfriend.animation.curAnim.name.startsWith('sing')
-			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
-		{
-			boyfriend.dance();
-		}
 	}
 
 	function destroyNote(strumline:Strumline, daNote:Note)
@@ -1003,13 +997,8 @@ class PlayState extends MusicBeatState
 				}
 				goodNoteHit(daNote, char, strumline, canDisplayJudgement);
 			}
-
 			// make bf dance
-			if (boyfriend != null
-				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-				&& boyfriend.animation.curAnim.name.startsWith('sing')
-				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
-				boyfriend.dance();
+			bfHoldDance();
 		}
 		else
 		{
@@ -1029,6 +1018,8 @@ class PlayState extends MusicBeatState
 						goodNoteHit(coolNote, char, strumline);
 				});
 			}
+			else
+				bfHoldDance();
 		}
 	}
 
@@ -1357,6 +1348,14 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	private function bfHoldDance()
+	{
+		if (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
+			&& boyfriend.animation.curAnim.name.startsWith('sing')
+			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
+			boyfriend.dance();
+	}
+
 	override function beatHit()
 	{
 		super.beatHit();
@@ -1385,6 +1384,12 @@ class PlayState extends MusicBeatState
 		{
 			camDisplaceX = 0;
 			camDisplaceY = 0;
+		}
+
+		if (curBeat % 16 == 15 && isTutorial && dadOpponent.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
+		{
+			boyfriend.playAnim('hey', true);
+			dadOpponent.playAnim('cheer', true);
 		}
 
 		charactersDance(curBeat);
@@ -1455,7 +1460,16 @@ class PlayState extends MusicBeatState
 	{
 		var daSection:SwagSection = SONG.notes[id];
 		if (daSection != null)
+		{
+			if (isTutorial)
+			{
+				if (!daSection.mustHitSection)
+					tweenCamIn();
+				else
+					tweenCamOut();
+			}
 			moveCamera(!daSection.mustHitSection);
+		}
 	}
 
 	public function moveCamera(isDad:Bool)
@@ -1469,7 +1483,7 @@ class PlayState extends MusicBeatState
 		{
 			char = dadOpponent;
 
-			getCenterX = char.getMidpoint().x + 100;
+			getCenterX = char.getMidpoint().x + 150;
 			getCenterY = char.getMidpoint().y - 100;
 		}
 		else
@@ -1493,6 +1507,16 @@ class PlayState extends MusicBeatState
 
 		camFollow.x = getCenterX + camDisplaceX + char.characterData.camOffsetX;
 		camFollow.y = getCenterY + camDisplaceY + char.characterData.camOffsetY;
+	}
+
+	public function tweenCamIn()
+	{
+		FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+	}
+
+	public function tweenCamOut()
+	{
+		FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 	}
 
 	function endSong()
