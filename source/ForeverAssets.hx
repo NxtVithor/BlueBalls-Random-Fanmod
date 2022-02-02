@@ -148,8 +148,8 @@ class ForeverAssets
 					24 + (noteData * 2),
 					32 + (noteData * 2)
 				], 24, false);
-				tempSplash.addOffset('anim1', -20, -10);
-				tempSplash.addOffset('anim2', -20, -10);
+				tempSplash.addOffset('anim1', 20, 10);
+				tempSplash.addOffset('anim2', 20, 10);
 				tempSplash.animation.play('anim1');
 		}
 
