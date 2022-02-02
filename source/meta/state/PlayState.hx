@@ -123,6 +123,8 @@ class PlayState extends MusicBeatState
 
 	public static var songLength:Float = 0;
 
+	private var endingSong:Bool = false;
+
 	private var stageBuild:Stage;
 
 	public static var uiHUD:ClassHUD;
@@ -414,7 +416,7 @@ class PlayState extends MusicBeatState
 		return copiedArray;
 	}
 
-	private function gamepadKeyShit():Void
+	private function gamepadKeyShit()
 	{
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 		keyPressByController = gamepad != null && (!gamepad.justReleased.ANY || gamepad.pressed.ANY);
@@ -439,7 +441,7 @@ class PlayState extends MusicBeatState
 
 	var keysArray:Array<Dynamic>;
 
-	public function onKeyPress(event:KeyboardEvent):Void
+	public function onKeyPress(event:KeyboardEvent)
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
@@ -501,7 +503,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function onKeyRelease(event:KeyboardEvent):Void
+	public function onKeyRelease(event:KeyboardEvent)
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
@@ -978,7 +980,7 @@ class PlayState extends MusicBeatState
 		character.holdTimer = 0;
 	}
 
-	private function mainControls(daNote:Note, char:Character, strumline:Strumline, autoplay:Bool):Void
+	private function mainControls(daNote:Note, char:Character, strumline:Strumline, autoplay:Bool)
 	{
 		var notesPressedAutoplay = [];
 
@@ -1030,14 +1032,14 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	override public function onFocus():Void
+	override public function onFocus()
 	{
 		if (!paused)
 			updateRPC(false);
 		super.onFocus();
 	}
 
-	override public function onFocusLost():Void
+	override public function onFocusLost()
 	{
 		updateRPC(true);
 		super.onFocusLost();
@@ -1254,7 +1256,7 @@ class PlayState extends MusicBeatState
 		health += (healthBase * (ratingMultiplier / 100));
 	}
 
-	function startSong():Void
+	function startSong()
 	{
 		startingSong = false;
 
@@ -1278,7 +1280,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	private function generateSong(dataPath:String):Void
+	private function generateSong(dataPath:String)
 	{
 		// FlxG.log.add(ChartParser.parse());
 
@@ -1323,13 +1325,12 @@ class PlayState extends MusicBeatState
 	function sortByShit(Obj1:Note, Obj2:Note):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 
-	function resyncVocals():Void
+	function resyncVocals()
 	{
 		// trace('resyncing vocal time ${vocals.time}');
 		songMusic.pause();
 		vocals.pause();
-		Conductor.songPosition = songMusic.time;
-		vocals.time = Conductor.songPosition;
+		vocals.time = Conductor.songPosition = songMusic.time;
 		songMusic.play();
 		vocals.play();
 		// trace('new vocal time ${Conductor.songPosition}');
@@ -1338,7 +1339,7 @@ class PlayState extends MusicBeatState
 	override function stepHit()
 	{
 		super.stepHit();
-		if (songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20)
+		if (!endingSong && (songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20))
 			resyncVocals();
 	}
 
@@ -1435,9 +1436,7 @@ class PlayState extends MusicBeatState
 				startTimer.active = true;
 			paused = false;
 
-			///*
 			updateRPC(false);
-			// */
 		}
 
 		super.closeSubState();
@@ -1496,11 +1495,9 @@ class PlayState extends MusicBeatState
 		camFollow.y = getCenterY + camDisplaceY + char.characterData.camOffsetY;
 	}
 
-	/// song end function at the end of the playstate lmao ironic I guess
-	private var endSongEvent:Bool = false;
-
-	function endSong():Void
+	function endSong()
 	{
+		endingSong = true;
 		canPause = false;
 		songMusic.volume = 0;
 		vocals.volume = 0;
@@ -1522,7 +1519,7 @@ class PlayState extends MusicBeatState
 			storyPlaylist.remove(storyPlaylist[0]);
 
 			// check if there aren't any songs left
-			if (storyPlaylist.length <= 0 && !endSongEvent)
+			if (storyPlaylist.length <= 0)
 			{
 				// play menu music
 				ForeverTools.resetMenuMusic(false, true);
@@ -1721,7 +1718,7 @@ class PlayState extends MusicBeatState
 
 	public static var swagCounter:Int = 0;
 
-	private function startCountdown():Void
+	private function startCountdown()
 	{
 		inCutscene = false;
 		Conductor.songPosition = -(Conductor.crochet * 5);

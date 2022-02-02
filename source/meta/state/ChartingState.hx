@@ -738,8 +738,7 @@ class ChartingState extends MusicBeatState
 	{
 		songMusic.pause();
 		vocals.pause();
-		Conductor.songPosition = songMusic.time;
-		vocals.time = Conductor.songPosition;
+		vocals.time = Conductor.songPosition = songMusic.time;
 		songMusic.play();
 		vocals.play();
 	}
