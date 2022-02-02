@@ -119,6 +119,7 @@ class PauseSubState extends MusicBeatSubState
 					PlayState.cpuControlled = !PlayState.cpuControlled;
 					levelBotplay.visible = PlayState.cpuControlled;
 				case "Exit to menu":
+					PlayState.cpuControlled = false;
 					if (PlayState.isStoryMode)
 					{
 						ForeverTools.resetMenuMusic(false, true);

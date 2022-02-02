@@ -89,37 +89,37 @@ class UIStaticArrow extends FlxSprite
 	{
 		// yeah no I'm not writing the same shit 4 times over
 		// take it or leave it my guy
-		var stringSect:String = '';
 		switch (numb)
 		{
-			case(0):
-				stringSect = 'left';
-			case(1):
-				stringSect = 'down';
-			case(2):
-				stringSect = 'up';
-			case(3):
-				stringSect = 'right';
+			case 0:
+				return 'left';
+			case 1:
+				return 'down';
+			case 2:
+				return 'up';
+			case 3:
+				return 'right';
+			default:
+				return '';
 		}
-		return stringSect;
 	}
 
 	// that last function was so useful I gave it a sequel
 	public static function getColorFromNumber(numb:Int)
 	{
-		var stringSect:String = '';
 		switch (numb)
 		{
-			case(0):
-				stringSect = 'purple';
-			case(1):
-				stringSect = 'blue';
-			case(2):
-				stringSect = 'green';
-			case(3):
-				stringSect = 'red';
+			case 0:
+				return 'purple';
+			case 1:
+				return 'blue';
+			case 2:
+				return 'green';
+			case 3:
+				return 'red';
+			default:
+				return '';
 		}
-		return stringSect;
 	}
 }
 

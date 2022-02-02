@@ -538,8 +538,6 @@ class PlayState extends MusicBeatState
 		super.destroy();
 	}
 
-	var lastSection:Int = 0;
-
 	override public function update(elapsed:Float)
 	{
 		stageBuild.stageUpdateConstant(elapsed, boyfriend, gf, dadOpponent);
@@ -632,22 +630,6 @@ class PlayState extends MusicBeatState
 			}
 
 			// boyfriend.playAnim('singLEFT', true);
-
-			if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
-			{
-				var curSection = Std.int(curStep / 16);
-				if (curSection != lastSection)
-				{
-					// section reset stuff
-					var lastMustHit:Bool = PlayState.SONG.notes[lastSection].mustHitSection;
-					if (PlayState.SONG.notes[curSection].mustHitSection != lastMustHit)
-					{
-						camDisplaceX = 0;
-						camDisplaceY = 0;
-					}
-					lastSection = curSection;
-				}
-			}
 
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
@@ -837,15 +819,9 @@ class PlayState extends MusicBeatState
 					}
 
 					// if the note is off screen (above)
-					var doKill:Bool = daNote.y < -daNote.height;
-					if (strumline.downscroll)
-						doKill = daNote.y > FlxG.height;
-					if (doKill)
+					if (Conductor.songPosition > 350 / SONG.speed + daNote.strumTime)
 						destroyNote(strumline, daNote);
 				});
-
-				// unoptimised asf camera control based on strums
-				strumCameraRoll(strumline.receptors, (strumline == boyfriendStrums));
 			}
 		}
 
@@ -892,6 +868,23 @@ class PlayState extends MusicBeatState
 					if (coolNote.isSustainNote && !coolNote.animation.curAnim.name.endsWith('end'))
 						time += 0.15;
 					receptor.resetAnim = time;
+				}
+			}
+
+			// cam displace i think
+			if (!Init.trueSettings.get('No Camera Note Movement'))
+			{
+				var camDisplaceExtend:Float = 15;
+				switch (coolNote.noteData)
+				{
+					case 0:
+						camDisplaceX = -camDisplaceExtend;
+					case 1:
+						camDisplaceY = camDisplaceExtend;
+					case 2:
+						camDisplaceY = -camDisplaceExtend;
+					case 3:
+						camDisplaceX = camDisplaceExtend;
 				}
 			}
 
@@ -990,27 +983,35 @@ class PlayState extends MusicBeatState
 		var notesPressedAutoplay = [];
 
 		// here I'll set up the autoplay functions
-		// check if the note was a good hit
-		if (autoplay && daNote.strumTime <= Conductor.songPosition)
+		if (autoplay)
 		{
-			// kill the note, then remove it from the array
-			var canDisplayJudgement = false;
-			if (strumline.displayJudgements)
+			// check if the note was a good hit
+			if (daNote.strumTime <= Conductor.songPosition)
 			{
-				canDisplayJudgement = true;
-				for (noteDouble in notesPressedAutoplay)
+				var canDisplayJudgement = false;
+				if (strumline.displayJudgements)
 				{
-					if (noteDouble.noteData == daNote.noteData)
-						canDisplayJudgement = false;
+					canDisplayJudgement = true;
+					for (noteDouble in notesPressedAutoplay)
+					{
+						if (noteDouble.noteData == daNote.noteData)
+							canDisplayJudgement = false;
+					}
+					notesPressedAutoplay.push(daNote);
 				}
-				notesPressedAutoplay.push(daNote);
+				goodNoteHit(daNote, char, strumline, canDisplayJudgement);
 			}
-			goodNoteHit(daNote, char, strumline, canDisplayJudgement);
-		}
 
-		var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-		if (!autoplay)
+			// make bf dance
+			if (boyfriend != null
+				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
+				&& boyfriend.animation.curAnim.name.startsWith('sing')
+				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
+				boyfriend.dance();
+		}
+		else
 		{
+			var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
 			// check if anything is held
 			if (holdControls.contains(true))
 			{
@@ -1025,33 +1026,6 @@ class PlayState extends MusicBeatState
 						&& holdControls[coolNote.noteData])
 						goodNoteHit(coolNote, char, strumline);
 				});
-			}
-			else if (boyfriend != null
-				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-				&& boyfriend.animation.curAnim.name.startsWith('sing')
-				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
-				boyfriend.dance();
-		}
-	}
-
-	private function strumCameraRoll(cStrum:FlxTypedGroup<UIStaticArrow>, mustHit:Bool)
-	{
-		if (!Init.trueSettings.get('No Camera Note Movement'))
-		{
-			var camDisplaceExtend:Float = 15;
-			if (PlayState.SONG.notes[Std.int(curStep / 16)] != null)
-			{
-				camDisplaceX = 0;
-				if (cStrum.members[0].animation.curAnim.name == 'confirm')
-					camDisplaceX -= camDisplaceExtend;
-				if (cStrum.members[3].animation.curAnim.name == 'confirm')
-					camDisplaceX += camDisplaceExtend;
-
-				camDisplaceY = 0;
-				if (cStrum.members[1].animation.curAnim.name == 'confirm')
-					camDisplaceY += camDisplaceExtend;
-				if (cStrum.members[2].animation.curAnim.name == 'confirm')
-					camDisplaceY -= camDisplaceExtend;
 			}
 		}
 	}
@@ -1404,6 +1378,13 @@ class PlayState extends MusicBeatState
 		}
 
 		uiHUD.beatHit();
+
+		// reset cam displace
+		if (!boyfriend.animation.curAnim.name.startsWith('sing') || !dadOpponent.animation.curAnim.name.startsWith('sing'))
+		{
+			camDisplaceX = 0;
+			camDisplaceY = 0;
+		}
 
 		charactersDance(curBeat);
 
