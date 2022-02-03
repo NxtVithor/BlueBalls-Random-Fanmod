@@ -693,19 +693,15 @@ class PlayState extends MusicBeatState
 		// if the song is generated
 		if (generatedMusic && startedCountdown)
 		{
+			var fakeCrochet:Float = (60 / SONG.bpm) * 1000;
 			for (strumline in strumLines)
 			{
 				// set the notes x and y
-				var downscrollMultiplier = 1;
-				if (strumline.downscroll)
-					downscrollMultiplier = -1;
-
+				var scrollMult = strumline.downscroll ? 1 : -1;
 				strumline.allNotes.forEachAlive(function(daNote:Note)
 				{
-					var roundedSpeed = FlxMath.roundDecimal(daNote.noteSpeed, 2);
 					var receptorPosY:Float = strumline.receptors.members[Math.floor(daNote.noteData)].y + Note.swagWidth / 6;
-					var psuedoY:Float = (downscrollMultiplier * -((Conductor.songPosition - daNote.strumTime) * (0.45 * roundedSpeed)))
-						- roundedSpeed / Conductor.stepCrochet;
+					var psuedoY:Float = scrollMult * (0.45 * (Conductor.songPosition - daNote.strumTime) * daNote.noteSpeed);
 
 					daNote.y = receptorPosY
 						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY
@@ -722,23 +718,24 @@ class PlayState extends MusicBeatState
 					var center:Float = receptorPosY + Note.swagWidth / 3;
 					if (daNote.isSustainNote)
 					{
-						daNote.y -= (daNote.height / 2) * downscrollMultiplier;
-						if (daNote.animation.curAnim.name.endsWith('holdend') && daNote.prevNote != null)
+						if (strumline.downscroll)
 						{
-							daNote.y -= (daNote.prevNote.height / 2) * downscrollMultiplier;
-							if (strumline.downscroll)
+							var realSpeed:Float = daNote.noteSpeed / 2;
+							// funky check for make shit work
+							var daCheck:Bool = daNote.noteSpeed < 3;
+							if (daCheck)
+								realSpeed = daNote.noteSpeed;
+							if (daNote.animation.curAnim.name.endsWith('end'))
 							{
-								daNote.y += (daNote.height * 2);
-								if (daNote.endHoldOffset == Math.NEGATIVE_INFINITY)
-								{
-									// set the end hold offset yeah I hate that I fix this like this
-									daNote.endHoldOffset = daNote.prevNote.y - (daNote.y + daNote.height - 2);
-								}
-								else
-									daNote.y += daNote.endHoldOffset;
+								daNote.y += 10.5 * fakeCrochet / 400 * 1.5 * daNote.noteSpeed + 46 * (daNote.noteSpeed - 1);
+								daNote.y -= 46 * (1 - fakeCrochet / 600) * daNote.noteSpeed;
+								if (!daCheck)
+									daNote.y -= realSpeed / 1.5;
+								if (assetModifier == 'pixel')
+									daNote.y += 10;
 							}
-							else // this system is funny like that
-								daNote.y += (daNote.height / 2) * downscrollMultiplier;
+							daNote.y += Note.swagWidth / 2 - 60.5 * (realSpeed - 1);
+							daNote.y += 27.5 * (SONG.bpm / 100 - 1) * (realSpeed - 1);
 						}
 
 						daNote.flipY = strumline.downscroll;
