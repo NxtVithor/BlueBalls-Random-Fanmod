@@ -75,8 +75,9 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
-		scoreBar = new FlxText(FlxG.width / 2, healthBarBG.y + 40, 0, '', 20);
+		scoreBar = new FlxText(0, healthBarBG.y + 40, 0, '', 20);
 		scoreBar.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scoreBar.screenCenter(X);
 		updateScoreText();
 		scoreBar.scrollFactor.set();
 		add(scoreBar);
@@ -158,14 +159,14 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 			iconP2.animation.curAnim.curFrame = 0;
 	}
 
-	private final divider:String = ' - ';
+	// just spaces lmao
+	private final divider:String = '    ';
 
 	public function updateScoreText()
 	{
 		if (!PlayState.cpuControlled)
 		{
 			scoreBar.text = 'Score: ' + PlayState.songScore;
-			// testing purposes
 			if (Init.trueSettings.get('Display Accuracy'))
 			{
 				scoreBar.text += divider + 'Misses: ' + PlayState.misses;

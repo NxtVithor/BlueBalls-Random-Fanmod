@@ -210,7 +210,7 @@ class Main extends Sprite
 
 	function onCrash(e:UncaughtErrorEvent):Void
 	{
-		var errMsg:String = "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/Stilic/Forever-Modding";
+		var errMsg:String = "Uncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/Stilic/Forever-Modding\n";
 		var path:String;
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
 		var dateNow:String = Date.now().toString();

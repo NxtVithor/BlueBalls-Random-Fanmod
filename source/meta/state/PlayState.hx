@@ -742,8 +742,7 @@ class PlayState extends MusicBeatState
 						if (strumline.downscroll)
 						{
 							daNote.flipY = true;
-							if ((daNote.parentNote != null && daNote.parentNote.wasGoodHit)
-								&& daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center
+							if (daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center
 								&& (strumline.autoplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
 							{
 								var swagRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
@@ -754,8 +753,7 @@ class PlayState extends MusicBeatState
 						}
 						else
 						{
-							if ((daNote.parentNote != null && daNote.parentNote.wasGoodHit)
-								&& daNote.y + daNote.offset.y * daNote.scale.y <= center
+							if (daNote.y + daNote.offset.y * daNote.scale.y <= center
 								&& (strumline.autoplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
 							{
 								var swagRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
@@ -780,46 +778,16 @@ class PlayState extends MusicBeatState
 						daNote.active = true;
 					}
 
-					if (!daNote.tooLate && daNote.strumTime < Conductor.songPosition - (Timings.msThreshold) && !daNote.wasGoodHit)
+					if ((!daNote.isSustainNote || curStep % 3 == 0)
+						&& !daNote.tooLate
+						&& !daNote.wasGoodHit
+						&& daNote.strumTime < Conductor.songPosition - (Timings.msThreshold))
 					{
-						if ((!daNote.tooLate) && (daNote.mustPress))
-						{
-							if (!daNote.isSustainNote)
-							{
-								daNote.tooLate = true;
-								for (note in daNote.childrenNotes)
-									note.tooLate = true;
-
-								vocals.volume = 0;
-								missNoteCheck((Init.trueSettings.get('Ghost Tapping')) ? true : false, daNote.noteData, boyfriend, true);
-								// ambiguous name
-								Timings.updateAccuracy(0);
-							}
-							else if (daNote.isSustainNote)
-							{
-								if (daNote.parentNote != null)
-								{
-									var parentNote = daNote.parentNote;
-									if (!parentNote.tooLate)
-									{
-										var breakFromLate:Bool = false;
-										for (note in parentNote.childrenNotes)
-										{
-											trace('hold amount ${parentNote.childrenNotes.length}, note is late?' + note.tooLate + ', ' + breakFromLate);
-											if (note.tooLate && !note.wasGoodHit)
-												breakFromLate = true;
-										}
-										if (!breakFromLate)
-										{
-											missNoteCheck((Init.trueSettings.get('Ghost Tapping')) ? true : false, daNote.noteData, boyfriend, true);
-											for (note in parentNote.childrenNotes)
-												note.tooLate = true;
-										}
-										//
-									}
-								}
-							}
-						}
+						daNote.tooLate = true;
+						vocals.volume = 0;
+						missNoteCheck(true, daNote.noteData, boyfriend);
+						// ambiguous name
+						Timings.updateAccuracy(0);
 					}
 
 					// if the note is off screen (above)
@@ -933,7 +901,6 @@ class PlayState extends MusicBeatState
 
 			if (!coolNote.isSustainNote)
 				destroyNote(characterStrums, coolNote);
-			//
 		}
 	}
 
@@ -1013,12 +980,7 @@ class PlayState extends MusicBeatState
 				// check notes that are alive
 				strumline.allNotes.forEachAlive(function(coolNote:Note)
 				{
-					if ((coolNote.parentNote != null && coolNote.parentNote.wasGoodHit)
-						&& coolNote.canBeHit
-						&& coolNote.mustPress
-						&& !coolNote.tooLate
-						&& coolNote.isSustainNote
-						&& holdControls[coolNote.noteData])
+					if (coolNote.canBeHit && coolNote.mustPress && coolNote.isSustainNote && holdControls[coolNote.noteData])
 						goodNoteHit(coolNote, char, strumline);
 				});
 			}
@@ -1154,14 +1116,15 @@ class PlayState extends MusicBeatState
 		songScore -= 10;
 		misses++;
 
+		// doesnt matter miss ratings dont have timings
+		healthCall(Timings.judgementsMap.get('miss')[3]);
+
 		// display negative combo
 		if (popMiss)
 		{
-			// doesnt matter miss ratings dont have timings
-			displayRating("miss", 'late');
-			healthCall(Timings.judgementsMap.get("miss")[3]);
+			displayRating('miss', 'late');
+			popUpCombo();
 		}
-		popUpCombo();
 
 		// gotta do it manually here lol
 		Timings.updateFCDisplay();
@@ -1340,21 +1303,25 @@ class PlayState extends MusicBeatState
 
 	private function charactersDance(curBeat:Int)
 	{
-		if (curBeat % gfSpeed == 0 && (gf.animation.curAnim.name.startsWith("idle") || gf.animation.curAnim.name.startsWith("dance")))
-			gf.dance();
-
-		if (curBeat % 2 == 0)
+		if (!paused)
 		{
-			if (boyfriend.animation.curAnim.name != null && !boyfriend.animation.curAnim.name.startsWith("sing"))
-				boyfriend.dance();
-			if (dadOpponent.animation.curAnim.name != null && !dadOpponent.animation.curAnim.name.startsWith("sing"))
-				dadOpponent.dance();
+			if (curBeat % gfSpeed == 0 && (gf.animation.curAnim.name.startsWith("idle") || gf.animation.curAnim.name.startsWith("dance")))
+				gf.dance();
+
+			if (curBeat % 2 == 0)
+			{
+				if (boyfriend.animation.curAnim.name != null && !boyfriend.animation.curAnim.name.startsWith("sing"))
+					boyfriend.dance();
+				if (dadOpponent.animation.curAnim.name != null && !dadOpponent.animation.curAnim.name.startsWith("sing"))
+					dadOpponent.dance();
+			}
 		}
 	}
 
 	private function bfHoldDance()
 	{
-		if (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
+		if (!paused
+			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 			&& boyfriend.animation.curAnim.name.startsWith('sing')
 			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
 			boyfriend.dance();

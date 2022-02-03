@@ -24,7 +24,6 @@ class PlayerSettings
 	// static public var onAvatarAdd = new FlxTypedSignal<PlayerSettings->Void>();
 	// static public var onAvatarRemove = new FlxTypedSignal<PlayerSettings->Void>();
 	// #end
-
 	public var id(default, null):Int;
 
 	#if (haxe >= "4.0.0")

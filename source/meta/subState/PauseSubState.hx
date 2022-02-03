@@ -94,15 +94,9 @@ class PauseSubState extends MusicBeatSubState
 		super.update(elapsed);
 
 		if (controls.UI_UP_P)
-		{
-			FlxG.sound.play(Paths.sound('scrollMenu'));
 			changeSelection(-1);
-		}
 		if (controls.UI_DOWN_P)
-		{
-			FlxG.sound.play(Paths.sound('scrollMenu'));
 			changeSelection(1);
-		}
 
 		if (controls.ACCEPT)
 		{
@@ -143,6 +137,8 @@ class PauseSubState extends MusicBeatSubState
 
 	function changeSelection(change:Int = 0):Void
 	{
+		FlxG.sound.play(Paths.sound('scrollMenu'));
+
 		curSelected += change;
 
 		if (curSelected < 0)
