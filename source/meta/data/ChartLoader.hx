@@ -24,6 +24,7 @@ class ChartLoader
 		{
 			default:
 				// load fnf style charts (PRE 2.8)
+				// also we don't use a separate chart format. we extend the normal chart format instead.
 				var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
 
 				for (section in noteData)
