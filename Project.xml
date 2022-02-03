@@ -35,8 +35,7 @@
 	<set name="BUILD_DIR" value="export" />
 	<source path="source" />
 	<assets path="assets" />
-	<assets path="FE-CrashDialog.exe" type="template" if="windows release" />
-	<assets path='example_mods' rename='mods' embed='false' if="MODS_ALLOWED"/>
+	<assets path="example_mods" rename="mods" embed="false" if="MODS_ALLOWED"/>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -95,5 +94,4 @@
 	<icon path="art/icon256.png" size='256' />
 	<icon path="art/icon512.png" size='512' />
 	<icon path="art/iconOG.png" />
-
 </project>
