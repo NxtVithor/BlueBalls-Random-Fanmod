@@ -719,7 +719,7 @@ class PlayState extends MusicBeatState
 					daNote.angle = -daNote.noteDirection;
 
 					// shitty note hack I hate it so much
-					var center:Float = receptorPosY + Note.swagWidth / 2;
+					var center:Float = receptorPosY + Note.swagWidth / 4;
 					if (daNote.isSustainNote)
 					{
 						daNote.y -= (daNote.height / 2) * downscrollMultiplier;
