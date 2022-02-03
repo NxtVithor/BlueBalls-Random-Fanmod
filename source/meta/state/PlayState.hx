@@ -691,56 +691,57 @@ class PlayState extends MusicBeatState
 		}
 
 		// if the song is generated
+		// if the song is generated
 		if (generatedMusic && startedCountdown)
 		{
-			var fakeCrochet:Float = (60 / SONG.bpm) * 1000;
 			for (strumline in strumLines)
 			{
 				// set the notes x and y
-				var scrollMult = strumline.downscroll ? 1 : -1;
+				var downscrollMultiplier = 1;
+				if (strumline.downscroll)
+					downscrollMultiplier = -1;
+
 				strumline.allNotes.forEachAlive(function(daNote:Note)
 				{
+					var roundedSpeed = FlxMath.roundDecimal(daNote.noteSpeed, 2);
 					var receptorPosY:Float = strumline.receptors.members[Math.floor(daNote.noteData)].y + Note.swagWidth / 6;
-					var psuedoY:Float = scrollMult * (0.45 * (Conductor.songPosition - daNote.strumTime) * daNote.noteSpeed);
+					var psuedoY:Float = downscrollMultiplier * -((Conductor.songPosition - daNote.strumTime) * (0.45 * roundedSpeed));
 
 					daNote.y = receptorPosY
-						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY
-						+ Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * daNote.noteVisualOffset;
+						+ (Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY)
+						+ (Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * daNote.noteVisualOffset);
 					// painful math equation
 					daNote.x = strumline.receptors.members[Math.floor(daNote.noteData)].x
-						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * daNote.noteVisualOffset
-						+ Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY;
+						+ (Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * daNote.noteVisualOffset)
+						+ (Math.sin(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY);
 
 					// also set note rotation
 					daNote.angle = -daNote.noteDirection;
 
 					// shitty note hack I hate it so much
-					var center:Float = receptorPosY + Note.swagWidth / 3;
+					var center:Float = receptorPosY + Note.swagWidth / 2;
 					if (daNote.isSustainNote)
 					{
-						if (strumline.downscroll)
+						daNote.y -= (daNote.height / 2) * downscrollMultiplier;
+						if (daNote.animation.curAnim.name.endsWith('holdend') && daNote.prevNote != null)
 						{
-							var realSpeed:Float = daNote.noteSpeed / 2;
-							// funky check for make shit work
-							var daCheck:Bool = daNote.noteSpeed < 3;
-							if (daCheck)
-								realSpeed = daNote.noteSpeed;
-							if (daNote.animation.curAnim.name.endsWith('end'))
+							daNote.y -= (daNote.prevNote.height / 2) * downscrollMultiplier;
+							if (strumline.downscroll)
 							{
-								daNote.y += 10.5 * fakeCrochet / 400 * 1.5 * daNote.noteSpeed + 46 * (daNote.noteSpeed - 1);
-								daNote.y -= 46 * (1 - fakeCrochet / 600) * daNote.noteSpeed;
-								if (!daCheck)
-									daNote.y -= realSpeed / 1.5;
-								if (assetModifier == 'pixel')
-									daNote.y += 10;
+								daNote.y += daNote.height * 2;
+								if (daNote.endHoldOffset == Math.NEGATIVE_INFINITY)
+									// set the end hold offset yeah I hate that I fix this like this
+									daNote.endHoldOffset = daNote.prevNote.y - (daNote.y + daNote.height);
+								else
+									daNote.y += daNote.endHoldOffset;
 							}
-							daNote.y += Note.swagWidth / 2 - 60.5 * (realSpeed - 1);
-							daNote.y += 27.5 * (SONG.bpm / 100 - 1) * (realSpeed - 1);
+							else // this system is funny like that
+								daNote.y += (daNote.height / 2) * downscrollMultiplier;
 						}
 
-						daNote.flipY = strumline.downscroll;
 						if (strumline.downscroll)
 						{
+							daNote.flipY = true;
 							if ((daNote.parentNote != null && daNote.parentNote.wasGoodHit)
 								&& daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center
 								&& (strumline.autoplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
@@ -781,7 +782,7 @@ class PlayState extends MusicBeatState
 
 					if (!daNote.tooLate && daNote.strumTime < Conductor.songPosition - (Timings.msThreshold) && !daNote.wasGoodHit)
 					{
-						if (!daNote.tooLate && daNote.mustPress)
+						if ((!daNote.tooLate) && (daNote.mustPress))
 						{
 							if (!daNote.isSustainNote)
 							{
@@ -790,7 +791,7 @@ class PlayState extends MusicBeatState
 									note.tooLate = true;
 
 								vocals.volume = 0;
-								missNoteCheck(Init.trueSettings.get('Ghost Tapping') ? true : false, daNote.noteData, boyfriend, true);
+								missNoteCheck((Init.trueSettings.get('Ghost Tapping')) ? true : false, daNote.noteData, boyfriend, true);
 								// ambiguous name
 								Timings.updateAccuracy(0);
 							}
@@ -804,13 +805,13 @@ class PlayState extends MusicBeatState
 										var breakFromLate:Bool = false;
 										for (note in parentNote.childrenNotes)
 										{
-											// trace('hold amount ${parentNote.childrenNotes.length}, note is late?' + note.tooLate + ', ' + breakFromLate);
+											trace('hold amount ${parentNote.childrenNotes.length}, note is late?' + note.tooLate + ', ' + breakFromLate);
 											if (note.tooLate && !note.wasGoodHit)
 												breakFromLate = true;
 										}
 										if (!breakFromLate)
 										{
-											missNoteCheck(Init.trueSettings.get('Ghost Tapping') ? true : false, daNote.noteData, boyfriend, true);
+											missNoteCheck((Init.trueSettings.get('Ghost Tapping')) ? true : false, daNote.noteData, boyfriend, true);
 											for (note in parentNote.childrenNotes)
 												note.tooLate = true;
 										}
@@ -822,7 +823,11 @@ class PlayState extends MusicBeatState
 					}
 
 					// if the note is off screen (above)
-					if (Conductor.songPosition > 350 / SONG.speed + daNote.strumTime)
+					var doKill:Bool = daNote.y < -daNote.height;
+					if (Init.trueSettings.get('Downscroll'))
+						doKill = daNote.y > (FlxG.height + daNote.height);
+
+					if (doKill && (daNote.tooLate || daNote.wasGoodHit))
 						destroyNote(strumline, daNote);
 				});
 			}
@@ -866,7 +871,8 @@ class PlayState extends MusicBeatState
 			}
 
 			// cam displace i think
-			if (!Init.trueSettings.get('No Camera Note Movement'))
+			var daSection:SwagSection = SONG.notes[Math.floor(curStep / 16)];
+			if (!Init.trueSettings.get('No Camera Note Movement') && daSection != null && coolNote.mustPress == daSection.mustHitSection)
 			{
 				var camDisplaceExtend:Float = 15;
 				switch (coolNote.noteData)
@@ -1328,7 +1334,7 @@ class PlayState extends MusicBeatState
 	override function stepHit()
 	{
 		super.stepHit();
-		if (!endingSong && (songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20))
+		if (songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20)
 			resyncVocals();
 	}
 
@@ -1378,7 +1384,9 @@ class PlayState extends MusicBeatState
 		uiHUD.beatHit();
 
 		// reset cam displace
-		if (!boyfriend.animation.curAnim.name.startsWith('sing') || !dadOpponent.animation.curAnim.name.startsWith('sing'))
+		if (curBeat % 2 == 0
+			&& ((!boyfriend.animation.curAnim.name.startsWith('sing') || boyfriend.animation.curAnim.name.endsWith('miss'))
+				|| (!dadOpponent.animation.curAnim.name.startsWith('sing') || dadOpponent.animation.curAnim.name.endsWith('miss'))))
 		{
 			camDisplaceX = 0;
 			camDisplaceY = 0;

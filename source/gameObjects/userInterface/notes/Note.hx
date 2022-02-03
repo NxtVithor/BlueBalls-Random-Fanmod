@@ -72,7 +72,6 @@ class Note extends FNFSprite
 		// determine parent note
 		if (isSustainNote && prevNote != null)
 		{
-			flipY = Init.trueSettings.get('Downscroll');
 			parentNote = prevNote;
 			while (parentNote.parentNote != null)
 				parentNote = parentNote.parentNote;
@@ -284,8 +283,6 @@ class Note extends FNFSprite
 			newNote.noteSpeed = prevNote.noteSpeed;
 			newNote.alpha = (Init.trueSettings.get('Opaque Holds')) ? 1 : 0.6;
 			newNote.animation.play('holdend');
-			if (assetModifier == 'pixel')
-				newNote.y -= newNote.height;
 			newNote.updateHitbox();
 
 			if (prevNote.isSustainNote)
@@ -293,9 +290,6 @@ class Note extends FNFSprite
 				prevNote.animation.play('hold');
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * (43 / 52) * 1.5 * prevNote.noteSpeed;
-				// I HAVE SEEN THAT LMAO!!!!
-				if (assetModifier == 'pixel')
-					prevNote.y -= prevNote.height;
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}

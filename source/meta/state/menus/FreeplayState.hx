@@ -291,7 +291,7 @@ class FreeplayState extends MusicBeatState
 					{
 						if (index == curSelected && index != curSongPlaying)
 						{
-							if (index == curSelected && threadActive)
+							if (index == curSelected && index != curSongPlaying && threadActive)
 							{
 								mutex.acquire();
 								songToPlay = Paths.inst(songs[curSelected].songName);
