@@ -231,15 +231,20 @@ class Main extends Sprite
 			}
 		}
 
+		#if desktop
 		if (!FileSystem.exists("./crash/"))
 			FileSystem.createDirectory("./crash/");
 
 		File.saveContent(path, errMsg + "\n");
+		#end
 
 		Sys.println(errMsg);
+
+		#if desktop
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 
 		Application.current.window.alert(errMsg, "Error!");
+		#end
 
 		Sys.exit(1);
 	}
