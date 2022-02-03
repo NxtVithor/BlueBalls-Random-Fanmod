@@ -27,9 +27,9 @@ class Timings
 
 	// set the score judgements for later use
 	public static var scoreRating:Map<String, Int> = [
-		"S+" => 100,
-		"S" => 95,
-		"A" => 90,
+		"s+" => 100,
+		"s" => 95,
+		"a" => 90,
 		"b" => 85,
 		"c" => 80,
 		"d" => 75,
