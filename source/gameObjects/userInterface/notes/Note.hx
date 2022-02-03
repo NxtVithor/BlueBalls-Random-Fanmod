@@ -87,7 +87,7 @@ class Note extends FNFSprite
 
 		if (mustPress)
 		{
-			if (strumTime > Conductor.songPosition - (Timings.msThreshold) && strumTime < Conductor.songPosition + (Timings.msThreshold))
+			if (strumTime > Conductor.songPosition - Timings.msThreshold && strumTime < Conductor.songPosition + Timings.msThreshold)
 				canBeHit = true;
 			else
 				canBeHit = false;

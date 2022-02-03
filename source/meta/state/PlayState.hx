@@ -781,7 +781,7 @@ class PlayState extends MusicBeatState
 					if ((!daNote.isSustainNote || curStep % 3 == 0)
 						&& !daNote.tooLate
 						&& !daNote.wasGoodHit
-						&& daNote.strumTime < Conductor.songPosition - (Timings.msThreshold))
+						&& daNote.strumTime < Conductor.songPosition - Timings.msThreshold)
 					{
 						daNote.tooLate = true;
 						vocals.volume = 0;
@@ -792,10 +792,9 @@ class PlayState extends MusicBeatState
 
 					// if the note is off screen (above)
 					var doKill:Bool = daNote.y < -daNote.height;
-					if (Init.trueSettings.get('Downscroll'))
+					if (strumline.downscroll)
 						doKill = daNote.y > (FlxG.height + daNote.height);
-
-					if (doKill && (daNote.tooLate || daNote.wasGoodHit))
+					if (doKill)
 						destroyNote(strumline, daNote);
 				});
 			}
