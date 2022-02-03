@@ -366,7 +366,7 @@ class ChartingState extends MusicBeatState
 			_song.notes[curSection].changeBPM = check_changeBPM.checked;
 		};
 
-		check_altAnim = new FlxUICheckBox(10, 90, null, null, "Alt Animation", 100);
+		check_altAnim = new FlxUICheckBox(10, 100, null, null, "Alt Animation", 100);
 		check_altAnim.checked = _song.notes[curSection].altAnim;
 		check_altAnim.callback = function()
 		{
