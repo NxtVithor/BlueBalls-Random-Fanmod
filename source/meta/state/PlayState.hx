@@ -704,7 +704,8 @@ class PlayState extends MusicBeatState
 				{
 					var roundedSpeed = FlxMath.roundDecimal(daNote.noteSpeed, 2);
 					var receptorPosY:Float = strumline.receptors.members[Math.floor(daNote.noteData)].y + Note.swagWidth / 6;
-					var psuedoY:Float = (downscrollMultiplier * -((Conductor.songPosition - daNote.strumTime) * (0.45 * roundedSpeed)));
+					var psuedoY:Float = (downscrollMultiplier * -((Conductor.songPosition - daNote.strumTime) * (0.45 * roundedSpeed)))
+						- roundedSpeed / Conductor.stepCrochet;
 
 					daNote.y = receptorPosY
 						+ Math.cos(flixel.math.FlxAngle.asRadians(daNote.noteDirection)) * psuedoY

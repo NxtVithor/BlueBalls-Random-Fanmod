@@ -65,11 +65,11 @@ class ChartingState extends MusicBeatState
 	**/
 	var curSelectedNote:Array<Dynamic>;
 
+	var curNoteType:Int = 0;
+
 	var lastSection:Int = 0;
 
 	var curSection:Int = 0;
-
-	public static var selectedNoteAlpha:Float = 0.35;
 
 	public static var gridSize:Int = 50;
 
@@ -490,24 +490,16 @@ class ChartingState extends MusicBeatState
 				{
 					// add note funny
 					var noteStrum = getStrumTime(dummyArrow.y);
-
 					var noteData = adjustSide(Math.floor((dummyArrow.x - fullGrid.x) / gridSize), _song.notes[curSection].mustHitSection);
+					var noteType = curNoteType; // define notes as the current type
 					var noteSus = 0; // ninja you will NOT get away with this
 
-					_song.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, 0]);
+					_song.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, noteType]);
 
 					curSelectedNote = _song.notes[curSection].sectionNotes[_song.notes[curSection].sectionNotes.length - 1];
 
-					curRenderedNotes.forEachAlive(function(note:Note)
-					{
-						note.alpha = 1;
-
-						if (curSelectedNote[0] == note.strumTime && curSelectedNote[1] % 4 == note.noteData)
-							note.alpha = selectedNoteAlpha;
-					});
-
 					if (FlxG.keys.pressed.CONTROL)
-						_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, 0]);
+						_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteType]);
 
 					FlxG.save.data.autosave = Json.stringify({
 						"song": _song
@@ -525,8 +517,6 @@ class ChartingState extends MusicBeatState
 							if (FlxG.keys.pressed.CONTROL)
 							{
 								// select note
-								note.alpha = selectedNoteAlpha;
-
 								var swagNum:Int = 0;
 
 								for (i in _song.notes[curSection].sectionNotes)
@@ -578,6 +568,55 @@ class ChartingState extends MusicBeatState
 
 		if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S)
 			save();
+	}
+
+	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)
+	{
+		if (id == FlxUICheckBox.CLICK_EVENT)
+		{
+			var check:FlxUICheckBox = cast sender;
+			var label = check.getLabel().text;
+			switch (label)
+			{
+				case 'Must hit section':
+					_song.notes[curSection].mustHitSection = check.checked;
+				case 'Change BPM':
+					_song.notes[curSection].changeBPM = check.checked;
+				case "Alt Animation":
+					_song.notes[curSection].altAnim = check.checked;
+			}
+		}
+		else if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
+		{
+			var nums:FlxUINumericStepper = cast sender;
+			var wname = nums.name;
+			FlxG.log.add(wname);
+			// ew what was this before? made it switch cases instead of else if
+			switch (wname)
+			{
+				case 'section_length':
+					_song.notes[curSection].lengthInSteps = Std.int(nums.value); // change length
+					updateGrid(); // vrrrrmmm
+				case 'song_speed':
+					_song.speed = nums.value; // change the song speed
+				case 'song_bpm':
+					var bpm = Std.int(nums.value);
+					_song.bpm = bpm;
+					Conductor.mapBPMChanges(_song);
+					Conductor.changeBPM(bpm);
+				case 'note_susLength': // STOP POSTING ABOUT AMONG US
+					curSelectedNote[2] = nums.value; // change the currently selected note's length
+					updateGrid(); // oh btw I know sus stands for sustain it just bothers me
+				case 'note_type':
+					curNoteType = Std.int(nums.value); // oh yeah dont forget this has to be an integer
+				// set the new note type for when placing notes next!
+				case 'section_bpm':
+					_song.notes[curSection].bpm = Std.int(nums.value); // redefine the section's bpm
+					updateGrid(); // update the note grid
+			}
+		}
+
+		// FlxG.log.add(id + " WEED " + sender + " WEED " + data + " WEED " + params);
 	}
 
 	function updateUI(?ignoreSectionTab:Bool = false)
