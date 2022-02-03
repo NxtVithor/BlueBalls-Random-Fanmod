@@ -32,10 +32,13 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	// set up mods folder
+	// set up mod variables
 	public static var modFolder:String = "mods";
-
 	// public static var currentModsFolder:String = "";
+	public static var modsFolders:Array<String>;
+
+	static var ignoredModsFolders:Array<String> = ["fonts", "images", "music", "shaders", "songs", "sounds", "weeks"];
+
 	// stealing my own code from psych engine
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 	public static var currentTrackedTextures:Map<String, Texture> = [];
@@ -172,7 +175,36 @@ class Paths
 		return currentTrackedSounds.get(gottenPath);
 	}
 
-	inline public static function getPath(file:String, type:AssetType, ?library:Null<String>, ?allowModding:Bool = true)
+	public static function getModsFolders()
+	{
+		#if MODS_ALLOWED
+		// get folders list
+		var folders:Array<String> = FileSystem.readDirectory(modFolder);
+
+		// check if folder should be ignored
+		var foldersScan = function()
+		{
+			// i hate this so much
+			for (folder in folders)
+			{
+				if (ignoredModsFolders.contains(folder))
+					folders.remove(folder);
+				if (!FileSystem.isDirectory(mod(folder)))
+					folders.remove(folder);
+			}
+		};
+		foldersScan();
+		// second time cuz buggy :/
+		foldersScan();
+
+		// return da result
+		return folders;
+		#else
+		return [];
+		#end
+	}
+
+	public static function getPath(file:String, type:AssetType, ?library:Null<String>, ?allowModding:Bool = true)
 	{
 		/*
 			Okay so, from what I understand, this loads in the current path based on the level
@@ -184,9 +216,23 @@ class Paths
 		// well I'm rewriting it so that the library is the path and it looks for the file type
 		// later lmao I don't really wanna rn
 
+		#if MODS_ALLOWED
 		// check if the file is modded
-		if (allowModding && isModded(file))
-			return mod(file);
+		if (allowModding)
+		{
+			// priority to root folder modding
+			if (isModded(file))
+				return mod(file);
+
+			// check for mods folders
+			for (folder in modsFolders)
+			{
+				var daPath:String = mod(folder + '/' + file);
+				if (FileSystem.exists(daPath))
+					return daPath;
+			}
+		}
+		#end
 
 		// if a library is specified
 		if (library != null)
@@ -197,15 +243,18 @@ class Paths
 	}
 
 	// files!
-	// this is how I'm gonna do it, considering it's much cleaner in my opinion
+	inline public static function exists(path:String)
+	{
+		#if MODS_ALLOWED
+		if (isModded(path))
+			return true;
+		else
+			return OpenFlAssets.exists(path);
+		#else
+		return OpenFlAssets.exists(path);
+		#end
+	}
 
-	/*
-		inline static public function returnFileType(fileName:String, ?library:String, fileExtension:String)
-		{
-			// I don't really use haxe so bare with me
-			var returnFile:String = "$" + fileName + "." + fileExtension;
-			return getPath()
-	}//*/
 	/*  
 		actually I could just combine all of these main functions into one and really call it a day
 		it's similar and would use one function with a switch case
@@ -316,8 +365,7 @@ class Paths
 	inline static public function isModded(path:String)
 	{
 		#if MODS_ALLOWED
-		path = mod(path);
-		return FileSystem.exists(path);
+		return FileSystem.exists(mod(path));
 		#else
 		return false;
 		#end

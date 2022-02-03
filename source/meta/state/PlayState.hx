@@ -492,7 +492,6 @@ class PlayState extends MusicBeatState
 						}
 						// end of this little check
 					}
-					//
 				}
 				else // else just call bad notes
 					if (!Init.trueSettings.get('Ghost Tapping'))
@@ -1183,7 +1182,6 @@ class PlayState extends MusicBeatState
 				startDelay: Conductor.crochet * 0.00125
 			});
 		}
-		// */
 
 		if (!cache)
 		{

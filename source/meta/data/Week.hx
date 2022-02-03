@@ -60,13 +60,13 @@ class Week
 
 		#if MODS_ALLOWED
 		// check for modded weeks
-		var moddedWeeksFilesList:Array<String> = FileSystem.readDirectory('${Paths.modFolder}/weeks');
+		var moddedWeeksFilesList:Array<String> = FileSystem.readDirectory(Paths.mod('weeks'));
 
 		if (moddedWeeksFilesList != null)
 		{
 			for (i in 0...moddedWeeksFilesList.length)
 			{
-				var path:String = 'weeks/${moddedWeeksFilesList[i]}';
+				var path:String = 'weeks/' + moddedWeeksFilesList[i];
 
 				// make game crash if the week already exist in game files
 				if (weeksFilesList.contains(moddedWeeksFilesList[i]))
@@ -91,7 +91,7 @@ class Week
 				weeksNames[i] = weeksFilesList[i].substring(weeksFilesList[i].lastIndexOf('/'), weeksFilesList[i].length);
 
 				// load week from the json
-				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/${weeksFilesList[i]}')));
+				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/' + weeksFilesList[i])));
 			}
 		}
 	}

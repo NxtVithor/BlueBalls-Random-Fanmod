@@ -13,7 +13,6 @@ import meta.data.*;
 import meta.data.dependency.Discord;
 import meta.data.font.Alphabet;
 import openfl.media.Sound;
-import openfl.system.System;
 import sys.FileSystem;
 import sys.thread.Mutex;
 import sys.thread.Thread;

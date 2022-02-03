@@ -149,6 +149,12 @@ class Main extends Sprite
 		infoCounter = new InfoHud(10, 3, 0xFFFFFF, true);
 		addChild(infoCounter);
 
+		#if MODS_ALLOWED
+		// load mods folders
+		Paths.modsFolders = Paths.getModsFolders();
+		trace(Paths.modsFolders);
+		#end
+
 		// create weeks list
 		Week.loadWeeks();
 	}

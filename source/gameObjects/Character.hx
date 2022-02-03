@@ -9,7 +9,6 @@ import meta.*;
 import meta.data.*;
 import meta.data.dependency.FNFSprite;
 import meta.state.PlayState;
-import openfl.utils.Assets as OpenFlAssets;
 
 using StringTools;
 
@@ -415,7 +414,7 @@ class Character extends FNFSprite
 				// I'm probably not gonna clean it up and make it an actual feature of the engine I just wanted to play other people's mods but not add their files to
 				// the engine because that'd be stealing assets
 				var fileNew = curCharacter + 'Anims';
-				if (OpenFlAssets.exists(Paths.offsetTxt(fileNew)))
+				if (Paths.exists(Paths.offsetTxt(fileNew)))
 				{
 					var characterAnims:Array<String> = CoolUtil.coolTextFile(Paths.offsetTxt(fileNew));
 					var characterName:String = characterAnims[0].trim();
@@ -431,7 +430,7 @@ class Character extends FNFSprite
 		}
 
 		// set up offsets cus why not
-		if (OpenFlAssets.exists(Paths.offsetTxt(curCharacter + 'Offsets')))
+		if (Paths.exists(Paths.offsetTxt(curCharacter + 'Offsets')))
 		{
 			var characterOffsets:Array<String> = CoolUtil.coolTextFile(Paths.offsetTxt(curCharacter + 'Offsets'));
 			for (i in 0...characterOffsets.length)
