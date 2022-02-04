@@ -217,10 +217,8 @@ class Paths
 		#if MODS_ALLOWED
 		// repeat bruh
 		for (folder in modsFolders)
-		{
 			if (FileSystem.exists(mod(folder + '/' + file)))
 				return true;
-		}
 
 		if (isModded(path))
 			return true;
@@ -338,23 +336,16 @@ class Paths
 		return '$modFolder/$key';
 	}
 
-	public static function getModsFolders()
+	public static function loadModsFolders()
 	{
 		#if MODS_ALLOWED
-		// get folders list
 		var folders:Array<String> = FileSystem.readDirectory(modFolder);
 
-		// check if some folders should be ignored
-		for (folder in folders)
-		{
-			if (ignoredModsFolders.contains(folder) && !FileSystem.isDirectory(mod(folder)))
-				folders.remove(folder);
-		}
+		modsFolders = [];
 
-		// return da result
-		return folders;
-		#else
-		return [];
+		for (folder in folders)
+			if (FileSystem.isDirectory(mod(folder)) && !ignoredModsFolders.contains(folder))
+				modsFolders.push(folder);
 		#end
 	}
 

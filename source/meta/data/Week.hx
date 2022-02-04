@@ -60,10 +60,23 @@ class Week
 
 		#if MODS_ALLOWED
 		// check for modded weeks
-		weeksFilesList = weeksFilesList.concat(scanModsWeeks(Paths.modFolder));
-		// lol we should have that for mod folders too
+		var weeksList:Array<String> = [];
+
+		// for root mods folder
+		for (week in FileSystem.readDirectory(Paths.mod('weeks')))
+			if (Paths.isModded('weeks/' + week + '.json'))
+				weeksList.push(week);
+
+		// for mods folders
 		for (folder in Paths.modsFolders)
-			weeksFilesList = weeksFilesList.concat(scanModsWeeks(Paths.mod(folder)));
+		{
+			if (FileSystem.isDirectory(Paths.mod(folder + '/weeks')))
+			{
+				for (week in FileSystem.readDirectory(Paths.mod(folder + '/weeks')))
+					if (Paths.isModded(folder + '/weeks/' + week + '.json'))
+						weeksList.push(week);
+			}
+		}
 		#end
 
 		// load the weeks
@@ -80,24 +93,5 @@ class Week
 				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/' + weeksFilesList[i])));
 			}
 		}
-	}
-
-	/**
-	 * YOU SHOULD FILTER YOUSELF THE LIST!!!
-	 */
-	private static function scanModsWeeks(path:String = '.')
-	{
-		var weeksFiles:Array<String> = FileSystem.readDirectory(path + '/weeks');
-		var weeksList:Array<String> = [];
-
-		for (i in 0...weeksFiles.length)
-		{
-			var daPath:String = path + '/weeks/' + weeksFiles[i];
-
-			if (Paths.isModded(daPath))
-				weeksList.push(weeksFiles[i]);
-		}
-
-		return weeksList;
 	}
 }

@@ -225,7 +225,7 @@ class Init extends FlxState
 		
 		#if MODS_ALLOWED
 		// load mods folders
-		Paths.modsFolders = Paths.getModsFolders();
+		Paths.loadModsFolders();
 		trace(Paths.modsFolders);
 		#end
 
