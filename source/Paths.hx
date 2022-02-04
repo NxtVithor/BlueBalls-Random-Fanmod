@@ -344,19 +344,12 @@ class Paths
 		// get folders list
 		var folders:Array<String> = FileSystem.readDirectory(modFolder);
 
-		// check if folder should be ignored
-		var foldersScan = function()
+		// check if some folders should be ignored
+		for (folder in folders)
 		{
-			// i hate this so much
-			for (folder in folders)
-			{
-				if (ignoredModsFolders.contains(folder) || !FileSystem.isDirectory(mod(folder)))
-					folders.remove(folder);
-			}
-		};
-		foldersScan();
-		// second time because it is buggy bruh
-		foldersScan();
+			if (ignoredModsFolders.contains(folder) && !FileSystem.isDirectory(mod(folder)))
+				folders.remove(folder);
+		}
 
 		// return da result
 		return folders;
