@@ -634,7 +634,7 @@ class PlayState extends MusicBeatState
 
 			// boyfriend.playAnim('singLEFT', true);
 
-			if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null)
+			if (generatedMusic)
 				moveCameraSection(Std.int(curStep / 16));
 
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed, 0, 1);
@@ -642,9 +642,13 @@ class PlayState extends MusicBeatState
 
 			// camera stuffs
 			var easeNum = CoolUtil.boundTo(1 - elapsed * 3.125, 0, 1);
-			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom + forceZoom[0], FlxG.camera.zoom, easeNum);
-			for (hud in allUIs)
-				hud.zoom = FlxMath.lerp(1 + forceZoom[1], hud.zoom, easeNum);
+
+			if (!isTutorial)
+			{
+				FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom + forceZoom[0], FlxG.camera.zoom, easeNum);
+				for (hud in allUIs)
+					hud.zoom = FlxMath.lerp(1 + forceZoom[1], hud.zoom, easeNum);
+			}
 
 			// not even forcezoom anymore but still
 			FlxG.camera.angle = FlxMath.lerp(0 + forceZoom[2], FlxG.camera.angle, easeNum);
@@ -1304,7 +1308,7 @@ class PlayState extends MusicBeatState
 	override function stepHit()
 	{
 		super.stepHit();
-		if (songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20)
+		if (songMusic.alive && songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20)
 			resyncVocals();
 	}
 
@@ -1327,7 +1331,7 @@ class PlayState extends MusicBeatState
 
 	private function bfHoldDance()
 	{
-		if (!paused
+		if (persistentDraw
 			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 			&& boyfriend.animation.curAnim.name.startsWith('sing')
 			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
@@ -1441,8 +1445,7 @@ class PlayState extends MusicBeatState
 		{
 			if (isTutorial && !daSection.mustHitSection)
 				tweenCamIn();
-			else
-				moveCamera(!daSection.mustHitSection);
+			moveCamera(!daSection.mustHitSection);
 		}
 	}
 
@@ -1467,8 +1470,8 @@ class PlayState extends MusicBeatState
 			getCenterX = char.getMidpoint().x - 100;
 			getCenterY = char.getMidpoint().y - 100;
 
-			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != 1)
-				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {
+			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
+				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {
 					ease: FlxEase.elasticInOut,
 					onComplete: function(twn:FlxTween)
 					{
