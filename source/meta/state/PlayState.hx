@@ -109,6 +109,9 @@ class PlayState extends MusicBeatState
 	public static var camGame:FlxCamera;
 	public static var dialogueHUD:FlxCamera;
 
+	// used by tutorial
+	var cameraTwn:FlxTween;
+
 	public var camDisplaceX:Float = 0;
 	public var camDisplaceY:Float = 0; // might not use depending on result
 
@@ -301,7 +304,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
-		moveCameraSection();
+		moveCameraSection(0);
 
 		// initialize ui elements
 		startingSong = true;
@@ -358,10 +361,6 @@ class PlayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
 		Paths.clearUnusedMemory();
-
-		isTutorial = SONG.song.toLowerCase() == 'tutorial';
-		if (isTutorial)
-			tweenCamOut();
 
 		// call the funny intro cutscene depending on the song
 		if (!skipCutscenes())
@@ -635,6 +634,9 @@ class PlayState extends MusicBeatState
 
 			// boyfriend.playAnim('singLEFT', true);
 
+			if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null)
+				moveCameraSection(Std.int(curStep / 16));
+
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
@@ -648,6 +650,8 @@ class PlayState extends MusicBeatState
 			FlxG.camera.angle = FlxMath.lerp(0 + forceZoom[2], FlxG.camera.angle, easeNum);
 			for (hud in allUIs)
 				hud.angle = FlxMath.lerp(0 + forceZoom[3], hud.angle, easeNum);
+
+			isTutorial = SONG.song.toLowerCase() == 'tutorial' && dadOpponent.curCharacter == 'gf';
 
 			if (health <= 0 && startedCountdown)
 			{
@@ -798,6 +802,11 @@ class PlayState extends MusicBeatState
 						destroyNote(strumline, daNote);
 				});
 			}
+
+			// dance piss moment
+			var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
+			if (!holdControls.contains(true))
+				bfHoldDance();
 		}
 	}
 
@@ -1333,13 +1342,11 @@ class PlayState extends MusicBeatState
 
 		if (daSection != null)
 		{
-			if (generatedMusic)
-				moveCameraSection(Std.int(curStep / 16));
 			if (daSection.changeBPM)
 				Conductor.changeBPM(daSection.bpm);
 		}
 
-		if (FlxG.camera.zoom < 1.35 && (!Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0))
+		if (!isTutorial && FlxG.camera.zoom < 1.35 && (!Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0))
 		{
 			FlxG.camera.zoom += 0.015;
 			for (hud in allUIs)
@@ -1357,7 +1364,7 @@ class PlayState extends MusicBeatState
 			camDisplaceY = 0;
 		}
 
-		if (curBeat % 16 == 15 && isTutorial && dadOpponent.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
+		if (curBeat % 16 == 15 && isTutorial && dadOpponent.curCharacter.startsWith('gf') && curBeat > 16 && curBeat < 48)
 		{
 			boyfriend.playAnim('hey', true);
 			dadOpponent.playAnim('cheer', true);
@@ -1432,14 +1439,10 @@ class PlayState extends MusicBeatState
 		var daSection:SwagSection = SONG.notes[id];
 		if (daSection != null)
 		{
-			if (isTutorial)
-			{
-				if (!daSection.mustHitSection)
-					tweenCamIn();
-				else
-					tweenCamOut();
-			}
-			moveCamera(!daSection.mustHitSection);
+			if (isTutorial && !daSection.mustHitSection)
+				tweenCamIn();
+			else
+				moveCamera(!daSection.mustHitSection);
 		}
 	}
 
@@ -1456,11 +1459,22 @@ class PlayState extends MusicBeatState
 
 			getCenterX = char.getMidpoint().x + 150;
 			getCenterY = char.getMidpoint().y - 100;
+
+			tweenCamIn();
 		}
 		else
 		{
 			getCenterX = char.getMidpoint().x - 100;
 			getCenterY = char.getMidpoint().y - 100;
+
+			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != 1)
+				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {
+					ease: FlxEase.elasticInOut,
+					onComplete: function(twn:FlxTween)
+					{
+						cameraTwn = null;
+					}
+				});
 		}
 
 		camFollow.x = getCenterX + camDisplaceX + char.characterData.camOffsetX;
@@ -1469,12 +1483,14 @@ class PlayState extends MusicBeatState
 
 	public function tweenCamIn()
 	{
-		FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
-	}
-
-	public function tweenCamOut()
-	{
-		FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+		if (isTutorial && cameraTwn == null && FlxG.camera.zoom != 1.3)
+			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {
+				ease: FlxEase.elasticInOut,
+				onComplete: function(twn:FlxTween)
+				{
+					cameraTwn = null;
+				}
+			});
 	}
 
 	function endSong()
