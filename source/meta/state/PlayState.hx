@@ -1460,19 +1460,6 @@ class PlayState extends MusicBeatState
 		{
 			getCenterX = char.getMidpoint().x - 100;
 			getCenterY = char.getMidpoint().y - 100;
-			switch (curStage)
-			{
-				case 'limo':
-					getCenterX = char.getMidpoint().x - 300;
-				case 'mall':
-					getCenterY = char.getMidpoint().y - 200;
-				case 'school':
-					getCenterX = char.getMidpoint().x - 200;
-					getCenterY = char.getMidpoint().y - 200;
-				case 'schoolEvil':
-					getCenterX = char.getMidpoint().x - 200;
-					getCenterY = char.getMidpoint().y - 200;
-			}
 		}
 
 		camFollow.x = getCenterX + camDisplaceX + char.characterData.camOffsetX;

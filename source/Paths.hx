@@ -175,35 +175,6 @@ class Paths
 		return currentTrackedSounds.get(gottenPath);
 	}
 
-	public static function getModsFolders()
-	{
-		#if MODS_ALLOWED
-		// get folders list
-		var folders:Array<String> = FileSystem.readDirectory(modFolder);
-
-		// check if folder should be ignored
-		var foldersScan = function()
-		{
-			// i hate this so much
-			for (folder in folders)
-			{
-				if (ignoredModsFolders.contains(folder))
-					folders.remove(folder);
-				if (!FileSystem.isDirectory(mod(folder)))
-					folders.remove(folder);
-			}
-		};
-		foldersScan();
-		// second time cuz buggy :/
-		foldersScan();
-
-		// return da result
-		return folders;
-		#else
-		return [];
-		#end
-	}
-
 	public static function getPath(file:String, type:AssetType, ?library:Null<String>, ?allowModding:Bool = true)
 	{
 		/*
@@ -360,6 +331,33 @@ class Paths
 	inline static public function mod(key:String)
 	{
 		return '$modFolder/$key';
+	}
+
+	public static function getModsFolders()
+	{
+		#if MODS_ALLOWED
+		// get folders list
+		var folders:Array<String> = FileSystem.readDirectory(modFolder);
+
+		// check if folder should be ignored
+		var foldersScan = function()
+		{
+			// i hate this so much
+			for (folder in folders)
+			{
+				if (ignoredModsFolders.contains(folder) || !FileSystem.isDirectory(mod(folder)))
+					folders.remove(folder);
+			}
+		};
+		foldersScan();
+		// second time because it is buggy bruh
+		foldersScan();
+
+		// return da result
+		return folders;
+		#else
+		return [];
+		#end
 	}
 
 	inline static public function isModded(path:String)
