@@ -313,10 +313,10 @@ class PlayState extends MusicBeatState
 		// strums setup
 		strumLines = new FlxTypedGroup<Strumline>();
 
-		var placement = (FlxG.width / 2);
-		dadStrums = new Strumline(placement - (FlxG.width / 4), this, dadOpponent, false, true, false, 4, Init.trueSettings.get('Downscroll'));
+		var placement = 15 + FlxG.width / 2;
+		dadStrums = new Strumline(placement - FlxG.width / 4, this, dadOpponent, false, true, false, 4, Init.trueSettings.get('Downscroll'));
 		dadStrums.visible = !Init.trueSettings.get('Centered Notefield');
-		boyfriendStrums = new Strumline(placement + (!Init.trueSettings.get('Centered Notefield') ? (FlxG.width / 4) : 0), this, boyfriend, true, false, true,
+		boyfriendStrums = new Strumline(placement + (!Init.trueSettings.get('Centered Notefield') ? FlxG.width / 4 : 0), this, boyfriend, true, false, true,
 			4, Init.trueSettings.get('Downscroll'));
 
 		strumLines.add(dadStrums);
@@ -494,7 +494,7 @@ class PlayState extends MusicBeatState
 				}
 				else // else just call bad notes
 					if (!Init.trueSettings.get('Ghost Tapping'))
-						missNoteCheck(true, key, boyfriend, true);
+						missNoteCheck(true, true, key, boyfriend, true);
 				Conductor.songPosition = previousTime;
 			}
 
@@ -793,16 +793,15 @@ class PlayState extends MusicBeatState
 					{
 						daNote.tooLate = true;
 						vocals.volume = 0;
-						missNoteCheck(true, daNote.noteData, boyfriend);
+						missNoteCheck(true, false, daNote.noteData, boyfriend, true);
 						// ambiguous name
 						Timings.updateAccuracy(0);
 					}
 
 					// if the note is off screen (above)
-					var doKill:Bool = daNote.y < -daNote.height;
-					if (strumline.downscroll)
-						doKill = daNote.y > (FlxG.height + daNote.height);
-					if (doKill)
+					if (((!strumline.downscroll && daNote.y < -daNote.height)
+						|| (strumline.downscroll && daNote.y > FlxG.height + daNote.height))
+						&& (daNote.tooLate || daNote.wasGoodHit))
 						destroyNote(strumline, daNote);
 				});
 			}
@@ -916,15 +915,13 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	function missNoteCheck(?includeAnimation:Bool = false, direction:Int = 0, character:Character, popMiss:Bool = false, lockMiss:Bool = false)
+	function missNoteCheck(?includeAnimation:Bool = false, ?playSound:Bool = false, direction:Int = 0, character:Character, popMiss:Bool = false,
+			lockMiss:Bool = false)
 	{
-		if (includeAnimation)
-		{
-			var stringDirection:String = UIStaticArrow.getArrowFromNumber(direction);
-
+		if (playSound)
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
-			character.playAnim('sing' + stringDirection.toUpperCase() + 'miss', lockMiss);
-		}
+		if (includeAnimation)
+			character.playAnim('sing' + UIStaticArrow.getArrowFromNumber(direction).toUpperCase() + 'miss', lockMiss);
 		decreaseCombo(popMiss);
 	}
 
@@ -1154,7 +1151,7 @@ class PlayState extends MusicBeatState
 				combo += 1;
 			}
 			else
-				missNoteCheck(true, direction, character, false, true);
+				missNoteCheck(true, true, direction, character, false, true);
 		}
 	}
 
@@ -1331,7 +1328,7 @@ class PlayState extends MusicBeatState
 
 	private function bfHoldDance()
 	{
-		if (persistentDraw
+		if (boyfriend != null
 			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 			&& boyfriend.animation.curAnim.name.startsWith('sing')
 			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
@@ -1460,7 +1457,7 @@ class PlayState extends MusicBeatState
 		{
 			char = dadOpponent;
 
-			getCenterX = char.getMidpoint().x + 150;
+			getCenterX = char.getMidpoint().x + 100;
 			getCenterY = char.getMidpoint().y - 100;
 
 			tweenCamIn();
@@ -1469,6 +1466,17 @@ class PlayState extends MusicBeatState
 		{
 			getCenterX = char.getMidpoint().x - 100;
 			getCenterY = char.getMidpoint().y - 100;
+
+			switch (curStage)
+			{
+				case 'limo':
+					getCenterX = char.getMidpoint().x - 300;
+				case 'mall':
+					getCenterY = char.getMidpoint().y - 200;
+				case 'school' | 'schoolEvil':
+					getCenterX = char.getMidpoint().x - 200;
+					getCenterY = char.getMidpoint().y - 200;
+			}
 
 			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
 				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {
