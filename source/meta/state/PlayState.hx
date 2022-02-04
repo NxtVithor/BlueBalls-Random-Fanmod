@@ -1457,7 +1457,7 @@ class PlayState extends MusicBeatState
 		{
 			char = dadOpponent;
 
-			getCenterX = char.getMidpoint().x + 100;
+			getCenterX = char.getMidpoint().x + 150;
 			getCenterY = char.getMidpoint().y - 100;
 
 			tweenCamIn();
