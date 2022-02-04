@@ -60,22 +60,10 @@ class Week
 
 		#if MODS_ALLOWED
 		// check for modded weeks
-		var moddedWeeksFilesList:Array<String> = FileSystem.readDirectory(Paths.mod('weeks'));
-
-		if (moddedWeeksFilesList != null)
-		{
-			for (i in 0...moddedWeeksFilesList.length)
-			{
-				var path:String = 'weeks/' + moddedWeeksFilesList[i];
-
-				// make game crash if the week already exist in game files
-				if (weeksFilesList.contains(moddedWeeksFilesList[i]))
-					throw new Exception('TRYING TO OVERRIDE A GAME WEEK????');
-				// wanna add a custom week with a good name???
-				else if (Paths.isModded(path))
-					weeksFilesList.push(moddedWeeksFilesList[i]);
-			}
-		}
+		weeksFilesList = weeksFilesList.concat(scanModsWeeks(Paths.modFolder));
+		// lol we should have that for mod folders too
+		for (folder in Paths.modsFolders)
+			weeksFilesList = weeksFilesList.concat(scanModsWeeks(Paths.mod(folder)));
 		#end
 
 		// load the weeks
@@ -86,13 +74,30 @@ class Week
 			{
 				// remove .json extension
 				weeksFilesList[i] = weeksFilesList[i].substring(0, weeksFilesList[i].lastIndexOf('.'));
-
 				// add week name
 				weeksNames[i] = weeksFilesList[i].substring(weeksFilesList[i].lastIndexOf('/'), weeksFilesList[i].length);
-
 				// load week from the json
 				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/' + weeksFilesList[i])));
 			}
 		}
+	}
+
+	/**
+	 * YOU SHOULD FILTER YOUSELF THE LIST!!!
+	 */
+	private static function scanModsWeeks(path:String = '.')
+	{
+		var weeksFiles:Array<String> = FileSystem.readDirectory(path + '/weeks');
+		var weeksList:Array<String> = [];
+
+		for (i in 0...weeksFiles.length)
+		{
+			var daPath:String = path + '/weeks/' + weeksFiles[i];
+
+			if (Paths.isModded(daPath))
+				weeksList.push(weeksFiles[i]);
+		}
+
+		return weeksList;
 	}
 }

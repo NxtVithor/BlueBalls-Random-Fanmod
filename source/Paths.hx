@@ -191,17 +191,15 @@ class Paths
 		// check if the file is modded
 		if (allowModding)
 		{
-			// priority to root folder modding
-			if (isModded(file))
-				return mod(file);
-
-			// check for mods folders
 			for (folder in modsFolders)
 			{
 				var daPath:String = mod(folder + '/' + file);
 				if (FileSystem.exists(daPath))
 					return daPath;
 			}
+
+			if (isModded(file))
+				return mod(file);
 		}
 		#end
 
@@ -214,9 +212,16 @@ class Paths
 	}
 
 	// files!
-	inline public static function exists(path:String)
+	public static function exists(path:String)
 	{
 		#if MODS_ALLOWED
+		// repeat bruh
+		for (folder in modsFolders)
+		{
+			if (FileSystem.exists(mod(folder + '/' + file)))
+				return true;
+		}
+
 		if (isModded(path))
 			return true;
 		else
