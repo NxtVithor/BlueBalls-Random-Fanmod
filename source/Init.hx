@@ -221,6 +221,15 @@ class Init extends FlxState
 
 		loadSettings();
 		loadControls();
+		
+		#if MODS_ALLOWED
+		// load mods folders
+		Paths.modsFolders = Paths.getModsFolders();
+		trace(Paths.modsFolders);
+		#end
+
+		// create weeks list
+		Week.loadWeeks();
 
 		#if !html5
 		Main.updateFramerate(trueSettings.get("Framerate Cap"));
