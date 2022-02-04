@@ -5,6 +5,7 @@ import flixel.input.keyboard.FlxKey;
 import meta.CoolUtil;
 import meta.InfoHud;
 import meta.data.Highscore;
+import meta.data.Week;
 import meta.state.*;
 import openfl.filters.BitmapFilter;
 import openfl.filters.ColorMatrixFilter;
