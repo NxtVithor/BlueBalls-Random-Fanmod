@@ -730,7 +730,7 @@ class PlayState extends MusicBeatState
 								daNote.y += daNote.height * 2;
 								if (daNote.endHoldOffset == Math.NEGATIVE_INFINITY)
 									// set the end hold offset yeah I hate that I fix this like this
-									daNote.endHoldOffset = daNote.prevNote.y - (daNote.y + daNote.height);
+									daNote.endHoldOffset = daNote.prevNote.y - (daNote.y + daNote.height) + 2;
 								else
 									daNote.y += daNote.endHoldOffset;
 							}
@@ -777,9 +777,8 @@ class PlayState extends MusicBeatState
 						daNote.active = true;
 					}
 
-					if ((!daNote.isSustainNote
-					     || (curStep % 3 == 0 &&daNote.parentNote != null
-						 && !daNote.parentNote.wasGoodHit))
+					if ((!daNote.isSustainNote || (daNote.parentNote != null && !daNote.parentNote.wasGoodHit))
+						&& daNote.mustPress
 						&& !daNote.tooLate
 						&& !daNote.wasGoodHit
 						&& daNote.strumTime < Conductor.songPosition - Timings.msThreshold)

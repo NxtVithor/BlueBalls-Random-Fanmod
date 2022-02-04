@@ -1,13 +1,13 @@
 package meta.subState;
 
+import flixel.math.FlxMath;
+import flixel.math.FlxPoint;
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.FlxSubState;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import gameObjects.Boyfriend;
 import meta.MusicBeat.MusicBeatSubState;
-import meta.data.Conductor.BPMChangeEvent;
 import meta.data.Conductor;
 import meta.state.*;
 import meta.state.menus.*;
@@ -15,7 +15,12 @@ import meta.state.menus.*;
 class GameOverSubstate extends MusicBeatSubState
 {
 	var bf:Boyfriend;
-	var camFollow:FlxObject;
+
+	var camFollow:FlxPoint;
+	var camFollowPos:FlxObject;
+	var updateCamera:Bool = false;
+	var isFollowing:Bool = false;
+
 	var stageSuffix:String = "";
 
 	public function new(x:Float, y:Float)
@@ -43,8 +48,7 @@ class GameOverSubstate extends MusicBeatSubState
 
 		PlayState.boyfriend.destroy();
 
-		camFollow = new FlxObject(bf.getGraphicMidpoint().x + 20, bf.getGraphicMidpoint().y - 40, 1, 1);
-		add(camFollow);
+		camFollow = new FlxPoint(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);
 
 		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
 		Conductor.changeBPM(100);
@@ -53,6 +57,10 @@ class GameOverSubstate extends MusicBeatSubState
 		// FlxG.camera.focusOn(FlxPoint.get(FlxG.width / 2, FlxG.height / 2));
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
+
+		camFollowPos = new FlxObject(0, 0, 1, 1);
+		camFollowPos.setPosition(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2));
+		add(camFollowPos);
 
 		bf.playAnim('firstDeath');
 	}
@@ -90,8 +98,18 @@ class GameOverSubstate extends MusicBeatSubState
 			}
 		}
 
-		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
-			FlxG.camera.follow(camFollow, LOCKON, 0.01);
+		if (!isFollowing && bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame >= 12)
+		{
+			FlxG.camera.follow(camFollowPos, LOCKON, 1);
+			updateCamera = true;
+			isFollowing = true;
+		}
+
+		if (updateCamera)
+		{
+			var lerpVal:Float = CoolUtil.boundTo(elapsed * 0.6, 0, 1);
+			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
+		}
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 			FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));

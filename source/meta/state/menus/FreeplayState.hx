@@ -152,10 +152,17 @@ class FreeplayState extends MusicBeatState
 		if (Math.abs(lerpScore - intendedScore) <= 10)
 			lerpScore = intendedScore;
 
-		if (controls.UI_UP_P)
-			changeSelection(-1);
-		else if (controls.UI_DOWN_P)
-			changeSelection(1);
+		var upP = controls.UI_UP_P;
+		var downP = controls.UI_DOWN_P;
+
+		if (upP || downP)
+		{
+			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+			if (upP)
+				changeSelection(-1);
+			else if (downP)
+				changeSelection(1);
+		}
 
 		if (controls.UI_LEFT_P)
 			changeDiff(-1);
@@ -234,8 +241,6 @@ class FreeplayState extends MusicBeatState
 
 	function changeSelection(change:Int = 0)
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-
 		curSelected += change;
 
 		if (curSelected < 0)
@@ -288,18 +293,13 @@ class FreeplayState extends MusicBeatState
 					var index:Null<Int> = Thread.readMessage(false);
 					if (index != null)
 					{
-						if (index == curSelected && index != curSongPlaying)
+						if (index == curSelected && threadActive)
 						{
-							if (index == curSelected && index != curSongPlaying && threadActive)
-							{
-								mutex.acquire();
-								songToPlay = Paths.inst(songs[curSelected].songName);
-								mutex.release();
+							mutex.acquire();
+							songToPlay = Paths.inst(songs[curSelected].songName);
+							mutex.release();
 
-								curSongPlaying = curSelected;
-							}
-							else
-								trace("Nevermind, skipping " + index);
+							curSongPlaying = curSelected;
 						}
 						else
 							trace("Skipping " + index);

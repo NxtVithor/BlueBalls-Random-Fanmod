@@ -63,9 +63,12 @@ class Week
 		var weeksList:Array<String> = [];
 
 		// for root mods folder
-		for (week in FileSystem.readDirectory(Paths.mod('weeks')))
-			if (Paths.isModded('weeks/' + week + '.json'))
-				weeksList.push(week);
+		if (FileSystem.isDirectory(Paths.mod('weeks')))
+		{
+			for (week in FileSystem.readDirectory(Paths.mod('weeks')))
+				if (Paths.isModded('weeks/' + week + '.json'))
+					weeksList.push(week);
+		}
 
 		// for mods folders
 		for (folder in Paths.modsFolders)
