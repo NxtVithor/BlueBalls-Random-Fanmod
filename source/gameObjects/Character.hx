@@ -236,6 +236,8 @@ class Character extends FNFSprite
 
 				flipX = true;
 
+				characterData.offsetX = 50;
+
 			case 'bf':
 				frames = Paths.getSparrowAtlas('characters/BOYFRIEND');
 
