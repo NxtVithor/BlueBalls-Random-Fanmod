@@ -74,11 +74,11 @@ class PlayState extends MusicBeatState
 	// get it cus release
 	// I'm funny just trust me
 	private var curSection:Int = 0;
-	private var camFollow:FlxPoint;
+
+	private var camFollow:FlxObject;
 	private var camFollowPos:FlxObject;
 
-	private static var prevCamFollow:FlxPoint;
-	private static var prevCamFollowPos:FlxObject;
+	private static var prevCamFollow:FlxObject;
 
 	// Discord RPC variables
 	public static var songDetails:String = "";
@@ -280,31 +280,30 @@ class PlayState extends MusicBeatState
 		camPos.set(gf.x + (gf.frameWidth / 2), gf.y + (gf.frameHeight / 2));
 
 		// create the game camera
-		camFollow = new FlxPoint();
+		camFollow = new FlxObject(0, 0, 1, 1);
+		camFollow.setPosition(camPos.x, camPos.y);
 		camFollowPos = new FlxObject(0, 0, 1, 1);
-
-		snapCamFollowToPos(camPos.x, camPos.y);
+		camFollowPos.setPosition(camPos.x, camPos.y);
 		// check if the camera was following someone previously
 		if (prevCamFollow != null)
 		{
 			camFollow = prevCamFollow;
 			prevCamFollow = null;
 		}
-		if (prevCamFollowPos != null)
-		{
-			camFollowPos = prevCamFollowPos;
-			prevCamFollowPos = null;
-		}
+
+		add(camFollow);
 		add(camFollowPos);
+
+		// set pixel zoom
+		if (assetModifier == 'pixel')
+			defaultCamZoom = 1.05;
 
 		// actually set the camera up
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.camera.zoom = defaultCamZoom;
-		FlxG.camera.focusOn(camFollow);
+		FlxG.camera.focusOn(camFollow.getPosition());
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
-
-		moveCameraSection(0);
 
 		// initialize ui elements
 		startingSong = true;
@@ -541,6 +540,8 @@ class PlayState extends MusicBeatState
 		super.destroy();
 	}
 
+	var lastSection:Int = 0;
+
 	override public function update(elapsed:Float)
 	{
 		stageBuild.stageUpdateConstant(elapsed, boyfriend, gf, dadOpponent);
@@ -634,10 +635,69 @@ class PlayState extends MusicBeatState
 
 			// boyfriend.playAnim('singLEFT', true);
 
-			if (generatedMusic)
-				moveCameraSection(Std.int(curStep / 16));
+			if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null)
+			{
+				var curSection = Std.int(curStep / 16);
+				if (curSection != lastSection)
+				{
+					// section reset stuff
+					var lastMustHit:Bool = SONG.notes[lastSection].mustHitSection;
+					if (SONG.notes[curSection].mustHitSection != lastMustHit)
+					{
+						camDisplaceX = 0;
+						camDisplaceY = 0;
+					}
+					lastSection = Std.int(curStep / 16);
+				}
 
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed, 0, 1);
+				if (!SONG.notes[Std.int(curStep / 16)].mustHitSection)
+				{
+					var char = dadOpponent;
+
+					var getCenterX = char.getMidpoint().x + 100;
+					var getCenterY = char.getMidpoint().y - 100;
+
+					camFollow.setPosition(getCenterX + camDisplaceX + char.characterData.camOffsetX,
+						getCenterY + camDisplaceY + char.characterData.camOffsetY);
+
+					if (isTutorial)
+						tweenCamIn();
+				}
+				else
+				{
+					var char = boyfriend;
+
+					var getCenterX = char.getMidpoint().x - 100;
+					var getCenterY = char.getMidpoint().y - 100;
+					switch (curStage)
+					{
+						case 'limo':
+							getCenterX = char.getMidpoint().x - 300;
+						case 'mall':
+							getCenterY = char.getMidpoint().y - 200;
+						case 'school':
+							getCenterX = char.getMidpoint().x - 200;
+							getCenterY = char.getMidpoint().y - 200;
+						case 'schoolEvil':
+							getCenterX = char.getMidpoint().x - 200;
+							getCenterY = char.getMidpoint().y - 200;
+					}
+
+					camFollow.setPosition(getCenterX + camDisplaceX - char.characterData.camOffsetX,
+						getCenterY + camDisplaceY + char.characterData.camOffsetY);
+
+					if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
+						cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {
+							ease: FlxEase.elasticInOut,
+							onComplete: function(twn:FlxTween)
+							{
+								cameraTwn = null;
+							}
+						});
+				}
+			}
+
+			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
 			// camera stuffs
@@ -655,7 +715,7 @@ class PlayState extends MusicBeatState
 			for (hud in allUIs)
 				hud.angle = FlxMath.lerp(0 + forceZoom[3], hud.angle, easeNum);
 
-			isTutorial = SONG.song.toLowerCase() == 'tutorial' && dadOpponent.curCharacter == 'gf';
+			isTutorial = curSong.toLowerCase() == 'tutorial' && dadOpponent.curCharacter == 'gf';
 
 			if (health <= 0 && startedCountdown)
 			{
@@ -1428,70 +1488,9 @@ class PlayState extends MusicBeatState
 
 	/*
 		Extra functions and stuffs
-	 */
-	function snapCamFollowToPos(x:Float, y:Float)
-	{
-		camFollow.set(x, y);
-		camFollowPos.setPosition(x, y);
-	}
-
-	function moveCameraSection(?id:Int = 0)
-	{
-		var daSection:SwagSection = SONG.notes[id];
-		if (daSection != null)
-		{
-			if (isTutorial && !daSection.mustHitSection)
+		if (isTutorial && !daSection.mustHitSection)
 				tweenCamIn();
-			moveCamera(!daSection.mustHitSection);
-		}
-	}
-
-	public function moveCamera(isDad:Bool)
-	{
-		var char:Character = boyfriend;
-
-		var getCenterX:Float = 0;
-		var getCenterY:Float = 0;
-
-		if (isDad)
-		{
-			char = dadOpponent;
-
-			getCenterX = char.getMidpoint().x + 150;
-			getCenterY = char.getMidpoint().y - 100;
-
-			tweenCamIn();
-		}
-		else
-		{
-			getCenterX = char.getMidpoint().x - 100;
-			getCenterY = char.getMidpoint().y - 100;
-
-			switch (curStage)
-			{
-				case 'limo':
-					getCenterX = char.getMidpoint().x - 300;
-				case 'mall':
-					getCenterY = char.getMidpoint().y - 200;
-				case 'school' | 'schoolEvil':
-					getCenterX = char.getMidpoint().x - 200;
-					getCenterY = char.getMidpoint().y - 200;
-			}
-
-			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
-				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {
-					ease: FlxEase.elasticInOut,
-					onComplete: function(twn:FlxTween)
-					{
-						cameraTwn = null;
-					}
-				});
-		}
-
-		camFollow.x = getCenterX + camDisplaceX + char.characterData.camOffsetX;
-		camFollow.y = getCenterY + camDisplaceY + char.characterData.camOffsetY;
-	}
-
+	 */
 	public function tweenCamIn()
 	{
 		if (isTutorial && cameraTwn == null && FlxG.camera.zoom != 1.3)
@@ -1588,7 +1587,6 @@ class PlayState extends MusicBeatState
 		FlxTransitionableState.skipNextTransOut = true;
 
 		prevCamFollow = camFollow;
-		prevCamFollowPos = camFollowPos;
 
 		PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
 		ForeverTools.killMusic([songMusic, vocals]);
@@ -1616,8 +1614,9 @@ class PlayState extends MusicBeatState
 				{
 					remove(blackScreen);
 					FlxG.sound.play(Paths.sound('Lights_Turn_On'));
-					snapCamFollowToPos(400, -2050);
-					FlxG.camera.focusOn(camFollow);
+					camFollow.y = -2050;
+					camFollow.x += 200;
+					FlxG.camera.focusOn(camFollow.getPosition());
 					FlxG.camera.zoom = 1.5;
 
 					new FlxTimer().start(0.8, function(tmr:FlxTimer)
@@ -1762,8 +1761,7 @@ class PlayState extends MusicBeatState
 					Conductor.songPosition = -(Conductor.crochet * 4);
 				case 1:
 					var ready:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[0]));
-					ready.scrollFactor.set();
-					ready.updateHitbox();
+					ready.cameras = [camHUD];
 
 					if (assetModifier == 'pixel')
 						ready.setGraphicSize(Std.int(ready.width * PlayState.daPixelZoom));
@@ -1782,7 +1780,7 @@ class PlayState extends MusicBeatState
 					Conductor.songPosition = -(Conductor.crochet * 3);
 				case 2:
 					var set:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[1]));
-					set.scrollFactor.set();
+					set.cameras = [camHUD];
 
 					if (assetModifier == 'pixel')
 						set.setGraphicSize(Std.int(set.width * PlayState.daPixelZoom));
@@ -1801,7 +1799,7 @@ class PlayState extends MusicBeatState
 					Conductor.songPosition = -(Conductor.crochet * 2);
 				case 3:
 					var go:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[2]));
-					go.scrollFactor.set();
+					go.cameras = [camHUD];
 
 					if (assetModifier == 'pixel')
 						go.setGraphicSize(Std.int(go.width * PlayState.daPixelZoom));
