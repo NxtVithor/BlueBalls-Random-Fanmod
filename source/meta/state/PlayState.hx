@@ -1,5 +1,6 @@
 package meta.state;
 
+import openfl.media.Sound;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -546,26 +547,6 @@ class PlayState extends MusicBeatState
 		// sync botplay to bf strums autoplay
 		if (boyfriendStrums.autoplay != cpuControlled)
 			boyfriendStrums.autoplay = cpuControlled;
-
-		// dialogue checks
-		if (dialogueBox != null && dialogueBox.alive)
-		{
-			// wheee the shift closes the dialogue
-			if (FlxG.keys.justPressed.SHIFT)
-				dialogueBox.closeDialog();
-
-			// the change I made was just so that it would only take accept inputs
-			if (controls.ACCEPT && dialogueBox.textStarted)
-			{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
-				dialogueBox.curPage += 1;
-
-				if (dialogueBox.curPage == dialogueBox.dialogueData.dialogue.length)
-					dialogueBox.closeDialog()
-				else
-					dialogueBox.updateDialog();
-			}
-		}
 
 		if (!inCutscene)
 		{
@@ -1645,12 +1626,7 @@ class PlayState extends MusicBeatState
 						{
 							remove(senpaiEvil);
 							remove(red);
-							FlxG.camera.fade(FlxColor.WHITE, 0.01, true, function()
-							{
-								for (hud in allUIs)
-									hud.visible = true;
-								callTextbox();
-							}, true);
+							FlxG.camera.fade(FlxColor.WHITE, 0.01, true, callTextbox, true);
 						});
 						new FlxTimer().start(3.2, function(deadTime:FlxTimer)
 						{
@@ -1665,16 +1641,49 @@ class PlayState extends MusicBeatState
 
 	function callTextbox()
 	{
-		var dialogPath = Paths.json('songs/' + SONG.song.toLowerCase() + '/dialogue');
-		if (sys.FileSystem.exists(dialogPath))
+		var dialogPath = Paths.txt('songs/' + curSong.toLowerCase() + '/dialogue');
+		if (Paths.exists(dialogPath))
 		{
+			for (ui in allUIs)
+				ui.visible = false;
+
 			startedCountdown = false;
 
-			dialogueBox = DialogueBox.createDialogue(sys.io.File.getContent(dialogPath));
-			dialogueBox.cameras = [dialogueHUD];
-			dialogueBox.whenDaFinish = startCountdown;
+			var dialogSkin:String = 'normal';
+			var dialogMusic:Sound;
+			var dialogCharacters = [['senpai', 'Senpai Portrait Enter'], ['bf-pixel', 'Boyfriend portrait enter']];
 
-			add(dialogueBox);
+			if (assetModifier == 'pixel')
+			{
+				dialogSkin = 'pixel';
+				dialogMusic = Paths.music('Lunchbox');
+			}
+			else
+				dialogMusic = Paths.music('breakfast');
+
+			switch (curSong.toLowerCase())
+			{
+				case 'roses':
+					dialogCharacters[0][1] = 'SENPAI ANGRY IMPACT SPEECH';
+					dialogMusic = null;
+				case 'thorns':
+					dialogSkin = 'evil-pixel';
+					dialogMusic = Paths.music('LunchboxScary');
+			}
+
+			dialogueBox = new DialogueBox(dialogSkin, dialogMusic, dialogCharacters, CoolUtil.coolTextFile(dialogPath));
+			dialogueBox.cameras = [dialogueHUD];
+			dialogueBox.finishThing = function()
+			{
+				for (hud in allUIs)
+					hud.visible = true;
+				startCountdown();
+			};
+
+			new FlxTimer().start(0.7, function(tmr:FlxTimer)
+			{
+				add(dialogueBox);
+			});
 		}
 		else
 			startCountdown();

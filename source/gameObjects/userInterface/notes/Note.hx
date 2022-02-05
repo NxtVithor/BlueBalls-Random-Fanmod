@@ -94,9 +94,6 @@ class Note extends FNFSprite
 		}
 		else // make sure the note can't be hit if it's the dad's I guess
 			canBeHit = false;
-
-		if (tooLate)
-			alpha = 0.3;
 	}
 
 	/**

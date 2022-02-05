@@ -1,5 +1,6 @@
 package meta;
 
+import meta.data.PlayerSettings;
 import sys.io.File;
 import lime.utils.Assets;
 import meta.state.PlayState;
@@ -22,12 +23,17 @@ class CoolUtil
 		return difficultyArray[number];
 	}
 
+	inline public static function getControls()
+	{
+		return PlayerSettings.player1.controls;
+	}
+
 	inline public static function boundTo(value:Float, min:Float, max:Float):Float
 	{
 		return Math.max(min, Math.min(max, value));
 	}
 
-	public static function getFPS():Float
+	inline public static function getFPS():Float
 	{
 		return Lib.current.stage.frameRate;
 	}

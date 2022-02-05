@@ -9,7 +9,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import meta.MusicBeat.MusicBeatSubState;
-import meta.data.font.Alphabet;
+import meta.data.Alphabet;
 import meta.state.*;
 import meta.state.menus.*;
 

@@ -25,7 +25,7 @@ class MusicBeatState extends FNFUIState
 	private var controls(get, never):Controls;
 
 	inline function get_controls():Controls
-		return PlayerSettings.player1.controls;
+		return CoolUtil.getControls();
 
 	// class create event
 	override function create()
@@ -74,13 +74,9 @@ class MusicBeatState extends FNFUIState
 			}
 		}
 		if (skippedSteps.length > 0)
-		{
-			// trace('skipped steps $skippedSteps');
 			skippedSteps = [];
-		}
 		curStep = trueStep;
 
-		//
 		if (oldStep != curStep && curStep > 0 && !storedSteps.contains(curStep))
 			stepHit();
 		oldStep = curStep;

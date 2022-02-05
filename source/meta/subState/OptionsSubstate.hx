@@ -9,7 +9,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import meta.MusicBeat.MusicBeatSubState;
-import meta.data.font.Alphabet;
+import meta.data.Alphabet;
 
 using StringTools;
 

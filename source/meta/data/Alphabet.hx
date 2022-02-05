@@ -1,5 +1,6 @@
-package meta.data.font;
+package meta.data;
 
+import flixel.system.FlxSound;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
@@ -53,7 +54,7 @@ class Alphabet extends FlxSpriteGroup
 
 	var isBold:Bool = false;
 
-	public var soundChoices:Array<String> = ["GF_1", "GF_2", "GF_3", "GF_4",];
+	public var soundChoices:Array<FlxSound>;
 	public var beginPath:String = "assets/sounds/";
 	public var soundChance:Int = 40;
 	public var playSounds:Bool = true;
@@ -66,6 +67,9 @@ class Alphabet extends FlxSpriteGroup
 		this.text = text;
 		isBold = bold;
 		this.textSize = textSize;
+
+		if (soundChoices == null)
+			soundChoices = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
 
 		startText(text, typed);
 	}
@@ -255,10 +259,10 @@ class Alphabet extends FlxSpriteGroup
 					{
 						lastPlayed = 0;
 
-						var cur = FlxG.random.int(0, soundChoices.length - 1);
-						var daSound:String = beginPath + soundChoices[cur] + "." + Paths.SOUND_EXT;
+						var daSound:FlxSound = soundChoices[FlxG.random.int(0, soundChoices.length - 1)];
 
-						FlxG.sound.play(daSound);
+						daSound.play();
+						FlxG.sound.list.add(daSound);
 					}
 				}
 				else
