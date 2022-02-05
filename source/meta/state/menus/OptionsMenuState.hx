@@ -318,7 +318,6 @@ class OptionsMenuState extends MusicBeatState
 
 	private function returnSubgroup(groupName:String):FlxTypedGroup<Alphabet>
 	{
-		//
 		var newGroup:FlxTypedGroup<Alphabet> = new FlxTypedGroup<Alphabet>();
 
 		for (i in 0...categoryMap.get(groupName)[0].length)

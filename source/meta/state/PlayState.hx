@@ -1324,7 +1324,8 @@ class PlayState extends MusicBeatState
 	override function stepHit()
 	{
 		super.stepHit();
-		if (songMusic.alive && songMusic.time >= Conductor.songPosition + 20 || songMusic.time <= Conductor.songPosition - 20)
+		if (Math.abs(songMusic.time - (Conductor.songPosition - Conductor.offset)) > 20
+			|| (SONG.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
 			resyncVocals();
 	}
 

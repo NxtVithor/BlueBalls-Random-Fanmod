@@ -299,8 +299,6 @@ class Alphabet extends FlxSpriteGroup
 			// lmao
 			if (!disableX)
 				x = FlxMath.lerp(x, (targetY * 20) + 90, elapsed * 6);
-			else
-				x = FlxMath.lerp(x, xTo, elapsed * 6);
 		}
 
 		if (text != textInit)
