@@ -66,17 +66,17 @@ class Week
 		if (FileSystem.isDirectory(Paths.mod('weeks')))
 		{
 			for (week in FileSystem.readDirectory(Paths.mod('weeks')))
-				if (Paths.isModded('weeks/' + week + '.json'))
+				if (ModManager.isModded('weeks/' + week + '.json'))
 					weeksList.push(week);
 		}
 
 		// for mods folders
-		for (folder in Paths.modsFolders)
+		for (folder in ModManager.modsFolders)
 		{
 			if (FileSystem.isDirectory(Paths.mod(folder + '/weeks')))
 			{
 				for (week in FileSystem.readDirectory(Paths.mod(folder + '/weeks')))
-					if (Paths.isModded(folder + '/weeks/' + week + '.json'))
+					if (ModManager.isModded(folder + '/weeks/' + week + '.json'))
 						weeksList.push(week);
 			}
 		}

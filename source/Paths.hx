@@ -32,13 +32,6 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	// set up mod variables
-	public static var modFolder:String = "mods";
-	// public static var currentModsFolder:String = "";
-	public static var modsFolders:Array<String>;
-
-	static var ignoredModsFolders:Array<String> = ["fonts", "images", "music", "shaders", "songs", "sounds", "weeks"];
-
 	// stealing my own code from psych engine
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 	public static var currentTrackedTextures:Map<String, Texture> = [];
@@ -191,14 +184,14 @@ class Paths
 		// check if the file is modded
 		if (allowModding)
 		{
-			for (folder in modsFolders)
+			for (folder in ModManager.modsFolders)
 			{
 				var daPath:String = mod(folder + '/' + file);
 				if (FileSystem.exists(daPath))
 					return daPath;
 			}
 
-			if (isModded(file))
+			if (ModManager.isModded(file))
 				return mod(file);
 		}
 		#end
@@ -216,11 +209,11 @@ class Paths
 	{
 		#if MODS_ALLOWED
 		// repeat bruh
-		for (folder in modsFolders)
+		for (folder in ModManager.modsFolders)
 			if (FileSystem.exists(mod(folder + '/' + file)))
 				return true;
 
-		if (isModded(path))
+		if (ModManager.isModded(path))
 			return true;
 		else
 			return OpenFlAssets.exists(path);
@@ -333,29 +326,7 @@ class Paths
 	// mods!
 	inline static public function mod(key:String)
 	{
-		return '$modFolder/$key';
-	}
-
-	public static function loadModsFolders()
-	{
-		#if MODS_ALLOWED
-		var folders:Array<String> = FileSystem.readDirectory(modFolder);
-
-		modsFolders = [];
-
-		for (folder in folders)
-			if (FileSystem.isDirectory(mod(folder)) && !ignoredModsFolders.contains(folder))
-				modsFolders.push(folder);
-		#end
-	}
-
-	inline static public function isModded(path:String)
-	{
-		#if MODS_ALLOWED
-		return FileSystem.exists(mod(path));
-		#else
-		return false;
-		#end
+		return '${ModManager.modFolder}/$key';
 	}
 
 	// animated sprites!
