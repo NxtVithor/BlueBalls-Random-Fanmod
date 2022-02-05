@@ -1,0 +1,11 @@
+fine shit i need to do:
+
+unhardcode assets:
+- characters
+- stages
+- notes types and skins
+- dialogues
+
+remake dialogue system
+
+overhaul the interface
