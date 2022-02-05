@@ -168,7 +168,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 			scoreBar.text = 'Score: ' + PlayState.songScore;
 			if (Init.trueSettings.get('Display Accuracy'))
 			{
-				scoreBar.text += divider + 'Misses: ' + PlayState.misses;
+				scoreBar.text += divider + 'Combo Breaks: ' + PlayState.misses;
 				scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
 				scoreBar.text += divider + Timings.returnScoreRating().toUpperCase();
 			}

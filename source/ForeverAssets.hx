@@ -127,8 +127,8 @@ class ForeverAssets
 				tempSplash.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('splash-pixel', assetModifier, changeableSkin, baseLibrary)), true, 34, 34);
 				tempSplash.animation.add('anim1', [noteData, 4 + noteData, 8 + noteData, 12 + noteData], 24, false);
 				tempSplash.animation.add('anim2', [16 + noteData, 20 + noteData, 24 + noteData, 28 + noteData], 24, false);
-				tempSplash.addOffset('anim1', -90, -90);
-				tempSplash.addOffset('anim2', -90, -90);
+				tempSplash.addOffset('anim1', -85, -75);
+				tempSplash.addOffset('anim2', -85, -75);
 				tempSplash.animation.play('anim1');
 				tempSplash.setGraphicSize(Std.int(tempSplash.width * PlayState.daPixelZoom));
 

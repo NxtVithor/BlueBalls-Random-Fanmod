@@ -459,6 +459,7 @@ class PlayState extends MusicBeatState
 				// improved this a little bit, maybe its a lil
 				var possibleNoteList:Array<Note> = [];
 				var pressedNotes:Array<Note> = [];
+				var notesStopped:Bool = false;
 
 				boyfriendStrums.allNotes.forEachAlive(function(daNote:Note)
 				{
@@ -470,25 +471,22 @@ class PlayState extends MusicBeatState
 				// if there is a list of notes that exists for that control
 				if (possibleNoteList.length > 0)
 				{
-					var eligable = true;
-					var firstNote = true;
-					// loop through the possible notes
-					for (coolNote in possibleNoteList)
+					for (epicNote in possibleNoteList)
 					{
-						for (noteDouble in pressedNotes)
+						for (doubleNote in pressedNotes)
 						{
-							if (Math.abs(noteDouble.strumTime - coolNote.strumTime) < 10)
-								firstNote = false;
+							if (Math.abs(doubleNote.strumTime - epicNote.strumTime) < 1)
+								destroyNote(boyfriendStrums, doubleNote);
 							else
-								eligable = false;
+								notesStopped = true;
 						}
 
-						if (eligable)
+						// eee jack detection before was not super good
+						if (!notesStopped)
 						{
-							goodNoteHit(coolNote, boyfriend, boyfriendStrums, firstNote); // then hit the note
-							pressedNotes.push(coolNote);
+							goodNoteHit(epicNote, boyfriend, boyfriendStrums);
+							pressedNotes.push(epicNote);
 						}
-						// end of this little check
 					}
 				}
 				else // else just call bad notes
@@ -539,8 +537,6 @@ class PlayState extends MusicBeatState
 
 		super.destroy();
 	}
-
-	var lastSection:Int = 0;
 
 	override public function update(elapsed:Float)
 	{
@@ -637,19 +633,6 @@ class PlayState extends MusicBeatState
 
 			if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null)
 			{
-				var curSection = Std.int(curStep / 16);
-				if (curSection != lastSection)
-				{
-					// section reset stuff
-					var lastMustHit:Bool = SONG.notes[lastSection].mustHitSection;
-					if (SONG.notes[curSection].mustHitSection != lastMustHit)
-					{
-						camDisplaceX = 0;
-						camDisplaceY = 0;
-					}
-					lastSection = Std.int(curStep / 16);
-				}
-
 				if (!SONG.notes[Std.int(curStep / 16)].mustHitSection)
 				{
 					var char = dadOpponent;
@@ -845,8 +828,7 @@ class PlayState extends MusicBeatState
 						daNote.active = true;
 					}
 
-					if ((!daNote.isSustainNote || (daNote.parentNote != null && !daNote.parentNote.wasGoodHit))
-						&& daNote.mustPress
+					if (daNote.mustPress
 						&& !daNote.tooLate
 						&& !daNote.wasGoodHit
 						&& daNote.strumTime < Conductor.songPosition - Timings.msThreshold)
@@ -1388,7 +1370,7 @@ class PlayState extends MusicBeatState
 
 	private function bfHoldDance()
 	{
-		if (boyfriend != null
+		if (!paused
 			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 			&& boyfriend.animation.curAnim.name.startsWith('sing')
 			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
@@ -1414,8 +1396,6 @@ class PlayState extends MusicBeatState
 				hud.zoom += 0.03;
 		}
 
-		uiHUD.beatHit();
-
 		// reset cam displace
 		if (curBeat % 2 == 0
 			&& ((!boyfriend.animation.curAnim.name.startsWith('sing') || boyfriend.animation.curAnim.name.endsWith('miss'))
@@ -1424,6 +1404,8 @@ class PlayState extends MusicBeatState
 			camDisplaceX = 0;
 			camDisplaceY = 0;
 		}
+
+		uiHUD.beatHit();
 
 		if (curBeat % 16 == 15 && isTutorial && dadOpponent.curCharacter.startsWith('gf') && curBeat > 16 && curBeat < 48)
 		{
@@ -1683,7 +1665,6 @@ class PlayState extends MusicBeatState
 			default:
 				callTextbox();
 		}
-		//
 	}
 
 	function callTextbox()
@@ -1821,7 +1802,6 @@ class PlayState extends MusicBeatState
 			}
 
 			swagCounter += 1;
-			// generateSong('fresh');
 		}, 5);
 	}
 
