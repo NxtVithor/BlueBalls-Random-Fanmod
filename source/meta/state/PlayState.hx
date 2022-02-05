@@ -294,12 +294,6 @@ class PlayState extends MusicBeatState
 		add(camFollow);
 		add(camFollowPos);
 
-		// set pixel zoom
-		if (assetModifier == 'pixel')
-			defaultCamZoom = 1.05;
-
-		trace(defaultCamZoom);
-
 		// actually set the camera up
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.camera.zoom = defaultCamZoom;

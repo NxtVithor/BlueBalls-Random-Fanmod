@@ -20,7 +20,7 @@ class Timings
 		"good" => [1, 80, 150, 75, ' [GFC]'],
 		"bad" => [2, 100, 0, 25, ' [FC]'],
 		"shit" => [3, 120, -50, -75],
-		"miss" => [4, 140, -100, -10],
+		"miss" => [4, 140, -100, -50],
 	];
 
 	public static var msThreshold:Float = 0;
