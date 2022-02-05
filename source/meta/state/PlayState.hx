@@ -308,7 +308,7 @@ class PlayState extends MusicBeatState
 		// strums setup
 		strumLines = new FlxTypedGroup<Strumline>();
 
-		var placement = 15 + FlxG.width / 2;
+		var placement = 20 + FlxG.width / 2;
 		dadStrums = new Strumline(placement - FlxG.width / 4, this, dadOpponent, false, true, false, 4, Init.trueSettings.get('Downscroll'));
 		dadStrums.visible = !Init.trueSettings.get('Centered Notefield');
 		boyfriendStrums = new Strumline(placement + (!Init.trueSettings.get('Centered Notefield') ? FlxG.width / 4 : 0), this, boyfriend, true, false, true,

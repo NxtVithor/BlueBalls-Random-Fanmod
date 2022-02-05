@@ -177,7 +177,7 @@ class Paths
 			if not, it checks the shared assets folder.
 		 */
 
-		// well I'm rewriting it so that the library is the path and it looks for the file type
+		// well I'm rewritinwg it so that the library is the path and it looks for the file type
 		// later lmao I don't really wanna rn
 
 		#if MODS_ALLOWED

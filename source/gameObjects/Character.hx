@@ -121,14 +121,14 @@ class Character extends FNFSprite
 				updateHitbox();
 				antialiasing = false;
 
-			case 'gf-tankmen':
-				frames = Paths.getSparrowAtlas('characters/gfTankmen');
+			// case 'gf-tankmen':
+			// 	frames = Paths.getSparrowAtlas('characters/gfTankmen');
 
-				animation.addByIndices('sad', 'GF Crying at Gunpoint', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
-				animation.addByIndices('danceLeft', 'GF Dancing at Gunpoint', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-				animation.addByIndices('danceRight', 'GF Dancing at Gunpoint', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
+			// 	animation.addByIndices('sad', 'GF Crying at Gunpoint', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
+			// 	animation.addByIndices('danceLeft', 'GF Dancing at Gunpoint', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
+			// 	animation.addByIndices('danceRight', 'GF Dancing at Gunpoint', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
 
-				playAnim('danceRight');
+			// 	playAnim('danceRight');
 
 			case 'dad':
 				// DAD ANIMATION LOADING CODE
@@ -197,6 +197,7 @@ class Character extends FNFSprite
 
 				playAnim('idle');
 
+				characterData.offsetX = 100;
 			case 'monster-christmas':
 				tex = Paths.getSparrowAtlas('characters/monsterChristmas');
 				frames = tex;
@@ -207,6 +208,8 @@ class Character extends FNFSprite
 				animation.addByPrefix('singLEFT', 'Monster Right note', 24, false);
 
 				playAnim('idle');
+
+				characterData.offsetX = 100;
 			case 'pico':
 				tex = Paths.getSparrowAtlas('characters/Pico_FNF_assetss');
 				frames = tex;
@@ -236,7 +239,7 @@ class Character extends FNFSprite
 
 				flipX = true;
 
-				characterData.offsetX = 50;
+				characterData.offsetX = 100;
 
 			case 'bf':
 				frames = Paths.getSparrowAtlas('characters/BOYFRIEND');

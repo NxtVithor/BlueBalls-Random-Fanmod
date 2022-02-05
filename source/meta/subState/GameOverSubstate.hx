@@ -1,7 +1,6 @@
 package meta.subState;
 
 import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.util.FlxColor;
@@ -15,13 +14,14 @@ import meta.state.menus.*;
 class GameOverSubstate extends MusicBeatSubState
 {
 	var bf:Boyfriend;
-
-	var camFollow:FlxPoint;
-	var camFollowPos:FlxObject;
-	var updateCamera:Bool = false;
-	var isFollowing:Bool = false;
-
 	var stageSuffix:String = "";
+
+	var camFollow:FlxObject;
+	var camFollowPos:FlxObject;
+
+	var updateCam:Bool = false;
+
+	var isEnding:Bool = false;
 
 	public function new(x:Float, y:Float)
 	{
@@ -48,13 +48,13 @@ class GameOverSubstate extends MusicBeatSubState
 
 		PlayState.boyfriend.destroy();
 
-		camFollow = new FlxPoint(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);
+		camFollow = new FlxObject(0, 0, 1, 1);
+		camFollow.setPosition(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);
+		add(camFollow);
 
 		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
 		Conductor.changeBPM(100);
 
-		// FlxG.camera.followLerp = 1;
-		// FlxG.camera.focusOn(FlxPoint.get(FlxG.width / 2, FlxG.height / 2));
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
 
@@ -98,14 +98,13 @@ class GameOverSubstate extends MusicBeatSubState
 			}
 		}
 
-		if (!isFollowing && bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame >= 12)
+		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
 		{
 			FlxG.camera.follow(camFollowPos, LOCKON, 1);
-			updateCamera = true;
-			isFollowing = true;
+			updateCam = true;
 		}
 
-		if (updateCamera)
+		if (updateCam)
 		{
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 0.6, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
@@ -113,10 +112,5 @@ class GameOverSubstate extends MusicBeatSubState
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 			FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));
-
-		// if (FlxG.sound.music.playing)
-		//	Conductor.songPosition = FlxG.sound.music.time;
 	}
-
-	var isEnding:Bool = false;
 }
