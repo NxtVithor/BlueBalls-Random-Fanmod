@@ -85,10 +85,11 @@ class Stage extends FlxTypedGroup<FlxBasic>
 			PlayState.curStage = curStage;
 		}
 
+		PlayState.defaultCamZoom = 1.05;
+
 		// to apply to foreground use foreground.add(); instead of add();
 		foreground = new FlxTypedGroup<FlxBasic>();
 
-		//
 		switch (curStage)
 		{
 			case 'spooky':

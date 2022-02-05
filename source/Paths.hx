@@ -184,6 +184,7 @@ class Paths
 		// check if the file is modded
 		if (allowModding)
 		{
+			// for mods folders
 			for (folder in ModManager.modsFolders)
 			{
 				var daPath:String = mod(folder + '/' + file);
@@ -191,6 +192,7 @@ class Paths
 					return daPath;
 			}
 
+			// for root mod folder
 			if (ModManager.isModded(file))
 				return mod(file);
 		}
