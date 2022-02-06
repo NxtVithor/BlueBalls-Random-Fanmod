@@ -178,6 +178,7 @@ class OptionsMenuState extends MusicBeatState
 			{
 				activeSubgroup.members[i].alpha = 1;
 				activeSubgroup.members[i].xTo += Std.int(FlxG.width / 2 - (activeSubgroup.members[i].text.length / 2) * 40) - 200;
+				activeSubgroup.members[i].screenCenter(X);
 			}
 		}
 
@@ -247,7 +248,6 @@ class OptionsMenuState extends MusicBeatState
 				var loopTimes = 0;
 				infoTimer = new FlxTimer().start(0.025, function(tmr:FlxTimer)
 				{
-					//
 					infoText.text += textSplit[loopTimes];
 					infoText.screenCenter(X);
 
@@ -311,7 +311,6 @@ class OptionsMenuState extends MusicBeatState
 							selectOption(curSelection + 1);
 					}
 				}
-				//
 			}
 		}
 	}
@@ -326,7 +325,10 @@ class OptionsMenuState extends MusicBeatState
 				|| Init.gameSettings.get(categoryMap.get(groupName)[0][i][0])[3] != Init.FORCED)
 			{
 				var thisOption:Alphabet = new Alphabet(0, 0, categoryMap.get(groupName)[0][i][0], true, false);
-				thisOption.screenCenter();
+				if (groupName == 'main')
+					thisOption.screenCenter();
+				else
+					thisOption.x = FlxG.width / 8;
 				thisOption.y += (90 * (i - Math.floor(categoryMap.get(groupName)[0].length / 2)));
 				thisOption.targetY = i;
 				thisOption.disableX = true;
@@ -363,7 +365,6 @@ class OptionsMenuState extends MusicBeatState
 
 						extrasMap.set(letter, selector);
 				}
-				//
 			}
 		}
 

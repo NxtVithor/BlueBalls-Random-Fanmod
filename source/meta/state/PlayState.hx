@@ -805,7 +805,8 @@ class PlayState extends MusicBeatState
 						daNote.active = true;
 					}
 
-					if (daNote.mustPress
+					if ((!daNote.isSustainNote || (daNote.parentNote != null && !daNote.parentNote.wasGoodHit))
+						&& daNote.mustPress
 						&& !daNote.tooLate
 						&& !daNote.wasGoodHit
 						&& daNote.strumTime < Conductor.songPosition - Timings.msThreshold)
