@@ -81,9 +81,9 @@ class DialogueBox extends FlxSpriteGroup
 		for (char in characters.keys())
 			Paths.returnGraphic(portraitBase + characters.get(char));
 
-		if (dialogue.skin == null)
+		if (dialogue.skin == null || dialogue.skin == '')
 			dialogue.skin = 'normal';
-		if (dialogue.music != null)
+		if (dialogue.music != null && dialogue.music != '')
 		{
 			FlxG.sound.playMusic(Paths.music(dialogue.music), 0);
 			FlxG.sound.music.fadeIn(1, 0, 0.8);
