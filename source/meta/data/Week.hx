@@ -1,8 +1,8 @@
 package meta.data;
 
 import haxe.Exception;
-import sys.FileSystem;
 import haxe.Json;
+import sys.FileSystem;
 import sys.io.File;
 
 using StringTools;
@@ -50,7 +50,7 @@ class Week
 
 	public static function loadFromJson(path:String):SwagWeek
 	{
-		var rawJson:String = CoolUtil.formatJson(File.getContent(path).trim());
+		var rawJson:String = CoolUtil.cleanJson(File.getContent(path));
 		return cast Json.parse(rawJson);
 	}
 

@@ -1,10 +1,10 @@
 package meta;
 
-import meta.data.PlayerSettings;
-import sys.io.File;
 import lime.utils.Assets;
+import meta.data.PlayerSettings;
 import meta.state.PlayState;
 import openfl.Lib;
+import sys.io.File;
 
 using StringTools;
 
@@ -53,12 +53,12 @@ class CoolUtil
 		return path.toLowerCase().replace(' ', '-');
 	}
 
-	public static function formatJson(jsonInput:String)
+	public static function cleanJson(jsonInput:String)
 	{
 		while (!jsonInput.endsWith("}"))
 			jsonInput = jsonInput.substr(0, jsonInput.length - 1);
 
-		return jsonInput;
+		return jsonInput.trim();
 	}
 
 	public static function coolTextFile(path:String):Array<String>

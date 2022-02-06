@@ -1,0 +1,9 @@
+{
+    "animations": [
+        ["normal", "Normal Talk", true],
+        ["angry", "Angry Talk", true],
+        ["smug", "Smug Talk", true]
+    ],
+    "onLeft": false,
+    "isPixel": false
+}

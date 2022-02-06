@@ -1643,7 +1643,7 @@ class PlayState extends MusicBeatState
 
 	function callTextbox()
 	{
-		var dialogPath = Paths.txt('songs/' + curSong.toLowerCase() + '/dialogue');
+		var dialogPath = Paths.json('songs/' + curSong.toLowerCase() + '/dialogue');
 		if (Paths.exists(dialogPath))
 		{
 			for (ui in allUIs)
@@ -1651,29 +1651,7 @@ class PlayState extends MusicBeatState
 
 			startedCountdown = false;
 
-			var dialogSkin:String = 'normal';
-			var dialogMusic:Sound;
-			var dialogCharacters = [['senpai', 'Senpai Portrait Enter'], ['bf-pixel', 'Boyfriend portrait enter']];
-
-			if (assetModifier == 'pixel')
-			{
-				dialogSkin = 'pixel';
-				dialogMusic = Paths.music('Lunchbox');
-			}
-			else
-				dialogMusic = Paths.music('breakfast');
-
-			switch (curSong.toLowerCase())
-			{
-				case 'roses':
-					dialogCharacters[0][1] = 'SENPAI ANGRY IMPACT SPEECH';
-					dialogMusic = null;
-				case 'thorns':
-					dialogSkin = 'evil-pixel';
-					dialogMusic = Paths.music('LunchboxScary');
-			}
-
-			dialogueBox = new DialogueBox(dialogSkin, dialogMusic, dialogCharacters, CoolUtil.coolTextFile(dialogPath));
+			dialogueBox = new DialogueBox(DialogueBox.loadFromJson(dialogPath));
 			dialogueBox.cameras = [dialogueHUD];
 			dialogueBox.finishThing = function()
 			{

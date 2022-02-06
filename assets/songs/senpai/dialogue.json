@@ -1,0 +1,15 @@
+{
+    "skin": "pixel",
+    "music": "Lunchbox",
+    "lines": [
+        [
+            ["senpai", "normal"],
+            "Ah, a new fair maiden has come in search of true love!"
+        ],
+        [
+            ["senpai", "normal"],
+            "A serenade between gentlemen shall decide where her beautiful heart shall reside."
+        ],
+        [["bf-pixel", "normal"], "Beep bo bop"]
+    ]
+}

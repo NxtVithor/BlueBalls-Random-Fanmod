@@ -1,0 +1,8 @@
+{
+    "animations": [
+        ["normal", "Senpai Portrait Enter", false],
+        ["angry", "SENPAI ANGRY IMPACT SPEECH", false]
+    ],
+    "onLeft": true,
+    "isPixel": true
+}

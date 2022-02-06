@@ -41,8 +41,7 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		var rawJson = CoolUtil.formatJson(File.getContent(Paths.songJson(folder.toLowerCase(), jsonInput.toLowerCase())).trim());
-
+		var rawJson = CoolUtil.cleanJson(File.getContent(Paths.songJson(folder.toLowerCase(), jsonInput.toLowerCase())));
 		return parseJSONshit(rawJson);
 	}
 
