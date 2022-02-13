@@ -29,7 +29,7 @@
 	<!-- ________________________________ Defines _______________________________ -->
 
 	<define name="MODS_ALLOWED" if="desktop" />
-	<define name="VIDEOS_ALLOWED" if="windows" />
+	<define name="VIDEOS_ALLOWED" if="desktop" />
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
@@ -37,8 +37,8 @@
 	<source path="source" />
 	<assets path="assets" />
 
-	<assets path="plugins/" if="VIDEOS_ALLOWED windows" />
-	<assets path="dlls/" rename="" if="VIDEOS_ALLOWED windows" />
+	<assets path="plugins/" if="VIDEOS_ALLOWED" />
+	<assets path="dlls/" rename="" if="VIDEOS_ALLOWED" />
 
 	<assets path="example_mods" rename="mods" embed="false" if="MODS_ALLOWED" />
 
