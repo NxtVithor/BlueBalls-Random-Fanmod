@@ -1260,8 +1260,13 @@ class PlayState extends MusicBeatState
 				rating.screenCenter();
 
 				diffText.cameras = [camHUD];
-			} else
+			}
+			else
 				diffText.x += 215;
+
+			// bruh
+			if (assetModifier == 'pixel')
+				diffText.y -= 75;
 
 			diffText.x += rating.x + 100;
 			diffText.y += rating.y + 115;
