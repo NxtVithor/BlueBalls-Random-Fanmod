@@ -10,7 +10,7 @@ I do not own Forever Engine. Credits of the original engine goes to Yoshubs and 
 
 [ShadowMario](https://github.com/ShadowMario) - Some assets and code from Psych Engine.
 
-[PolybiusProxy] - The guy behind the famous MP4 VIDEO SUPPORT. A LOT OF THANKS TO HIM FOR MAKING THAT REAL!
+[PolybiusProxy](https://github.com/polybiusproxy) - The guy behind the famous MP4 VIDEO SUPPORT. A LOT OF THANKS TO HIM FOR MAKING THAT REAL!
 
 # [Forever Engine](https://github.com/Yoshubs/FunkinForever)
 An open-source, modular, optimized, and HOPEFULLY easy to use [Friday Night Funkin'](https://www.newgrounds.com/portal/view/770371) mod engine!
