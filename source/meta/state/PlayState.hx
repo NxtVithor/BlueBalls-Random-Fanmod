@@ -1,5 +1,6 @@
 package meta.state;
 
+import flixel.text.FlxText;
 import openfl.media.Sound;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -212,7 +213,7 @@ class PlayState extends MusicBeatState
 			curStage = SONG.stage;
 
 		// cache shit
-		displayRating('sick', 'early', true);
+		displayRating('sick', null, 'early', true);
 		popUpCombo(true);
 
 		stageBuild = new Stage(curStage);
@@ -931,7 +932,7 @@ class PlayState extends MusicBeatState
 				if (!coolNote.isSustainNote)
 				{
 					increaseCombo(foundRating, coolNote.noteData, character);
-					popUpScore(foundRating, ratingTiming, characterStrums, coolNote);
+					popUpScore(foundRating, noteDiff, ratingTiming, characterStrums, coolNote);
 					if (coolNote.childrenNotes.length > 0)
 						Timings.notesHit++;
 					healthCall(Timings.judgementsMap.get(foundRating)[3]);
@@ -1066,7 +1067,7 @@ class PlayState extends MusicBeatState
 	var animationsPlay:Array<Note> = [];
 	private var ratingTiming:String = "";
 
-	function popUpScore(baseRating:String, timing:String, strumline:Strumline, coolNote:Note)
+	function popUpScore(baseRating:String, diff:Float, timing:String, strumline:Strumline, coolNote:Note)
 	{
 		// set up the rating
 		var score:Int = 50;
@@ -1080,7 +1081,7 @@ class PlayState extends MusicBeatState
 			if (allSicks)
 				allSicks = false;
 
-		displayRating(baseRating, timing);
+		displayRating(baseRating, diff, timing);
 		Timings.updateAccuracy(Timings.judgementsMap.get(baseRating)[3]);
 		score = Std.int(Timings.judgementsMap.get(baseRating)[2]);
 
@@ -1168,7 +1169,7 @@ class PlayState extends MusicBeatState
 		// display negative combo
 		if (popMiss)
 		{
-			displayRating('miss', 'late');
+			displayRating('miss', null, 'late');
 			popUpCombo();
 		}
 
@@ -1192,7 +1193,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function displayRating(daRating:String, timing:String, ?cache:Bool = false)
+	public function displayRating(daRating:String, ?diff:Float, timing:String, ?cache:Bool = false)
 	{
 		/* so you might be asking
 			"oh but if the rating isn't sick why not just reset it"
@@ -1216,9 +1217,7 @@ class PlayState extends MusicBeatState
 		else
 		{
 			if (lastRating != null)
-			{
 				lastRating.kill();
-			}
 			add(rating);
 			lastRating = rating;
 			FlxTween.tween(rating, {y: rating.y + 20}, 0.2, {type: FlxTweenType.BACKWARD, ease: FlxEase.circOut});
@@ -1233,11 +1232,41 @@ class PlayState extends MusicBeatState
 
 		if (!cache)
 		{
+			var diffText:FlxText = new FlxText(0, 0, 0, diff + ' ms');
+			switch (daRating)
+			{
+				case 'shit' | 'bad':
+					diffText.color = FlxColor.RED;
+				case 'good':
+					diffText.color = FlxColor.GREEN;
+				case 'sick':
+					diffText.color = FlxColor.CYAN;
+			}
+			diffText.borderStyle = OUTLINE;
+			diffText.borderSize = 1;
+			diffText.borderColor = FlxColor.BLACK;
+			diffText.size = 20;
+
 			if (Init.trueSettings.get('Fixed Judgements'))
 			{
 				// bound to camera
 				rating.cameras = [camHUD];
 				rating.screenCenter();
+
+				diffText.cameras = [camHUD];
+			}
+
+			diffText.x = rating.x + 100;
+			diffText.y = rating.y + 115;
+			if (diff != null && diff > 0)
+			{
+				add(diffText);
+				FlxTween.tween(diffText, {alpha: 0}, 0.3, {
+					onComplete: function(tween:FlxTween)
+					{
+						diffText.kill();
+					}
+				});
 			}
 
 			// return the actual rating to the array of judgements

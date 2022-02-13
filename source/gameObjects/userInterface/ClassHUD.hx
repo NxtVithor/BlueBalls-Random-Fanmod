@@ -137,8 +137,9 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		// pain, this is like the 7th attempt
 		healthBar.percent = (PlayState.health * 50);
 
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(iconP1.width, 150, 0.09 / (CoolUtil.getFPS() / 90))));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(iconP2.width, 150, 0.09 / (CoolUtil.getFPS() / 90))));
+		var speed:Float = 0.1 / (CoolUtil.getFPS() / 60);
+		iconP1.setGraphicSize(Std.int(FlxMath.lerp(iconP1.width, 150, speed)));
+		iconP2.setGraphicSize(Std.int(FlxMath.lerp(iconP2.width, 150, speed)));
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
@@ -159,7 +160,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 			iconP2.animation.curAnim.curFrame = 0;
 	}
 
-	private final divider:String = ' - ';
+	static final divider:String = ' - ';
 
 	public function updateScoreText()
 	{
@@ -197,12 +198,11 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 	{
 		if (!Init.trueSettings.get('Reduced Movements'))
 		{
-			iconP1.setGraphicSize(Std.int(iconP1.width + 35));
-			iconP2.setGraphicSize(Std.int(iconP2.width + 35));
+			iconP1.setGraphicSize(Std.int(iconP1.width + 40));
+			iconP2.setGraphicSize(Std.int(iconP2.width + 40));
 
 			iconP1.updateHitbox();
 			iconP2.updateHitbox();
 		}
-		//
 	}
 }
