@@ -184,17 +184,9 @@ class Paths
 		// check if the file is modded
 		if (allowModding)
 		{
-			// for mods folders
-			for (folder in ModManager.modsFolders)
-			{
-				var daPath:String = mod(folder + '/' + file);
-				if (FileSystem.exists(daPath))
-					return daPath;
-			}
-
-			// for root mod folder
-			if (ModManager.isModded(file))
-				return mod(file);
+			var result:String = ModManager.checkModPath(file);
+			if (result != null)
+				return result;
 		}
 		#end
 
@@ -210,18 +202,11 @@ class Paths
 	public static function exists(path:String)
 	{
 		#if MODS_ALLOWED
-		// repeat bruh
-		for (folder in ModManager.modsFolders)
-			if (FileSystem.exists(mod(folder + '/' + file)))
-				return true;
-
-		if (ModManager.isModded(path))
+		if (ModManager.checkModPath(path) != null)
 			return true;
 		else
-			return OpenFlAssets.exists(path);
-		#else
-		return OpenFlAssets.exists(path);
 		#end
+		return OpenFlAssets.exists(path);
 	}
 
 	/*  
