@@ -535,6 +535,8 @@ class PlayState extends MusicBeatState
 		super.destroy();
 	}
 
+	var lastSection:Int = 0;
+
 	override public function update(elapsed:Float)
 	{
 		stageBuild.stageUpdateConstant(elapsed, boyfriend, gf, dadOpponent);
@@ -608,9 +610,21 @@ class PlayState extends MusicBeatState
 
 			// boyfriend.playAnim('singLEFT', true);
 
-			if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null)
+			var curSection = Std.int(curStep / 16);
+			if (generatedMusic && SONG.notes[curSection] != null)
 			{
-				if (!SONG.notes[Std.int(curStep / 16)].mustHitSection)
+				if (curSection != lastSection)
+				{
+					// section reset stuff
+					if (SONG.notes[curSection].mustHitSection != SONG.notes[lastSection].mustHitSection)
+					{
+						camDisplaceX = 0;
+						camDisplaceY = 0;
+					}
+					lastSection = curSection;
+				}
+
+				if (!SONG.notes[curSection].mustHitSection)
 				{
 					var char = dadOpponent;
 
@@ -873,6 +887,9 @@ class PlayState extends MusicBeatState
 			var daSection:SwagSection = SONG.notes[Math.floor(curStep / 16)];
 			if (!Init.trueSettings.get('No Camera Note Movement') && daSection != null && coolNote.mustPress == daSection.mustHitSection)
 			{
+				camDisplaceX = 0;
+				camDisplaceY = 0;
+
 				var camDisplaceExtend:Float = 15;
 				switch (coolNote.noteData)
 				{
@@ -1373,15 +1390,6 @@ class PlayState extends MusicBeatState
 			FlxG.camera.zoom += 0.015;
 			for (hud in allUIs)
 				hud.zoom += 0.03;
-		}
-
-		// reset cam displace
-		if (curBeat % 2 == 0
-			&& ((!boyfriend.animation.curAnim.name.startsWith('sing') || boyfriend.animation.curAnim.name.endsWith('miss'))
-				|| (!dadOpponent.animation.curAnim.name.startsWith('sing') || dadOpponent.animation.curAnim.name.endsWith('miss'))))
-		{
-			camDisplaceX = 0;
-			camDisplaceY = 0;
 		}
 
 		uiHUD.beatHit();
