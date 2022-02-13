@@ -1238,7 +1238,7 @@ class PlayState extends MusicBeatState
 
 		if (!cache)
 		{
-			var diffText:FlxText = new FlxText(0, 0, 0, Std.int(diff) + ' ms');
+			var diffText:FlxText = new FlxText(0, 0, 0, CoolUtil.truncateFloat(diff, 3) + ' ms');
 			switch (daRating)
 			{
 				case 'shit' | 'bad':
