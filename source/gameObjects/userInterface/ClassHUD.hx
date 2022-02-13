@@ -119,6 +119,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 				add(textAsset);
 			}
 		}
+		updateCounter();
 	}
 
 	var counterTextSize:Int = 18;
@@ -180,6 +181,15 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		scoreBar.x = (FlxG.width / 2 - scoreBar.width / 2);
 
 		// update counter
+		updateCounter();
+
+		// update playstate
+		PlayState.detailsSub = scoreBar.text;
+		PlayState.updateRPC(false);
+	}
+
+	function updateCounter()
+	{
 		if (Init.trueSettings.get('Counter') != 'None')
 		{
 			for (i in timingsMap.keys())
@@ -188,10 +198,6 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 				timingsMap[i].x = (5 + (!left ? (FlxG.width - 10) : 0) - (!left ? (6 * counterTextSize) : 0));
 			}
 		}
-
-		// update playstate
-		PlayState.detailsSub = scoreBar.text;
-		PlayState.updateRPC(false);
 	}
 
 	public function beatHit()
