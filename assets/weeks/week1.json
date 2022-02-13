@@ -5,7 +5,7 @@
         ["Dad Battle", "dad", [146, 113, 253]]
     ],
 
-    "weekCharacters": ["dad", "gf", "bf"],
+    "weekCharacters": ["dad", "bf", "gf"],
 
     "storyName": "Daddy Dearest",
     "weekBefore": "tutorial",

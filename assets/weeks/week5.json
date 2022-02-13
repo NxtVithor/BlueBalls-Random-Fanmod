@@ -5,7 +5,7 @@
         ["Winter Horrorland", "monster", [160, 209, 255]]
     ],
 
-    "weekCharacters": ["parents-christmas", "gf", "bf"],
+    "weekCharacters": ["parents-christmas", "bf", "gf"],
 
     "storyName": "RED SNOW",
     "weekBefore": "week4",

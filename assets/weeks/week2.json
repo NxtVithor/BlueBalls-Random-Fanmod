@@ -5,7 +5,7 @@
         ["Monster", "monster", [34, 51, 68]]
     ],
 
-    "weekCharacters": ["spooky", "gf", "bf"],
+    "weekCharacters": ["spooky", "bf", "gf"],
 
     "storyName": "Spooky Month",
     "weekBefore": "week1",

@@ -5,7 +5,7 @@
         ["Blammed", "pico", [148, 22, 83]]
     ],
 
-    "weekCharacters": ["pico", "gf", "bf"],
+    "weekCharacters": ["pico", "bf", "gf"],
 
     "storyName": "PICO",
     "weekBefore": "week2",

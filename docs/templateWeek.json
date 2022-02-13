@@ -1,7 +1,7 @@
 {
     "songs": [["Test", "bf", [255, 255, 255]]],
 
-    "weekCharacters": ["", "gf", "bf"],
+    "weekCharacters": ["", "bf", "gf"],
 
     "storyName": "",
     "weekBefore": "tutorial",
