@@ -1,7 +1,7 @@
 package meta.state;
 
+import flixel.FlxVideo;
 import flixel.text.FlxText;
-import openfl.media.Sound;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -101,6 +101,8 @@ class PlayState extends MusicBeatState
 	private var paused:Bool = false;
 	var startedCountdown:Bool = false;
 	var inCutscene:Bool = false;
+
+	var video:FlxVideo;
 
 	var canPause:Bool = true;
 
@@ -1040,12 +1042,16 @@ class PlayState extends MusicBeatState
 	{
 		if (!paused)
 			updateRPC(false);
+		if (video != null)
+			video.onFocus();
 		super.onFocus();
 	}
 
 	override public function onFocusLost()
 	{
 		updateRPC(true);
+		if (video != null)
+			video.onFocusLost();
 		super.onFocusLost();
 	}
 
@@ -1232,7 +1238,7 @@ class PlayState extends MusicBeatState
 
 		if (!cache)
 		{
-			var diffText:FlxText = new FlxText(0, 0, 0, diff + ' ms');
+			var diffText:FlxText = new FlxText(0, 0, 0, Std.int(diff) + ' ms');
 			switch (daRating)
 			{
 				case 'shit' | 'bad':
@@ -1599,6 +1605,9 @@ class PlayState extends MusicBeatState
 
 	public function songIntroCutscene()
 	{
+		// inCutscene = false;
+		// Paths.clearUnusedMemory();
+
 		switch (curSong.toLowerCase())
 		{
 			case "winter-horrorland":
@@ -1676,6 +1685,25 @@ class PlayState extends MusicBeatState
 			default:
 				callTextbox();
 		}
+	}
+
+	function playVideo(path:String, ?callback)
+	{
+		inCutscene = true;
+
+		var bg:FlxSprite = new FlxSprite(-FlxG.width, -FlxG.height).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
+		bg.scrollFactor.set();
+		bg.cameras = [camHUD];
+		add(bg);
+
+		video = new FlxVideo(path);
+		video.finishCallback = function()
+		{
+			remove(bg);
+			video = null;
+			if (callback != null)
+				callback();
+		};
 	}
 
 	function callTextbox()

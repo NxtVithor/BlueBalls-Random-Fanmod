@@ -21,7 +21,8 @@ class Paths
 {
 	// Here we set up the paths class. This will be used to
 	// Return the paths of assets and call on those assets as well.
-	inline public static var SOUND_EXT = "ogg";
+	inline public static final SOUND_EXT = "ogg";
+	inline public static final VIDEO_EXT = "mp4";
 
 	// level we're loading
 	static var currentLevel:String;
@@ -310,10 +311,9 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	// mods!
-	inline static public function mod(key:String)
+	inline static public function video(key:String, ?library:String)
 	{
-		return '${ModManager.modFolder}/$key';
+		return getPath('videos/$key.$VIDEO_EXT', BINARY, library);
 	}
 
 	// animated sprites!

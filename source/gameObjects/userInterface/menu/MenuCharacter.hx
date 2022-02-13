@@ -13,9 +13,9 @@ class MenuCharacter extends FlxSprite
 	var curCharacterMap:Map<String, Array<Dynamic>> = [
 		// the format is currently
 		// name of character => id in atlas, fps, loop, scale, offsetx, offsety
-		'bf' => ["BF idle dance white", 24, true, 0.9, 100, 25],
-		'bfConfirm' => ['BF HEY!!', 24, false, 0.9, 0, 0],
-		'gf' => ["GF Dancing Beat WHITE", 24, true, 1, 25, 75],
+		'bf' => ["BF idle dance white", 24, true, 0.9, 50, 25],
+		'bfConfirm' => ['BF HEY!!', 24, false, 0.8, -25, 25],
+		'gf' => ["GF Dancing Beat WHITE", 24, true, 1, 100, 75],
 		'dad' => ["Dad idle dance BLACK LINE", 24, true, 0.5, 0, 0],
 		'spooky' => ["spooky dance idle BLACK LINES", 24, true, 0.5, -25, 90],
 		'pico' => ["Pico Idle Dance", 24, true, 0.5, -25, 100],
