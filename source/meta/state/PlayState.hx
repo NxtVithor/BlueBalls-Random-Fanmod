@@ -538,8 +538,6 @@ class PlayState extends MusicBeatState
 		super.destroy();
 	}
 
-	var lastSection:Int = 0;
-
 	override public function update(elapsed:Float)
 	{
 		stageBuild.stageUpdateConstant(elapsed, boyfriend, gf, dadOpponent);
@@ -616,17 +614,6 @@ class PlayState extends MusicBeatState
 			var curSection = Std.int(curStep / 16);
 			if (generatedMusic && SONG.notes[curSection] != null)
 			{
-				if (curSection != lastSection)
-				{
-					// section reset stuff
-					if (SONG.notes[curSection].mustHitSection != SONG.notes[lastSection].mustHitSection)
-					{
-						camDisplaceX = 0;
-						camDisplaceY = 0;
-					}
-					lastSection = curSection;
-				}
-
 				if (!SONG.notes[curSection].mustHitSection)
 				{
 					var char = dadOpponent;
@@ -1424,6 +1411,16 @@ class PlayState extends MusicBeatState
 		{
 			if (daSection.changeBPM)
 				Conductor.changeBPM(daSection.bpm);
+
+			// reset cam displace
+			if (((!boyfriend.animation.curAnim.name.startsWith('sing') || boyfriend.animation.curAnim.name.endsWith('miss'))
+				&& daSection.mustHitSection)
+				|| ((!dadOpponent.animation.curAnim.name.startsWith('sing') || dadOpponent.animation.curAnim.name.endsWith('miss'))
+					&& !daSection.mustHitSection))
+			{
+				camDisplaceX = 0;
+				camDisplaceY = 0;
+			}
 		}
 
 		if (!isTutorial && FlxG.camera.zoom < 1.35 && (!Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0))
