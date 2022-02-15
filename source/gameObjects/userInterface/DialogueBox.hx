@@ -113,8 +113,12 @@ class DialogueBox extends FlxSpriteGroup
 		}, 5);
 
 		box = new FlxSprite(0, 45);
-
 		loadSkin(dialogue.skin.toLowerCase());
+		box.screenCenter(X);
+		if (!isPixelSkin)
+			box.flipX = getCharacter().onLeft;
+		box.animation.play('normalOpen');
+		add(box);
 
 		portraitLeft = new FlxSprite(-20, 40);
 		portraitLeft.flipX = true;
@@ -128,14 +132,6 @@ class DialogueBox extends FlxSpriteGroup
 		add(portraitRight);
 
 		loadPortraits();
-
-		box.animation.play('normalOpen');
-		if (isPixelSkin)
-			box.setGraphicSize(Std.int(box.width * PlayState.daPixelZoom * 0.9));
-		else
-			box.flipX = getCharacter().onLeft;
-		box.updateHitbox();
-		add(box);
 
 		portraitLeft.screenCenter(X);
 
@@ -293,9 +289,11 @@ class DialogueBox extends FlxSpriteGroup
 				box.y = FlxG.height - box.height / 1.1;
 		}
 
-		box.screenCenter(X);
 		if (!isPixelSkin)
 			box.x += 32;
+		if (isPixelSkin)
+			box.setGraphicSize(Std.int(box.width * PlayState.daPixelZoom * 0.9));
+		box.updateHitbox();
 	}
 
 	function loadPortraits()
