@@ -37,16 +37,15 @@ class DialogueBox extends FlxSpriteGroup
 {
 	var box:FlxSprite;
 
+	var curSkin:String = '';
 	var curCharacter:String = '';
 
 	var dialogue:Dialogue;
 
 	var characters:Map<String, DialogueCharacter>;
+	var skins:Array<String> = [];
 
-	// SECOND DIALOGUE FOR THE PIXEL SHIT INSTEAD???
 	var swagText:FlxTypeText;
-
-	var dropText:FlxText;
 
 	public var finishThing:Void->Void;
 
@@ -61,7 +60,7 @@ class DialogueBox extends FlxSpriteGroup
 
 	var isPixelSkin:Bool = false;
 
-	var boxBase:String = 'dialogue/boxes/';
+	var skinBase:String = 'dialogue/boxes/';
 	var portraitBase:String = 'dialogue/portraits/';
 
 	public function new(dialogue:Dialogue)
@@ -72,14 +71,23 @@ class DialogueBox extends FlxSpriteGroup
 
 		characters = new Map<String, DialogueCharacter>();
 
-		// create the characters list
+		// create the characters and the skins lists
 		for (line in dialogue.lines)
-			if (!characters.exists(line[0][0]))
-				characters.set(line[0][0], loadCharacterFromJson(Paths.json('images/' + portraitBase + line[0][0])));
+		{
+			var char:String = line[0][0];
+			if (!characters.exists(char))
+				characters.set(char, loadCharacterFromJson(Paths.json('images/' + portraitBase + char)));
 
-		// cache characters to reduce lag
+			var skin:String = line[0][2];
+			if (skin != null && !skins.contains(skin))
+				skins.push(skin);
+		}
+
+		// cache characters and skins to reduce lag
 		for (char in characters.keys())
 			Paths.returnGraphic(portraitBase + characters.get(char));
+		for (skin in skins)
+			Paths.returnGraphic(skinBase + skin);
 
 		if (dialogue.skin == null || dialogue.skin == '')
 			dialogue.skin = 'normal';
@@ -106,24 +114,7 @@ class DialogueBox extends FlxSpriteGroup
 
 		box = new FlxSprite(0, 45);
 
-		switch (dialogue.skin.toLowerCase())
-		{
-			case 'evil-pixel':
-				isPixelSkin = true;
-				box.frames = Paths.getSparrowAtlas(boxBase + 'dialogueBox-evil');
-				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
-				box.animation.addByIndices('normal', 'Spirit Textbox spawn', [11], "", 24);
-			case 'pixel':
-				isPixelSkin = true;
-				box.frames = Paths.getSparrowAtlas(boxBase + 'dialogueBox-pixel');
-				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
-				box.animation.addByIndices('normal', 'Text Box Appear', [4], "", 24);
-			default:
-				box.frames = Paths.getSparrowAtlas(boxBase + 'speech_bubble_talking');
-				box.animation.addByPrefix('normalOpen', 'Speech Bubble Normal Open', 24, false);
-				box.animation.addByPrefix('normal', 'speech bubble normal', 24, true);
-				box.y = FlxG.height - box.height / 1.1;
-		}
+		loadSkin(dialogue.skin.toLowerCase());
 
 		portraitLeft = new FlxSprite(-20, 40);
 		portraitLeft.flipX = true;
@@ -146,10 +137,6 @@ class DialogueBox extends FlxSpriteGroup
 		box.updateHitbox();
 		add(box);
 
-		box.screenCenter(X);
-		if (!isPixelSkin)
-			box.x += 32;
-
 		portraitLeft.screenCenter(X);
 
 		var textX:Float = 240;
@@ -160,14 +147,12 @@ class DialogueBox extends FlxSpriteGroup
 			textY -= 35;
 		}
 
-		dropText = new FlxText(textX + 2, textY + 2, Std.int(FlxG.width * 0.6), "", 32);
-		dropText.font = 'Pixel Arial 11 Bold';
-		dropText.color = 0xFFD89494;
-		add(dropText);
-
 		swagText = new FlxTypeText(textX, textY, Std.int(FlxG.width * 0.6), "", 32);
 		swagText.font = 'Pixel Arial 11 Bold';
 		swagText.color = 0xFF3F2021;
+		swagText.borderStyle = SHADOW;
+		swagText.borderColor = 0xFFD89494;
+		swagText.borderSize = 2;
 		swagText.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
 		add(swagText);
 
@@ -181,7 +166,7 @@ class DialogueBox extends FlxSpriteGroup
 		{
 			portraitLeft.color = FlxColor.BLACK;
 			swagText.color = FlxColor.WHITE;
-			dropText.color = FlxColor.BLACK;
+			swagText.borderColor = FlxColor.BLACK;
 		}
 	}
 
@@ -190,8 +175,6 @@ class DialogueBox extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
-		dropText.text = swagText.text;
-
 		if (box.animation.curAnim != null)
 		{
 			if (box.animation.curAnim.name == 'normalOpen' && box.animation.curAnim.finished)
@@ -233,7 +216,6 @@ class DialogueBox extends FlxSpriteGroup
 						portraitLeft.visible = false;
 						portraitRight.visible = false;
 						swagText.alpha -= 1 / 5;
-						dropText.alpha = swagText.alpha;
 					}, 5);
 
 					new FlxTimer().start(1.2, function(tmr:FlxTimer)
@@ -245,8 +227,10 @@ class DialogueBox extends FlxSpriteGroup
 			}
 			else
 			{
-				// dialogueList.remove(dialogueList[0]);
 				curLine++;
+				var skin:String = dialogue.lines[curLine][0][2];
+				if (skin != null && skin.toLowerCase() != curSkin.toLowerCase())
+					loadSkin(skin);
 				loadPortraits();
 				startDialogue();
 			}
@@ -282,6 +266,36 @@ class DialogueBox extends FlxSpriteGroup
 					box.flipX = false;
 			}
 		}
+	}
+
+	function loadSkin(name:String = 'normal')
+	{
+		switch (name)
+		{
+			case 'evil-pixel':
+				curSkin = 'evil-pixel';
+				isPixelSkin = true;
+				box.frames = Paths.getSparrowAtlas(skinBase + 'dialogueBox-evil');
+				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
+				box.animation.addByIndices('normal', 'Spirit Textbox spawn', [11], "", 24);
+			case 'pixel':
+				curSkin = 'pixel';
+				isPixelSkin = true;
+				box.frames = Paths.getSparrowAtlas(skinBase + 'dialogueBox-pixel');
+				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
+				box.animation.addByIndices('normal', 'Text Box Appear', [4], "", 24);
+			default:
+				curSkin = 'normal';
+				isPixelSkin = false;
+				box.frames = Paths.getSparrowAtlas(skinBase + 'speech_bubble_talking');
+				box.animation.addByPrefix('normalOpen', 'Speech Bubble Normal Open', 24, false);
+				box.animation.addByPrefix('normal', 'speech bubble normal', 24, true);
+				box.y = FlxG.height - box.height / 1.1;
+		}
+
+		box.screenCenter(X);
+		if (!isPixelSkin)
+			box.x += 32;
 	}
 
 	function loadPortraits()
