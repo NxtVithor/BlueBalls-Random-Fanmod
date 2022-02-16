@@ -1,18 +1,14 @@
 package gameObjects;
 
+import haxe.Exception;
+import sys.io.File;
+import haxe.Json;
 import flixel.FlxBasic;
-import flixel.FlxCamera;
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.FlxState;
-import flixel.addons.effects.FlxTrail;
-import flixel.addons.effects.chainable.FlxWaveEffect;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
-import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import gameObjects.background.*;
 import meta.CoolUtil;
@@ -21,6 +17,17 @@ import meta.data.dependency.FNFSprite;
 import meta.state.PlayState;
 
 using StringTools;
+
+typedef StageFile =
+{
+	var directory:String;
+	var defaultZoom:Float;
+	var isPixelStage:Bool;
+
+	var boyfriend:Array<Dynamic>;
+	var girlfriend:Array<Dynamic>;
+	var opponent:Array<Dynamic>;
+}
 
 /**
 	This is the stage class. It sets up everything you need for stages in a more organised and clean manner than the
@@ -48,6 +55,10 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 	public var curStage:String;
 
+	var stageData:StageFile;
+
+	public var isPixelStage:Bool = false;
+
 	var daPixelZoom = PlayState.daPixelZoom;
 
 	public var foreground:FlxTypedGroup<FlxBasic>;
@@ -57,7 +68,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		super();
 		this.curStage = curStage;
 
-		/// get hardcoded stage type if chart is fnf style
 		if (PlayState.determinedChartType == "FNF")
 		{
 			// this is because I want to avoid editing the fnf chart type
@@ -85,7 +95,17 @@ class Stage extends FlxTypedGroup<FlxBasic>
 			PlayState.curStage = curStage;
 		}
 
-		PlayState.defaultCamZoom = 1.05;
+		var daPath:String = Paths.json('stages/$curStage');
+		if (Paths.exists(daPath))
+			stageData = loadFromJson(daPath);
+		else
+		{
+			trace('stage $curStage not found, revert to default stage');
+			curStage = 'stage';
+		}
+
+		PlayState.defaultCamZoom = stageData.defaultZoom;
+		isPixelStage = stageData.isPixelStage;
 
 		// to apply to foreground use foreground.add(); instead of add();
 		foreground = new FlxTypedGroup<FlxBasic>();
@@ -93,7 +113,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		switch (curStage)
 		{
 			case 'spooky':
-				curStage = 'spooky';
 				// halloweenLevel = true;
 
 				var hallowTex = Paths.getSparrowAtlas('backgrounds/' + curStage + '/halloween_bg');
@@ -108,8 +127,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 			// isHalloween = true;
 			case 'philly':
-				curStage = 'philly';
-
 				var bg:FNFSprite = new FNFSprite(-100).loadGraphic(Paths.image('backgrounds/' + curStage + '/sky'));
 				bg.scrollFactor.set(0.1, 0.1);
 				add(bg);
@@ -146,9 +163,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				var street:FNFSprite = new FNFSprite(-40, streetBehind.y).loadGraphic(Paths.image('backgrounds/' + curStage + '/street'));
 				add(street);
 			case 'highway':
-				curStage = 'highway';
-				PlayState.defaultCamZoom = 0.90;
-
 				var skyBG:FNFSprite = new FNFSprite(-120, -50).loadGraphic(Paths.image('backgrounds/' + curStage + '/limoSunset'));
 				skyBG.scrollFactor.set(0.1, 0.1);
 				add(skyBG);
@@ -180,20 +194,14 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 				// overlayShit.shader = shaderBullshit;
 
-				var limoTex = Paths.getSparrowAtlas('backgrounds/' + curStage + '/limoDrive');
-
 				limo = new FNFSprite(-120, 550);
-				limo.frames = limoTex;
+				limo.frames = Paths.getSparrowAtlas('backgrounds/' + curStage + '/limoDrive');
 				limo.animation.addByPrefix('drive', "Limo stage", 24);
 				limo.animation.play('drive');
 				limo.antialiasing = true;
 
 				fastCar = new FNFSprite(-300, 160).loadGraphic(Paths.image('backgrounds/' + curStage + '/fastCarLol'));
-			// loadArray.add(limo);
 			case 'mall':
-				curStage = 'mall';
-				PlayState.defaultCamZoom = 0.80;
-
 				var bg:FNFSprite = new FNFSprite(-1000, -500).loadGraphic(Paths.image('backgrounds/' + curStage + '/bgWalls'));
 				bg.antialiasing = true;
 				bg.scrollFactor.set(0.2, 0.2);
@@ -244,7 +252,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				santa.antialiasing = true;
 				add(santa);
 			case 'mallEvil':
-				curStage = 'mallEvil';
 				var bg:FNFSprite = new FNFSprite(-400, -500).loadGraphic(Paths.image('backgrounds/mall/evilBG'));
 				bg.antialiasing = true;
 				bg.scrollFactor.set(0.2, 0.2);
@@ -262,10 +269,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				evilSnow.antialiasing = true;
 				add(evilSnow);
 			case 'school':
-				curStage = 'school';
-
-				// defaultCamZoom = 0.9;
-
 				var bgSky = new FNFSprite().loadGraphic(Paths.image('backgrounds/' + curStage + '/weebSky'));
 				bgSky.scrollFactor.set(0.1, 0.1);
 				add(bgSky);
@@ -336,8 +339,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				add(bg);
 
 			default:
-				PlayState.defaultCamZoom = 0.9;
-				curStage = 'stage';
 				var bg:FNFSprite = new FNFSprite(-600, -200).loadGraphic(Paths.image('backgrounds/' + curStage + '/stageback'));
 				bg.antialiasing = true;
 				bg.scrollFactor.set(0.9, 0.9);
@@ -415,35 +416,12 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 	public function repositionPlayers(curStage, boyfriend:Character, dad:Character, gf:Character):Void
 	{
-		// REPOSITIONING PER STAGE
-		switch (curStage)
-		{
-			case 'highway':
-				boyfriend.y -= 220;
-				boyfriend.x += 260;
-
-			case 'mall':
-				boyfriend.x += 200;
-				dad.x -= 400;
-				dad.y += 20;
-
-			case 'mallEvil':
-				boyfriend.x += 320;
-			case 'school':
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				dad.x += 200;
-				dad.y += 580;
-				gf.x += 200;
-				gf.y += 320;
-			case 'schoolEvil':
-				dad.x -= 150;
-				dad.y += 50;
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
-		}
+		boyfriend.x = stageData.boyfriend[0] + boyfriend.positionArray[0];
+		boyfriend.y = stageData.boyfriend[1] + boyfriend.positionArray[1];
+		dad.x = stageData.opponent[0] + dad.positionArray[0];
+		dad.y = stageData.opponent[1] + dad.positionArray[1];
+		gf.x = stageData.girlfriend[0] + gf.positionArray[0];
+		gf.y = stageData.girlfriend[1] + gf.positionArray[1];
 	}
 
 	var curLight:Int = 0;
@@ -580,5 +558,10 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		if (Init.trueSettings.get('Disable Antialiasing') && Std.isOfType(Object, FlxSprite))
 			cast(Object, FlxSprite).antialiasing = false;
 		return super.add(Object);
+	}
+
+	public static function loadFromJson(path:String):StageFile
+	{
+		return cast Json.parse(CoolUtil.cleanJson(File.getContent(path)));
 	}
 }

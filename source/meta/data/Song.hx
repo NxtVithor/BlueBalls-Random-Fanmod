@@ -16,6 +16,7 @@ typedef SwagSong =
 
 	var player1:String;
 	var player2:String;
+	var gfVersion:String;
 	var stage:String;
 	var noteSkin:String;
 	var validScore:Bool;
@@ -41,8 +42,7 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		var rawJson = CoolUtil.cleanJson(File.getContent(Paths.songJson(folder.toLowerCase(), jsonInput.toLowerCase())));
-		return parseJSONshit(rawJson);
+		return parseJSONshit(CoolUtil.cleanJson(File.getContent(Paths.songJson(folder.toLowerCase(), jsonInput.toLowerCase()))));
 	}
 
 	public static function parseJSONshit(rawJson:String):SwagSong

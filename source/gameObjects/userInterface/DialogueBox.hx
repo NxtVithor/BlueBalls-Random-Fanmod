@@ -85,7 +85,7 @@ class DialogueBox extends FlxSpriteGroup
 
 		// cache characters and skins to reduce lag
 		for (char in characters.keys())
-			Paths.returnGraphic(portraitBase + characters.get(char));
+			Paths.returnGraphic(portraitBase + char);
 		for (skin in skins)
 			Paths.returnGraphic(skinBase + skin);
 

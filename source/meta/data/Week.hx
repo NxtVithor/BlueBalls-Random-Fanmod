@@ -1,13 +1,12 @@
 package meta.data;
 
-import haxe.Exception;
 import haxe.Json;
 import sys.FileSystem;
 import sys.io.File;
 
 using StringTools;
 
-typedef SwagWeek =
+typedef WeekFile =
 {
 	var songs:Array<Array<Dynamic>>;
 	var weekCharacters:Array<String>;
@@ -36,7 +35,7 @@ class Week
 	public var hideStoryMode:Bool = false;
 	public var hideFreeplay:Bool = false;
 
-	public function new(weekFile:SwagWeek)
+	public function new(weekFile:WeekFile)
 	{
 		songs = weekFile.songs;
 		weekCharacters = weekFile.weekCharacters;
@@ -48,10 +47,9 @@ class Week
 		hideFreeplay = weekFile.hideFreeplay;
 	}
 
-	public static function loadFromJson(path:String):SwagWeek
+	public static function loadFromJson(path:String):WeekFile
 	{
-		var rawJson:String = CoolUtil.cleanJson(File.getContent(path));
-		return cast Json.parse(rawJson);
+		return cast Json.parse(CoolUtil.cleanJson(File.getContent(path)));
 	}
 
 	public static function loadWeeks()

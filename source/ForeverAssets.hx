@@ -1,9 +1,5 @@
 package;
 
-import haxe.Exception;
-import meta.data.Week;
-import meta.data.Week.SwagWeek;
-import sys.FileSystem;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -12,10 +8,14 @@ import gameObjects.userInterface.*;
 import gameObjects.userInterface.menu.*;
 import gameObjects.userInterface.notes.*;
 import gameObjects.userInterface.notes.Strumline.UIStaticArrow;
+import haxe.Exception;
 import meta.data.Conductor;
 import meta.data.Section.SwagSection;
 import meta.data.Timings;
+import meta.data.Week.WeekFile;
+import meta.data.Week;
 import meta.state.PlayState;
+import sys.FileSystem;
 
 using StringTools;
 

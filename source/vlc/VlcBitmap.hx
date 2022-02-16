@@ -474,9 +474,7 @@ class VlcBitmap extends Bitmap
 			onProgress();
 	}
 
-	function statusOnPositionChanged(newPos:Int)
-	{
-	}
+	function statusOnPositionChanged(newPos:Int) {}
 
 	function statusOnSeekableChanged(newPos:Int)
 	{
@@ -484,13 +482,9 @@ class VlcBitmap extends Bitmap
 			onSeek();
 	}
 
-	function statusOnForward()
-	{
-	}
+	function statusOnForward() {}
 
-	function statusOnBackward()
-	{
-	}
+	function statusOnBackward() {}
 
 	function onDisplay()
 	{

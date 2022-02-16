@@ -1,6 +1,5 @@
 package gameObjects.background;
 
-import flixel.graphics.frames.FlxAtlasFrames;
 import meta.data.dependency.FNFSprite;
 
 class BackgroundDancer extends FNFSprite

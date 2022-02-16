@@ -233,15 +233,11 @@ class PlayState extends MusicBeatState
 		 */
 
 		// set up characters here too
-		gf = new Character();
-		gf.adjustPos = false;
-		gf.setCharacter(300, 100, stageBuild.returnGFtype(curStage));
+		gf = new Character(300, 100, stageBuild.returnGFtype(curStage));
 		gf.scrollFactor.set(0.95, 0.95);
 
-		dadOpponent = new Character().setCharacter(50, 850, SONG.player2);
-		boyfriend = new Boyfriend();
-		boyfriend.setCharacter(750, 850, SONG.player1);
-		// if you want to change characters later use setCharacter() instead of new or it will break
+		dadOpponent = new Character(50, 850, SONG.player2);
+		boyfriend = new Boyfriend(750, 850, SONG.player1);
 
 		var camPos:FlxPoint = new FlxPoint(gf.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
 
@@ -614,22 +610,26 @@ class PlayState extends MusicBeatState
 			var curSection = Std.int(curStep / 16);
 			if (generatedMusic && SONG.notes[curSection] != null)
 			{
+				var char:Character = dadOpponent;
+
 				if (!SONG.notes[curSection].mustHitSection)
 				{
-					var char = dadOpponent;
-
 					var getCenterX = char.getMidpoint().x + 100;
 					var getCenterY = char.getMidpoint().y - 100;
+					switch (curStage)
+					{
+						case 'philly' | 'school':
+							getCenterX = char.getMidpoint().x + 200;
+					}
 
-					camFollow.setPosition(getCenterX + camDisplaceX + char.characterData.camOffsetX,
-						getCenterY + camDisplaceY + char.characterData.camOffsetY);
+					camFollow.setPosition(getCenterX + camDisplaceX + char.cameraPosition[0], getCenterY + camDisplaceY + char.cameraPosition[1]);
 
 					if (isTutorial)
 						tweenCamIn();
 				}
 				else
 				{
-					var char = boyfriend;
+					char = boyfriend;
 
 					var getCenterX = char.getMidpoint().x - 100;
 					var getCenterY = char.getMidpoint().y - 100;
@@ -644,11 +644,10 @@ class PlayState extends MusicBeatState
 							getCenterY = char.getMidpoint().y - 200;
 						case 'schoolEvil':
 							getCenterX = char.getMidpoint().x - 200;
-							getCenterY = char.getMidpoint().y - 200;
+							getCenterY = char.getMidpoint().y - 225;
 					}
 
-					camFollow.setPosition(getCenterX + camDisplaceX - char.characterData.camOffsetX,
-						getCenterY + camDisplaceY + char.characterData.camOffsetY);
+					camFollow.setPosition(getCenterX + camDisplaceX - char.cameraPosition[0], getCenterY + camDisplaceY + char.cameraPosition[1]);
 
 					if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
 						cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {

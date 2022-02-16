@@ -3,7 +3,7 @@ fine shit i need to do:
 unhardcode assets:
 - characters
 - stages
-- notes types and skins
+- notes types and skins <- we can probably
 - dialogues
 
 remake dialogue system

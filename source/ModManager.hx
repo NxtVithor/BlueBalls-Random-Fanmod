@@ -7,7 +7,17 @@ class ModManager
 	public static var modFolder:String = 'mods';
 	public static var modsFolders:Array<String>;
 
-	static final ignoredModsFolders:Array<String> = ['fonts', 'images', 'music', 'shaders', 'songs', 'sounds', 'videos', 'weeks'];
+	static final ignoredModsFolders:Array<String> = [
+		'characters',
+		'fonts',
+		'images',
+		'music',
+		'shaders',
+		'songs',
+		'sounds',
+		'videos',
+		'weeks'
+	];
 
 	inline static public function getModPath(key:String)
 	{
