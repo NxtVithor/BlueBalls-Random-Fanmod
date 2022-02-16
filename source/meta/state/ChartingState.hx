@@ -1,5 +1,6 @@
 package meta.state;
 
+import sys.FileSystem;
 import meta.data.Conductor.BPMChangeEvent;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -85,8 +86,15 @@ class ChartingState extends MusicBeatState
 
 	// ui shit
 	var uiBox:FlxUITabMenu;
+	var infoTxt:FlxText;
 
 	var typingShit:FlxInputText;
+
+	var steppers:Array<FlxUINumericStepper> = [];
+	var dropDowns:Array<FlxUIDropDownMenu> = [];
+
+	// song tab shit
+	var songTitleInput:FlxUIInputText;
 
 	// secton tab shit
 	var stepperLength:FlxUINumericStepper;
@@ -98,8 +106,6 @@ class ChartingState extends MusicBeatState
 	// note tab shit
 	var stepperSusLength:FlxUINumericStepper;
 	var stepperType:FlxUINumericStepper;
-
-	var infoTxt:FlxText;
 
 	override public function create()
 	{
@@ -236,7 +242,7 @@ class ChartingState extends MusicBeatState
 		add(uiBox);
 
 		// init song tab
-		var songTitleInput = new FlxUIInputText(10, 10, 70, _song.song, 8);
+		songTitleInput = new FlxUIInputText(10, 10, 70, _song.song, 8);
 		typingShit = songTitleInput;
 
 		var checkVoices = new FlxUICheckBox(10, 30, null, null, "Has voice track", 100);
@@ -282,21 +288,107 @@ class ChartingState extends MusicBeatState
 		var stepperSpeed:FlxUINumericStepper = new FlxUINumericStepper(stepperBPM.x + stepperBPM.width + 5, stepperBPM.y, 0.1, 1, 0.1, 10, 1);
 		stepperSpeed.value = _song.speed;
 		stepperSpeed.name = 'song_speed';
+		steppers.push(stepperSpeed);
 
 		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+
+		#if MODS_ALLOWED
+		// check for modded characters
+		// for root mods folder
+		var path:String = ModManager.getModPath('characters');
+		if (FileSystem.isDirectory(path))
+		{
+			for (char in FileSystem.readDirectory(path))
+			{
+				var realChar:String = char.substring(0, char.lastIndexOf('.')).substring(char.lastIndexOf('/'), char.length);
+				if (!characters.contains(realChar))
+					characters.push(realChar);
+			}
+		}
+
+		// for mods folders
+		for (folder in ModManager.modsFolders)
+		{
+			var path:String = ModManager.getModPath(folder + '/characters');
+			if (FileSystem.isDirectory(path))
+			{
+				for (char in FileSystem.readDirectory(path))
+				{
+					var realChar:String = char.substring(0, char.lastIndexOf('.')).substring(char.lastIndexOf('/'), char.length);
+					if (!characters.contains(realChar))
+						characters.push(realChar);
+				}
+			}
+		}
+		#end
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 125, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player1 = characters[Std.parseInt(character)];
 		});
-		player1DropDown.selectedLabel = _song.player1;
+		if (_song.player1 != null)
+			player1DropDown.selectedLabel = _song.player1;
+		dropDowns.push(player1DropDown);
 
-		var player2DropDown = new FlxUIDropDownMenu(140, 125, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		var player2DropDown = new FlxUIDropDownMenu(140, player1DropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player2 = characters[Std.parseInt(character)];
 		});
+		if (_song.player2 != null)
+			player2DropDown.selectedLabel = _song.player2;
+		dropDowns.push(player2DropDown);
 
-		player2DropDown.selectedLabel = _song.player2;
+		var gfDropDown = new FlxUIDropDownMenu(player1DropDown.x, 170, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		{
+			_song.gfVersion = characters[Std.parseInt(character)];
+		});
+		if (_song.gfVersion != null)
+			gfDropDown.selectedLabel = _song.gfVersion;
+		dropDowns.push(gfDropDown);
+
+		// repeat moment
+		var stages:Array<String> = [];
+
+		for (stage in FileSystem.readDirectory(Paths.getPreloadPath('stages')))
+			stages.push(stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length));
+
+		#if MODS_ALLOWED
+		// check for modded stages
+		// for root mods folder
+		var path:String = ModManager.getModPath('stages');
+		if (FileSystem.isDirectory(path))
+		{
+			for (stage in FileSystem.readDirectory(path))
+			{
+				var realStage:String = stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length);
+				if (!stages.contains(realStage))
+					stages.push(realStage);
+			}
+		}
+
+		// for mods folders
+		for (folder in ModManager.modsFolders)
+		{
+			var path:String = ModManager.getModPath(folder + '/stages');
+			if (FileSystem.isDirectory(path))
+			{
+				for (stage in FileSystem.readDirectory(path))
+				{
+					var realStage:String = stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length);
+					if (!stages.contains(realStage))
+						stages.push(realStage);
+				}
+			}
+		}
+		#end
+
+		var stageDropDown = new FlxUIDropDownMenu(player2DropDown.x, gfDropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(stage:String)
+		{
+			_song.stage = stages[Std.parseInt(stage)];
+		});
+		if (_song.stage != null)
+			stageDropDown.selectedLabel = _song.stage;
+		dropDowns.push(stageDropDown);
 
 		// add song tab
 		var songTab = new FlxUI(null, uiBox);
@@ -315,6 +407,10 @@ class ChartingState extends MusicBeatState
 		songTab.add(stepperSpeed);
 		songTab.add(new FlxText(player1DropDown.x - 2, player1DropDown.y - 15, 0, 'Player'));
 		songTab.add(new FlxText(player2DropDown.x - 2, player2DropDown.y - 15, 0, 'Opponent'));
+		songTab.add(new FlxText(gfDropDown.x - 2, gfDropDown.y - 15, 0, 'Girlfriend'));
+		songTab.add(new FlxText(stageDropDown.x - 2, stageDropDown.y - 15, 0, 'Stage'));
+		songTab.add(gfDropDown);
+		songTab.add(stageDropDown);
 		songTab.add(player1DropDown);
 		songTab.add(player2DropDown);
 
@@ -327,12 +423,15 @@ class ChartingState extends MusicBeatState
 		stepperLength = new FlxUINumericStepper(10, 10, 4, 0, 0, 999, 0);
 		stepperLength.value = _song.notes[curSection].lengthInSteps;
 		stepperLength.name = 'section_length';
+		steppers.push(stepperLength);
 
 		stepperSectionBPM = new FlxUINumericStepper(10, 80, 1, Conductor.bpm, 0, 999, 0);
 		stepperSectionBPM.value = Conductor.bpm;
 		stepperSectionBPM.name = 'section_bpm';
+		steppers.push(stepperSectionBPM);
 
 		var stepperCopy:FlxUINumericStepper = new FlxUINumericStepper(110, 130, 1, 1, -999, 999, 0);
+		steppers.push(stepperCopy);
 
 		var copyButton:FlxButton = new FlxButton(10, 130, "Copy last section", function()
 		{
@@ -393,6 +492,7 @@ class ChartingState extends MusicBeatState
 		stepperSusLength = new FlxUINumericStepper(10, 10, Conductor.stepCrochet / 2, 0, 0, Conductor.stepCrochet * 16);
 		stepperSusLength.value = 0;
 		stepperSusLength.name = 'note_susLength';
+		steppers.push(stepperSusLength);
 
 		var applyLength:FlxButton = new FlxButton(100, 10, 'Apply');
 
@@ -401,15 +501,14 @@ class ChartingState extends MusicBeatState
 
 		// note types
 		stepperType = new FlxUINumericStepper(10, 30, Conductor.stepCrochet / 125, 0, 0, (Conductor.stepCrochet / 125) + 10); // 10 is placeholder
-		// I have no idea what i'm doing lmfao
 		stepperType.value = 0;
 		stepperType.name = 'note_type';
+		steppers.push(stepperType);
 
 		// add note tab
 		noteTab.add(stepperType);
 
 		uiBox.addGroup(noteTab);
-		// I'm genuinely tempted to go around and remove every instance of the word "sus" it is genuinely killing me inside
 
 		FlxG.mouse.visible = true;
 	}
@@ -429,24 +528,6 @@ class ChartingState extends MusicBeatState
 		}
 		curStep = lastChange.stepTime + Math.floor((songMusic.time - lastChange.songTime) / Conductor.stepCrochet);
 		updateBeat();
-
-		if (FlxG.keys.justPressed.SPACE)
-		{
-			if (songMusic.playing)
-				pauseMusic();
-			else
-			{
-				vocals.play();
-				songMusic.play();
-				resyncVocals();
-			}
-		}
-
-		if (FlxG.mouse.wheel != 0)
-		{
-			pauseMusic();
-			songMusic.time = Math.min(Math.max(songMusic.time - (FlxG.mouse.wheel * Conductor.stepCrochet * 0.75), 0), songMusic.length);
-		}
 
 		curSection = Std.int(curStep / 16);
 
@@ -548,26 +629,69 @@ class ChartingState extends MusicBeatState
 		else
 			dummyArrow.visible = false;
 
-		if (FlxG.keys.justPressed.ENTER)
+		var focusBlock:Bool = songTitleInput.hasFocus;
+		for (stepper in steppers)
 		{
-			songPosition = songMusic.time;
-
-			PlayState.SONG = _song;
-			ForeverTools.killMusic([songMusic, vocals]);
-			FlxG.mouse.visible = false;
-			Main.switchState(this, new PlayState());
+			@:privateAccess
+			if (cast(stepper.text_field, FlxUIInputText).hasFocus)
+			{
+				focusBlock = true;
+				break;
+			}
+		}
+		if (!focusBlock)
+		{
+			for (dropDown in dropDowns)
+			{
+				if (dropDown.dropPanel.visible)
+				{
+					focusBlock = true;
+					break;
+				}
+			}
 		}
 
-		if (FlxG.keys.justPressed.E)
-			changeNoteSustain(Conductor.stepCrochet);
-		if (FlxG.keys.justPressed.Q)
-			changeNoteSustain(-Conductor.stepCrochet);
+		if (!focusBlock)
+		{
+			if (FlxG.keys.justPressed.SPACE)
+			{
+				if (songMusic.playing)
+					pauseMusic();
+				else
+				{
+					vocals.play();
+					songMusic.play();
+					resyncVocals();
+				}
+			}
 
-		if (FlxG.keys.justPressed.R)
-			updateUI();
+			if (FlxG.mouse.wheel != 0)
+			{
+				pauseMusic();
+				songMusic.time = Math.min(Math.max(songMusic.time - (FlxG.mouse.wheel * Conductor.stepCrochet * 0.75), 0), songMusic.length);
+			}
 
-		if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S)
-			save();
+			if (FlxG.keys.justPressed.ENTER)
+			{
+				songPosition = songMusic.time;
+
+				PlayState.SONG = _song;
+				ForeverTools.killMusic([songMusic, vocals]);
+				FlxG.mouse.visible = false;
+				Main.switchState(this, new PlayState());
+			}
+
+			if (FlxG.keys.justPressed.E)
+				changeNoteSustain(Conductor.stepCrochet);
+			if (FlxG.keys.justPressed.Q)
+				changeNoteSustain(-Conductor.stepCrochet);
+
+			if (FlxG.keys.justPressed.R)
+				updateUI();
+
+			if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S)
+				save();
+		}
 	}
 
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)

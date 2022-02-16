@@ -233,7 +233,16 @@ class PlayState extends MusicBeatState
 		 */
 
 		// set up characters here too
-		gf = new Character(300, 100, stageBuild.returnGFtype(curStage));
+		var gfChar:String = SONG.gfVersion;
+		if (gfChar == null)
+		{
+			if (SONG.player3 != null)
+				gfChar = SONG.player3;
+			else
+				gfChar = stageBuild.returnGFtype(curStage);
+			SONG.gfVersion = gfChar;
+		}
+		gf = new Character(300, 100, gfChar);
 		gf.scrollFactor.set(0.95, 0.95);
 
 		dadOpponent = new Character(50, 850, SONG.player2);
@@ -1008,8 +1017,6 @@ class PlayState extends MusicBeatState
 				}
 				goodNoteHit(daNote, char, strumline, canDisplayJudgement);
 			}
-			// make bf dance
-			bfHoldDance();
 		}
 		else
 		{

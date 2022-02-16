@@ -54,28 +54,28 @@ class Week
 
 	public static function loadWeeks()
 	{
-		var weeksFilesList:Array<String> = FileSystem.readDirectory('assets/weeks');
+		var weeksFilesList:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('weeks'));
 
 		#if MODS_ALLOWED
 		// check for modded weeks
 		var weeksList:Array<String> = [];
 
 		// for root mods folder
-		if (FileSystem.isDirectory(ModManager.getModPath('weeks')))
+		var path:String = ModManager.getModPath('weeks');
+		if (FileSystem.isDirectory(path))
 		{
-			for (week in FileSystem.readDirectory(ModManager.getModPath('weeks')))
-				if (ModManager.isModded('weeks/' + week + '.json'))
-					weeksList.push(week);
+			for (week in FileSystem.readDirectory(path))
+				weeksList.push(week);
 		}
 
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
-			if (FileSystem.isDirectory(ModManager.getModPath(folder + '/weeks')))
+			var path:String = ModManager.getModPath(folder + '/weeks');
+			if (FileSystem.isDirectory(path))
 			{
-				for (week in FileSystem.readDirectory(ModManager.getModPath(folder + '/weeks')))
-					if (ModManager.isModded(folder + '/weeks/' + week + '.json'))
-						weeksList.push(week);
+				for (week in FileSystem.readDirectory(path))
+					weeksList.push(week);
 			}
 		}
 		#end

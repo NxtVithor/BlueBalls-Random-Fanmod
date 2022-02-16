@@ -70,30 +70,33 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 		if (PlayState.determinedChartType == "FNF")
 		{
-			// this is because I want to avoid editing the fnf chart type
-			// custom stage stuffs will come with forever charts
-			switch (CoolUtil.spaceToDash(PlayState.SONG.song.toLowerCase()))
+			if (PlayState.SONG.stage != null)
+				curStage = PlayState.SONG.stage;
+			else
 			{
-				case 'spookeez' | 'south' | 'monster':
-					curStage = 'spooky';
-				case 'pico' | 'blammed' | 'philly-nice':
-					curStage = 'philly';
-				case 'milf' | 'satin-panties' | 'high':
-					curStage = 'highway';
-				case 'cocoa' | 'eggnog':
-					curStage = 'mall';
-				case 'winter-horrorland':
-					curStage = 'mallEvil';
-				case 'senpai' | 'roses':
-					curStage = 'school';
-				case 'thorns':
-					curStage = 'schoolEvil';
-				default:
-					curStage = 'stage';
+				switch (CoolUtil.spaceToDash(PlayState.SONG.song.toLowerCase()))
+				{
+					case 'spookeez' | 'south' | 'monster':
+						curStage = 'spooky';
+					case 'pico' | 'blammed' | 'philly-nice':
+						curStage = 'philly';
+					case 'milf' | 'satin-panties' | 'high':
+						curStage = 'highway';
+					case 'cocoa' | 'eggnog':
+						curStage = 'mall';
+					case 'winter-horrorland':
+						curStage = 'mallEvil';
+					case 'senpai' | 'roses':
+						curStage = 'school';
+					case 'thorns':
+						curStage = 'schoolEvil';
+					default:
+						curStage = 'stage';
+				}
+				PlayState.SONG.stage = curStage;
 			}
-
-			PlayState.curStage = curStage;
 		}
+		PlayState.curStage = curStage;
 
 		var daPath:String = Paths.json('stages/$curStage');
 		if (Paths.exists(daPath))
