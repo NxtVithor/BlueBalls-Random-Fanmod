@@ -607,12 +607,12 @@ class PlayState extends MusicBeatState
 
 			// boyfriend.playAnim('singLEFT', true);
 
-			var curSection = Std.int(curStep / 16);
-			if (generatedMusic && SONG.notes[curSection] != null)
+			var curSection = SONG.notes[Std.int(curStep / 16)];
+			if (generatedMusic && curSection != null)
 			{
 				var char:Character = dadOpponent;
 
-				if (!SONG.notes[curSection].mustHitSection)
+				if (!curSection.mustHitSection)
 				{
 					var getCenterX = char.getMidpoint().x + 100;
 					var getCenterY = char.getMidpoint().y - 100;
