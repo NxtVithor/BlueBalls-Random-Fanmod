@@ -239,7 +239,7 @@ class DialogueBox extends FlxSpriteGroup
 
 	function startDialogue()
 	{
-		if (dialogue.lines[curLine] != null)
+		if (!isEnding && dialogue.lines[curLine] != null)
 		{
 			swagText.resetText(dialogue.lines[curLine][1]);
 			swagText.start(0.04, true);

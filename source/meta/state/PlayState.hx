@@ -487,7 +487,12 @@ class PlayState extends MusicBeatState
 				}
 				else // else just call bad notes
 					if (!Init.trueSettings.get('Ghost Tapping'))
+					{
 						missNoteCheck(true, true, key, boyfriend, true);
+						// painful if statement
+						if (combo > 5 && gf.animOffsets.exists('sad'))
+							gf.playAnim('sad');
+					}
 				Conductor.songPosition = previousTime;
 			}
 
@@ -1142,10 +1147,6 @@ class PlayState extends MusicBeatState
 
 	function decreaseCombo(?popMiss:Bool = false)
 	{
-		// painful if statement
-		if ((combo > 5 || combo < 0) && gf.animOffsets.exists('sad'))
-			gf.playAnim('sad');
-
 		if (combo > 0)
 			combo = 0; // bitch lmao
 		else
@@ -1378,7 +1379,7 @@ class PlayState extends MusicBeatState
 	{
 		if (!paused)
 		{
-			if (curBeat % gfSpeed == 0 && (gf.animation.curAnim.name.startsWith("idle") || gf.animation.curAnim.name.startsWith("dance")))
+			if (curBeat % gfSpeed == 0 && gf.animation.curAnim.name != null && !gf.animation.curAnim.name.startsWith("sing"))
 				gf.dance();
 
 			if (curBeat % 2 == 0)

@@ -47,6 +47,8 @@ class Character extends FNFSprite
 
 	public var holdTimer:Float = 0;
 
+	var danceIdle:Bool = false;
+
 	public var singDuration:Float = 4;
 
 	public var healthIcon:String = 'face';
@@ -111,6 +113,8 @@ class Character extends FNFSprite
 		else
 			quickAnimAdd('idle', 'BF idle dance');
 
+		danceIdle = animation.getByName('danceLeft') != null && animation.getByName('danceRight') != null;
+
 		dance();
 
 		if (isPlayer) // fuck you ninjamuffin lmao
@@ -145,11 +149,11 @@ class Character extends FNFSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	public function dance(?forced:Bool = false)
+	public function dance()
 	{
 		if (!debugMode)
 		{
-			if (animation.getByName('danceLeft') != null && animation.getByName('danceRight') != null)
+			if (danceIdle)
 			{
 				danced = !danced;
 
