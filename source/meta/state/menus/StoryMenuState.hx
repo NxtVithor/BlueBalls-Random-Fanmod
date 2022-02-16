@@ -21,11 +21,12 @@ using StringTools;
 class StoryMenuState extends MusicBeatState
 {
 	var scoreText:FlxText;
-	var curDifficulty:Int = 1;
+
+	static var curDifficulty:Int = 1;
 
 	var txtWeekTitle:FlxText;
 
-	var curWeek:Int = 0;
+	static var curWeek:Int = 0;
 
 	var txtTracklist:FlxText;
 
@@ -174,6 +175,8 @@ class StoryMenuState extends MusicBeatState
 		// very unprofessional yoshubs!
 
 		updateText();
+
+		changeWeek();
 	}
 
 	override function update(elapsed:Float)
@@ -201,9 +204,15 @@ class StoryMenuState extends MusicBeatState
 			if (!selectedWeek)
 			{
 				if (controls.UI_UP_P)
+				{
+					FlxG.sound.play(Paths.sound('scrollMenu'));
 					changeWeek(-1);
+				}
 				else if (controls.UI_DOWN_P)
+				{
+					FlxG.sound.play(Paths.sound('scrollMenu'));
 					changeWeek(1);
+				}
 
 				if (controls.UI_RIGHT)
 					rightArrow.animation.play('press')
@@ -331,8 +340,6 @@ class StoryMenuState extends MusicBeatState
 				item.alpha = 0.6;
 			bullShit++;
 		}
-
-		FlxG.sound.play(Paths.sound('scrollMenu'));
 
 		updateText();
 	}

@@ -23,7 +23,7 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	var menuItems:FlxTypedGroup<FlxSprite>;
-	var curSelected:Float = 0;
+	static var curSelected:Float = 0;
 
 	var bg:FlxSprite; // the background has been separated for more control
 	var magenta:FlxSprite;

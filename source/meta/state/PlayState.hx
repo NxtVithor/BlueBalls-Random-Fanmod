@@ -497,6 +497,7 @@ class PlayState extends MusicBeatState
 				else // else just call bad notes
 					if (!Init.trueSettings.get('Ghost Tapping'))
 					{
+						vocals.volume = 0;
 						missNoteCheck(true, true, key, boyfriend, true);
 						// painful if statement
 						if (combo > 5 && gf.animOffsets.exists('sad'))
@@ -834,6 +835,9 @@ class PlayState extends MusicBeatState
 						// ambiguous name
 						Timings.updateAccuracy(0);
 					}
+					// logical btw
+					else if (daNote.parentNote != null && daNote.parentNote.wasGoodHit)
+						vocals.volume = 0;
 
 					// if the note is off screen (above)
 					if (((!strumline.downscroll && daNote.y < -daNote.height)
@@ -843,7 +847,6 @@ class PlayState extends MusicBeatState
 				});
 			}
 
-			// dance piss moment
 			var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
 			if (!holdControls.contains(true))
 				bfHoldDance();

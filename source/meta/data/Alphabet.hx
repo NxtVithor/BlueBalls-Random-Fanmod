@@ -1,6 +1,5 @@
 package meta.data;
 
-import flixel.system.FlxSound;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
@@ -54,7 +53,7 @@ class Alphabet extends FlxSpriteGroup
 
 	var isBold:Bool = false;
 
-	public var soundChoices:Array<FlxSound>;
+	public var soundChoices:Array<String> = ["GF_1", "GF_2", "GF_3", "GF_4",];
 	public var beginPath:String = "assets/sounds/";
 	public var soundChance:Int = 40;
 	public var playSounds:Bool = true;
@@ -67,9 +66,6 @@ class Alphabet extends FlxSpriteGroup
 		this.text = text;
 		isBold = bold;
 		this.textSize = textSize;
-
-		if (soundChoices == null)
-			soundChoices = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
 
 		startText(text, typed);
 	}
@@ -129,7 +125,7 @@ class Alphabet extends FlxSpriteGroup
 			var isNumber:Bool = AlphaCharacter.numbers.contains(character);
 			var isSymbol:Bool = AlphaCharacter.symbols.contains(character);
 
-			if (AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1 || AlphaCharacter.numbers.contains(character))
+			if ((AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1) || (AlphaCharacter.numbers.contains(character)))
 			{
 				if (xPosResetted)
 				{
@@ -259,10 +255,10 @@ class Alphabet extends FlxSpriteGroup
 					{
 						lastPlayed = 0;
 
-						var daSound:FlxSound = soundChoices[FlxG.random.int(0, soundChoices.length - 1)];
+						var cur = FlxG.random.int(0, soundChoices.length - 1);
+						var daSound:String = beginPath + soundChoices[cur] + "." + Paths.SOUND_EXT;
 
-						daSound.play();
-						FlxG.sound.list.add(daSound);
+						FlxG.sound.play(daSound);
 					}
 				}
 				else
@@ -299,9 +295,11 @@ class Alphabet extends FlxSpriteGroup
 			// lmao
 			if (!disableX)
 				x = FlxMath.lerp(x, (targetY * 20) + 90, elapsed * 6);
+			else
+				x = FlxMath.lerp(x, xTo, elapsed * 6);
 		}
 
-		if (text != textInit)
+		if ((text != textInit))
 		{
 			if (arrayLetters.length > 0)
 				for (i in 0...arrayLetters.length)
