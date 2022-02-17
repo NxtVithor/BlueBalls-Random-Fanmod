@@ -68,7 +68,10 @@ class Character extends FNFSprite
 		var path:String = Paths.json('characters/$curCharacter');
 		// If a character couldn't be found, change him to BF just to prevent a crash
 		if (!Paths.exists(path))
+		{
+			curCharacter = 'bf';
 			path = Paths.json('characters/bf');
+		}
 
 		var json:CharacterFile = cast Json.parse(CoolUtil.cleanJson(File.getContent(path)));
 

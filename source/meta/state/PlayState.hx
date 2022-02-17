@@ -835,9 +835,6 @@ class PlayState extends MusicBeatState
 						// ambiguous name
 						Timings.updateAccuracy(0);
 					}
-					// logical btw
-					else if (daNote.parentNote != null && daNote.parentNote.wasGoodHit)
-						vocals.volume = 0;
 
 					// if the note is off screen (above)
 					if (((!strumline.downscroll && daNote.y < -daNote.height)

@@ -322,6 +322,8 @@ class ChartingState extends MusicBeatState
 		}
 		#end
 
+		if (_song.player1 != null && !characters.contains(_song.player1))
+			characters.push(_song.player1);
 		var player1DropDown = new FlxUIDropDownMenu(10, 125, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player1 = characters[Std.parseInt(character)];
@@ -330,6 +332,8 @@ class ChartingState extends MusicBeatState
 			player1DropDown.selectedLabel = _song.player1;
 		dropDowns.push(player1DropDown);
 
+		if (_song.player2 != null && !characters.contains(_song.player2))
+			characters.push(_song.player2);
 		var player2DropDown = new FlxUIDropDownMenu(140, player1DropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.player2 = characters[Std.parseInt(character)];
@@ -338,12 +342,17 @@ class ChartingState extends MusicBeatState
 			player2DropDown.selectedLabel = _song.player2;
 		dropDowns.push(player2DropDown);
 
+		var realGf:String = _song.gfVersion;
+		if (realGf == null)
+			realGf = _song.player3;
+		if (realGf != null && !characters.contains(realGf))
+			characters.push(realGf);
 		var gfDropDown = new FlxUIDropDownMenu(player1DropDown.x, 170, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
 			_song.gfVersion = characters[Std.parseInt(character)];
 		});
-		if (_song.gfVersion != null)
-			gfDropDown.selectedLabel = _song.gfVersion;
+		if (realGf != null)
+			gfDropDown.selectedLabel = realGf;
 		dropDowns.push(gfDropDown);
 
 		// repeat moment
@@ -382,6 +391,8 @@ class ChartingState extends MusicBeatState
 		}
 		#end
 
+		if (_song.stage != null && !stages.contains(_song.stage))
+			stages.push(_song.stage);
 		var stageDropDown = new FlxUIDropDownMenu(player2DropDown.x, gfDropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(stage:String)
 		{
 			_song.stage = stages[Std.parseInt(stage)];

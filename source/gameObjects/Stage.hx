@@ -96,17 +96,17 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				PlayState.SONG.stage = curStage;
 			}
 		}
-		PlayState.curStage = curStage;
 
-		var daPath:String = Paths.json('stages/$curStage');
-		if (Paths.exists(daPath))
-			stageData = loadFromJson(daPath);
+		if (Paths.exists(Paths.json('stages/$curStage')))
+			stageData = loadFromJson(Paths.json('stages/$curStage'));
 		else
 		{
 			trace('stage $curStage not found, revert to default stage');
 			curStage = 'stage';
+			stageData = loadFromJson(Paths.json('stages/$curStage'));
 		}
 
+		PlayState.curStage = curStage;
 		PlayState.defaultCamZoom = stageData.defaultZoom;
 		isPixelStage = stageData.isPixelStage;
 

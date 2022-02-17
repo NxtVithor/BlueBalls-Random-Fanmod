@@ -48,7 +48,7 @@ class InfoHud extends TextField
 	{
 		// u h
 		text = "";
-		currentFPS = Std.int(Lib.current.stage.frameRate);
+		currentFPS = Std.int(CoolUtil.getFPS());
 		if (displayFps)
 			text += "FPS: " + currentFPS + "\n";
 

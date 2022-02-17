@@ -35,10 +35,10 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 	private var healthBarBG:FlxSprite;
 	private var healthBar:FlxBar;
 
-	private var SONG = PlayState.SONG;
-
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
+
+	private var grpIcons:FlxTypedGroup<HealthIcon>;
 
 	private var stupidHealth:Float = 0;
 
@@ -67,13 +67,16 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		// healthBar
 		add(healthBar);
 
-		iconP1 = new HealthIcon(SONG.player1, true);
-		iconP1.y = healthBar.y - (iconP1.height / 2);
-		add(iconP1);
+		grpIcons = new FlxTypedGroup<HealthIcon>(2);
+		add(grpIcons);
 
-		iconP2 = new HealthIcon(SONG.player2, false);
+		iconP1 = new HealthIcon(PlayState.boyfriend.curCharacter, true);
+		iconP1.y = healthBar.y - (iconP1.height / 2);
+		grpIcons.add(iconP1);
+
+		iconP2 = new HealthIcon(PlayState.dadOpponent.curCharacter, false);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
-		add(iconP2);
+		grpIcons.add(iconP2);
 
 		scoreBar = new FlxText(0, healthBarBG.y + 40, 0, '', 20);
 		scoreBar.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -138,15 +141,13 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		// pain, this is like the 7th attempt
 		healthBar.percent = (PlayState.health * 50);
 
-		var speed:Float = 0.1 / (CoolUtil.getFPS() / 60);
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(iconP1.width, 150, speed)));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(iconP2.width, 150, speed)));
-
-		iconP1.updateHitbox();
-		iconP2.updateHitbox();
+		grpIcons.forEachAlive(function(icon:HealthIcon)
+		{
+			icon.setGraphicSize(Std.int(FlxMath.lerp(icon.width, 150, 0.09)));
+			icon.updateHitbox();
+		});
 
 		var iconOffset:Int = 26;
-
 		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
 		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
 
@@ -203,12 +204,10 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 	public function beatHit()
 	{
 		if (!Init.trueSettings.get('Reduced Movements'))
-		{
-			iconP1.setGraphicSize(Std.int(iconP1.width + 40));
-			iconP2.setGraphicSize(Std.int(iconP2.width + 40));
-
-			iconP1.updateHitbox();
-			iconP2.updateHitbox();
-		}
+			grpIcons.forEachAlive(function(icon:HealthIcon)
+			{
+				icon.setGraphicSize(Std.int(icon.width + 30));
+				icon.updateHitbox();
+			});
 	}
 }
