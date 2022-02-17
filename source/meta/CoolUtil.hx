@@ -1,5 +1,6 @@
 package meta;
 
+import haxe.Json;
 import lime.utils.Assets;
 import meta.data.PlayerSettings;
 import meta.state.PlayState;
@@ -53,12 +54,14 @@ class CoolUtil
 		return path.toLowerCase().replace(' ', '-');
 	}
 
-	public static function cleanJson(jsonInput:String)
-	{
-		while (!jsonInput.endsWith("}"))
-			jsonInput = jsonInput.substr(0, jsonInput.length - 1);
+	inline public static function readJson(path:String) {
+		return Json.parse(File.getContent(path).trim());
+	}
 
-		return jsonInput.trim();
+	public static function cleanJson(rawJson:String) {
+		while (!rawJson.endsWith("}"))
+			rawJson = rawJson.substr(0, rawJson.length - 1);
+		return rawJson;
 	}
 
 	public static function coolTextFile(path:String):Array<String>

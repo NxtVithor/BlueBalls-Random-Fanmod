@@ -110,27 +110,8 @@ class StoryMenuState extends MusicBeatState
 
 		for (char in 0...3)
 		{
-			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, Week.loadedWeeks[curWeek].weekCharacters[char]);
-			weekCharacterThing.antialiasing = true;
-			switch (weekCharacterThing.character)
-			{
-				case 'dad':
-					weekCharacterThing.setGraphicSize(Std.int(weekCharacterThing.width * 0.5));
-					weekCharacterThing.updateHitbox();
-				case 'bf':
-					weekCharacterThing.setGraphicSize(Std.int(weekCharacterThing.width * 0.9));
-					weekCharacterThing.updateHitbox();
-					weekCharacterThing.x -= 80;
-				case 'gf':
-					weekCharacterThing.setGraphicSize(Std.int(weekCharacterThing.width * 0.5));
-					weekCharacterThing.updateHitbox();
-				case 'pico':
-					weekCharacterThing.flipX = true;
-				case 'parents-christmas':
-					weekCharacterThing.setGraphicSize(Std.int(weekCharacterThing.width * 0.9));
-					weekCharacterThing.updateHitbox();
-			}
-
+			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, '');
+			weekCharacterThing.y += 70;
 			grpWeekCharacters.add(weekCharacterThing);
 		}
 
@@ -257,8 +238,10 @@ class StoryMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 
 				grpWeekText.members[curWeek].startFlashing();
-				for (i in 0...grpWeekCharacters.length)
-					grpWeekCharacters.members[i].hey();
+				grpWeekCharacters.forEach(function(char:MenuCharacter)
+				{
+					char.confirm();
+				});
 
 				stopspamming = true;
 			}
@@ -348,9 +331,8 @@ class StoryMenuState extends MusicBeatState
 	{
 		for (i in 0...grpWeekCharacters.length)
 		{
-			// check if the said character is not already created
 			if (grpWeekCharacters.members[i].character != Week.loadedWeeks[curWeek].weekCharacters[i])
-				grpWeekCharacters.members[i].createCharacter(Week.loadedWeeks[curWeek].weekCharacters[i]);
+				grpWeekCharacters.members[i].changeCharacter(Week.loadedWeeks[curWeek].weekCharacters[i]);
 		}
 
 		txtTracklist.text = "Tracks\n";

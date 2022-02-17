@@ -49,7 +49,7 @@ class Week
 
 	public static function loadFromJson(path:String):WeekFile
 	{
-		return cast Json.parse(CoolUtil.cleanJson(File.getContent(path)));
+		return cast CoolUtil.readJson(path);
 	}
 
 	public static function loadWeeks()

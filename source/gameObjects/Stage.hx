@@ -565,6 +565,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 	public static function loadFromJson(path:String):StageFile
 	{
-		return cast Json.parse(CoolUtil.cleanJson(File.getContent(path)));
+		return cast CoolUtil.readJson(path);
 	}
 }

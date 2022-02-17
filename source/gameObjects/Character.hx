@@ -4,8 +4,6 @@ package gameObjects;
 	The character class initialises any and all characters that exist within gameplay. For now, the character class will
 	stay the same as it was in the original source of the game. I'll most likely make some changes afterwards though!
 **/
-import haxe.Json;
-import sys.io.File;
 import meta.*;
 import meta.data.*;
 import meta.data.dependency.FNFSprite;
@@ -73,7 +71,7 @@ class Character extends FNFSprite
 			path = Paths.json('characters/bf');
 		}
 
-		var json:CharacterFile = cast Json.parse(CoolUtil.cleanJson(File.getContent(path)));
+		var json:CharacterFile = cast CoolUtil.readJson(path);
 
 		if (Paths.exists(Paths.txt('images/${json.image}')))
 			frames = Paths.getPackerAtlas(json.image);
