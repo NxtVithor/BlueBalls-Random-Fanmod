@@ -226,7 +226,7 @@ class Init extends FlxState
 		#if MODS_ALLOWED
 		// load mods folders
 		ModManager.loadModsFolders();
-		trace(ModManager.modsFolders);
+		// trace(ModManager.modsFolders);
 		#end
 
 		// create weeks list

@@ -269,6 +269,11 @@ class PlayState extends MusicBeatState
 
 		add(stageBuild.foreground);
 
+		// force them to dance
+		dadOpponent.dance();
+		gf.dance();
+		boyfriend.dance();
+
 		// set song position before beginning
 		Conductor.songPosition = -(Conductor.crochet * 4);
 
@@ -844,9 +849,13 @@ class PlayState extends MusicBeatState
 				});
 			}
 
+			// reset bf's animation
 			var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-			if (!holdControls.contains(true))
-				bfHoldDance();
+			if ((boyfriend != null && boyfriend.animation != null)
+				&& (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
+					&& (!holdControls.contains(true) || boyfriendStrums.autoplay))
+				&& (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')))
+				boyfriend.dance();
 		}
 	}
 
@@ -1031,8 +1040,6 @@ class PlayState extends MusicBeatState
 						goodNoteHit(coolNote, char, strumline);
 				});
 			}
-			else
-				bfHoldDance();
 		}
 	}
 
@@ -1397,15 +1404,6 @@ class PlayState extends MusicBeatState
 					dadOpponent.dance();
 			}
 		}
-	}
-
-	private function bfHoldDance()
-	{
-		if (!paused
-			&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-			&& boyfriend.animation.curAnim.name.startsWith('sing')
-			&& !boyfriend.animation.curAnim.name.endsWith('miss'))
-			boyfriend.dance();
 	}
 
 	override function beatHit()

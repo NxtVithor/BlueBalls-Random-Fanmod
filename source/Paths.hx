@@ -185,7 +185,7 @@ class Paths
 		// check if the file is modded
 		if (allowModding)
 		{
-			var result:String = ModManager.checkModPath(file);
+			var result:String = ModManager.getModPath(file);
 			if (result != null)
 				return result;
 		}
@@ -199,13 +199,11 @@ class Paths
 		return getPreloadPath(file);
 	}
 
-	// files!
 	public static function exists(path:String)
 	{
 		#if MODS_ALLOWED
-		if (ModManager.checkModPath(path) != null)
+		if (ModManager.getModPath(path) != null || FileSystem.exists(path))
 			return true;
-		else
 		#end
 		return OpenFlAssets.exists(path);
 	}
