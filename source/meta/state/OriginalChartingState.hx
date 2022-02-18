@@ -567,7 +567,7 @@ class OriginalChartingState extends MusicBeatState
 			songMusic.stop();
 			vocals.stop();
 			FlxG.mouse.visible = false;
-			Main.switchState(this, new PlayState());
+			Main.switchState(new PlayState());
 		}
 
 		if (FlxG.keys.justPressed.E)
@@ -1036,13 +1036,13 @@ class OriginalChartingState extends MusicBeatState
 	{
 		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase());
 		PlayState.SONG = Song.loadFromJson(formattedSong, formattedSong);
-		Main.resetState(this);
+		Main.resetState();
 	}
 
 	function loadAutosave():Void
 	{
 		PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
-		Main.resetState(this);
+		Main.resetState();
 	}
 
 	function autosaveSong():Void

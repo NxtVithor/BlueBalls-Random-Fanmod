@@ -54,20 +54,17 @@ class Week
 
 	public static function loadWeeks()
 	{
-		var weeksFilesList:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('weeks'));
+		var weekFiles:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('weeks'));
 
 		#if MODS_ALLOWED
 		// check for modded weeks
-		var weeksList:Array<String> = [];
-
 		// for root mods folder
 		var path:String = ModManager.getModPath('weeks');
 		if (FileSystem.isDirectory(path))
 		{
 			for (week in FileSystem.readDirectory(path))
-				weeksList.push(week);
+				weekFiles.push(week);
 		}
-
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
@@ -75,23 +72,20 @@ class Week
 			if (FileSystem.isDirectory(path))
 			{
 				for (week in FileSystem.readDirectory(path))
-					weeksList.push(week);
+					weekFiles.push(week);
 			}
 		}
 		#end
 
 		// load the weeks
-		for (i in 0...weeksFilesList.length)
+		for (i in 0...weekFiles.length)
 		{
 			// ignore other types of files
-			if (weeksFilesList[i].endsWith('.json'))
+			if (weekFiles[i].endsWith('.json'))
 			{
-				// remove .json extension
-				weeksFilesList[i] = weeksFilesList[i].substring(0, weeksFilesList[i].lastIndexOf('.'));
-				// add week name
-				weeksNames[i] = weeksFilesList[i].substring(weeksFilesList[i].lastIndexOf('/'), weeksFilesList[i].length);
-				// load week from the json
-				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/' + weeksFilesList[i])));
+				weekFiles[i] = weekFiles[i].substring(0, weekFiles[i].lastIndexOf('.'));
+				weeksNames[i] = weekFiles[i].substring(weekFiles[i].lastIndexOf('/'), weekFiles[i].length);
+				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/' + weekFiles[i])));
 			}
 		}
 	}

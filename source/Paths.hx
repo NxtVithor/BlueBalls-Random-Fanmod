@@ -242,9 +242,14 @@ class Paths
 		return getPath('$key.txt', TEXT, library);
 	}
 
-	inline static public function shader(key:String, ?library:String)
+	inline static public function shaderFrag(key:String, ?library:String)
 	{
 		return getPath('shaders/$key.frag', TEXT, library);
+	}
+
+	inline static public function shaderVertex(key:String, ?library:String)
+	{
+		return getPath('shaders/$key.vert', TEXT, library);
 	}
 
 	inline static public function xml(key:String, ?library:String)
@@ -260,6 +265,11 @@ class Paths
 	inline static public function json(key:String, ?library:String)
 	{
 		return getPath('$key.json', TEXT, library);
+	}
+
+	inline static public function script(key:String, ?library:String)
+	{
+		return getPath('$key.lua', TEXT, library);
 	}
 
 	inline static public function songJson(song:String, secondSong:String, ?library:String)

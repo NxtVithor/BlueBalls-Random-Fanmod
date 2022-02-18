@@ -1,13 +1,11 @@
 package;
 
-import meta.data.Week;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
 import flixel.addons.transition.FlxTransitionableState;
 import haxe.CallStack;
 import haxe.io.Path;
-import lime.app.Application;
 import meta.*;
 import meta.data.PlayerSettings;
 import meta.data.dependency.Discord;
@@ -17,7 +15,6 @@ import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
 import sys.FileSystem;
 import sys.io.File;
-import sys.io.Process;
 
 // Here we actually import the states and metadata, and just the metadata.
 // It's nice to have modularity so that we don't have ALL elements loaded at the same time.
@@ -160,21 +157,21 @@ class Main extends Sprite
 	 */
 	public static var lastState:FlxState;
 
-	public static function switchState(curState:FlxState, target:FlxState)
+	public static function switchState(target:FlxState)
 	{
 		// Custom made Trans in
 		mainClassState = Type.getClass(target);
 		var swagSwitch = function()
 		{
 			// load the state
-			if (curState == target)
+			if (FlxG.state == target)
 				FlxG.resetState();
 			else
 				FlxG.switchState(target);
 		}
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
-			curState.openSubState(new FNFTransition(0.6, false));
+			FlxG.state.openSubState(new FNFTransition(0.6, false));
 			FNFTransition.finishCallback = swagSwitch;
 		}
 		else
@@ -185,9 +182,9 @@ class Main extends Sprite
 		// trace('changed state')
 	}
 
-	public static function resetState(curState:FlxState)
+	public static function resetState()
 	{
-		switchState(curState, curState);
+		switchState(FlxG.state);
 	}
 
 	public static function updateFramerate(newFramerate:Int)
@@ -240,7 +237,7 @@ class Main extends Sprite
 		#if desktop
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 
-		Application.current.window.alert(errMsg, "Error!");
+		CoolUtil.alert("Error!", errMsg);
 		#end
 
 		Sys.exit(1);

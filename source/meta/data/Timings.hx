@@ -27,17 +27,17 @@ class Timings
 
 	// set the score judgements for later use
 	public static var scoreRating:Map<String, Int> = [
-		"s+" => 100,
-		"s" => 95,
-		"a" => 90,
-		"b" => 85,
-		"c" => 80,
-		"d" => 75,
-		"e" => 70,
-		"f" => 65,
+		"S+" => 100,
+		"S" => 95,
+		"A" => 90,
+		"B" => 85,
+		"C" => 80,
+		"D" => 75,
+		"E" => 70,
+		"F" => 65,
 	];
 
-	public static var ratingFinal:String = "f";
+	public static var ratingFinal:String = "F";
 	public static var notesHit:Int = 0;
 	public static var segmentsHit:Int = 0;
 	public static var comboDisplay:String = '';
@@ -106,13 +106,17 @@ class Timings
 
 	public static function updateFCDisplay()
 	{
-		// update combo display
-		comboDisplay = '';
-		if (judgementsMap.get(smallestRating)[4] != null)
-			comboDisplay = judgementsMap.get(smallestRating)[4];
+		var ret:Dynamic = PlayState.instance.callOnLuas('onRecalculateRating', []);
+		if (ret != Script.Function_Stop)
+		{
+			// update combo display
+			comboDisplay = '';
+			if (judgementsMap.get(smallestRating)[4] != null)
+				comboDisplay = judgementsMap.get(smallestRating)[4];
 
-		// this updates the most so uh
-		PlayState.uiHUD.updateScoreText();
+			// this updates the most so uh
+			PlayState.uiHUD.updateScoreText();
+		}
 	}
 
 	public static function getAccuracy()

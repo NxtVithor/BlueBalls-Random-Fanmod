@@ -125,6 +125,8 @@ class UIStaticArrow extends FlxSprite
 
 class Strumline extends FlxTypedGroup<FlxBasic>
 {
+	public static var allReceptors:FlxTypedGroup<UIStaticArrow>;
+
 	public var receptors:FlxTypedGroup<UIStaticArrow>;
 	public var splashNotes:FlxTypedGroup<NoteSplash>;
 	public var notesGroup:FlxTypedGroup<Note>;
@@ -141,6 +143,9 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 			?noteSplashes:Bool = false, ?keyAmount:Int = 4, ?downscroll:Bool = false, ?parent:Strumline)
 	{
 		super();
+
+		if (allReceptors == null)
+			allReceptors = new FlxTypedGroup<UIStaticArrow>();
 
 		receptors = new FlxTypedGroup<UIStaticArrow>();
 		splashNotes = new FlxTypedGroup<NoteSplash>();
@@ -163,6 +168,7 @@ class Strumline extends FlxTypedGroup<FlxBasic>
 			staticArrow.x -= (keyAmount / 2 * Note.swagWidth);
 			staticArrow.x += (Note.swagWidth * i);
 			receptors.add(staticArrow);
+			allReceptors.add(staticArrow);
 
 			staticArrow.initialX = Math.floor(staticArrow.x);
 			staticArrow.initialY = Math.floor(staticArrow.y);

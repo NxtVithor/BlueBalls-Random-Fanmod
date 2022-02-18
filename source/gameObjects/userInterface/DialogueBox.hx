@@ -22,7 +22,6 @@ using StringTools;
 typedef Dialogue =
 {
 	skin:String,
-	music:String,
 	lines:Array<Array<Dynamic>>
 }
 
@@ -63,7 +62,7 @@ class DialogueBox extends FlxSpriteGroup
 	var skinBase:String = 'dialogue/boxes/';
 	var portraitBase:String = 'dialogue/portraits/';
 
-	public function new(dialogue:Dialogue)
+	public function new(dialogue:Dialogue, ?music:Sound)
 	{
 		super();
 
@@ -89,11 +88,11 @@ class DialogueBox extends FlxSpriteGroup
 		for (skin in skins)
 			Paths.returnGraphic(skinBase + skin);
 
-		if (dialogue.skin == null || dialogue.skin == '')
+		if (dialogue.skin == null && dialogue.skin == '')
 			dialogue.skin = 'normal';
-		if (dialogue.music != null && dialogue.music != '')
+		if (music != null)
 		{
-			FlxG.sound.playMusic(Paths.music(dialogue.music), 0);
+			FlxG.sound.playMusic(music, 0);
 			FlxG.sound.music.fadeIn(1, 0, 0.8);
 		}
 
@@ -223,6 +222,7 @@ class DialogueBox extends FlxSpriteGroup
 			}
 			else
 			{
+				PlayState.instance.callOnLuas('onSkipDialogue', [curLine]);
 				curLine++;
 				var skin:String = dialogue.lines[curLine][0][2];
 				if (skin != null && skin.toLowerCase() != curSkin.toLowerCase())
@@ -262,6 +262,8 @@ class DialogueBox extends FlxSpriteGroup
 					box.flipX = false;
 			}
 		}
+
+		PlayState.instance.callOnLuas('onNextDialogue', [curLine]);
 	}
 
 	function loadSkin(name:String = 'normal')

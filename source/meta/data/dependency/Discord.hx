@@ -1,5 +1,7 @@
 package meta.data.dependency;
 
+import llua.Lua.Lua_helper;
+import llua.State;
 #if !html5
 import discord_rpc.DiscordRpc;
 #end
@@ -75,5 +77,16 @@ class Discord
 		// borrowed from izzy engine -- somewhat, at least
 		DiscordRpc.shutdown();
 	}
+
+	#if LUA_ALLOWED
+	public static function addLuaCallbacks(lua:State)
+	{
+		Lua_helper.add_callback(lua, "changePresence",
+			function(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float)
+			{
+				changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
+			});
+	}
+	#end
 	#end
 }

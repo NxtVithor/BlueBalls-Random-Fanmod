@@ -1,7 +1,5 @@
 package meta.state;
 
-import sys.FileSystem;
-import meta.data.Conductor.BPMChangeEvent;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -29,11 +27,13 @@ import gameObjects.userInterface.notes.*;
 import haxe.Json;
 import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
+import meta.data.Conductor.BPMChangeEvent;
 import meta.data.Song.SwagSong;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.geom.ColorTransform;
 import openfl.net.FileReference;
+import sys.FileSystem;
 
 using StringTools;
 
@@ -278,7 +278,7 @@ class ChartingState extends MusicBeatState
 		var loadAutosaveBtn:FlxButton = new FlxButton(reloadSongJson.x, reloadSongJson.y + 30, 'Load Autosave', function()
 		{
 			PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
-			Main.resetState(this);
+			Main.resetState();
 		});
 
 		var stepperBPM:FlxUINumericStepper = new FlxUINumericStepper(10, 65, 1, 1, 1, 339, 0);
@@ -689,7 +689,7 @@ class ChartingState extends MusicBeatState
 				PlayState.SONG = _song;
 				ForeverTools.killMusic([songMusic, vocals]);
 				FlxG.mouse.visible = false;
-				Main.switchState(this, new PlayState());
+				Main.switchState(new PlayState());
 			}
 
 			if (FlxG.keys.justPressed.E)
@@ -854,7 +854,7 @@ class ChartingState extends MusicBeatState
 	{
 		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase());
 		PlayState.SONG = Song.loadFromJson(formattedSong, formattedSong);
-		Main.resetState(this);
+		Main.resetState();
 	}
 
 	private function updateGrid()

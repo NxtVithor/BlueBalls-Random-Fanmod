@@ -166,6 +166,10 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	public function updateScoreText()
 	{
+		PlayState.instance.setOnLuas('score', PlayState.songScore);
+		PlayState.instance.setOnLuas('misses', PlayState.misses);
+		PlayState.instance.setOnLuas('hits', PlayState.songHits);
+
 		if (!PlayState.cpuControlled)
 		{
 			scoreBar.text = 'Score: ' + PlayState.songScore;
@@ -173,7 +177,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 			{
 				scoreBar.text += divider + 'Combo Breaks: ' + PlayState.misses;
 				scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
-				scoreBar.text += divider + Timings.returnScoreRating().toUpperCase();
+				scoreBar.text += divider + Timings.returnScoreRating();
 			}
 		}
 		else

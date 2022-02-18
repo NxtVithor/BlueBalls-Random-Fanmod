@@ -245,7 +245,7 @@ class Init extends FlxState
 		FlxG.mouse.visible = false; // Hide mouse on start
 		FlxGraphic.defaultPersist = true; // make sure we control all of the memory
 
-		Main.switchState(this, new TitleState());
+		Main.switchState(new TitleState());
 	}
 
 	public static function loadSettings():Void

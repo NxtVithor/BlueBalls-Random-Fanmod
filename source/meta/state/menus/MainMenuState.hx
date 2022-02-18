@@ -23,6 +23,7 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	var menuItems:FlxTypedGroup<FlxSprite>;
+
 	static var curSelected:Float = 0;
 
 	var bg:FlxSprite; // the background has been separated for more control
@@ -230,13 +231,13 @@ class MainMenuState extends MusicBeatState
 						switch (daChoice)
 						{
 							case 'story mode':
-								Main.switchState(this, new StoryMenuState());
+								Main.switchState(new StoryMenuState());
 							case 'freeplay':
-								Main.switchState(this, new FreeplayState());
+								Main.switchState(new FreeplayState());
 							case 'options':
 								transIn = FlxTransitionableState.defaultTransIn;
 								transOut = FlxTransitionableState.defaultTransOut;
-								Main.switchState(this, new OptionsMenuState());
+								Main.switchState(new OptionsMenuState());
 						}
 					});
 				}
@@ -244,7 +245,7 @@ class MainMenuState extends MusicBeatState
 		}
 
 		if (controls.BACK && !selectedSomethin)
-			Main.switchState(this, new TitleState());
+			Main.switchState(new TitleState());
 
 		if (Math.floor(curSelected) != lastCurSelected)
 			updateSelection();

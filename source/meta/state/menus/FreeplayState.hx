@@ -24,7 +24,9 @@ class FreeplayState extends MusicBeatState
 	var songs:Array<SongMetadata> = [];
 
 	static var curSelected:Int = 0;
+
 	var curSongPlaying:Int = -1;
+
 	static var curDifficulty:Int = 1;
 
 	var scoreText:FlxText;
@@ -173,7 +175,7 @@ class FreeplayState extends MusicBeatState
 		{
 			threadActive = false;
 			ForeverTools.resetMenuMusic(false, true);
-			Main.switchState(this, new MainMenuState());
+			Main.switchState(new MainMenuState());
 		}
 
 		if (controls.ACCEPT)
@@ -193,7 +195,7 @@ class FreeplayState extends MusicBeatState
 
 			threadActive = false;
 
-			Main.switchState(this, new PlayState());
+			Main.switchState(new PlayState());
 		}
 
 		// Adhere the position of all the things (I'm sorry it was just so ugly before I had to fix it Shubs)

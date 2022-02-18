@@ -1,8 +1,8 @@
 package meta.subState;
 
-import flixel.math.FlxMath;
 import flixel.FlxG;
 import flixel.FlxObject;
+import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import gameObjects.Boyfriend;
@@ -13,7 +13,10 @@ import meta.state.menus.*;
 
 class GameOverSubstate extends MusicBeatSubState
 {
-	var bf:Boyfriend;
+	public static var instance:GameOverSubstate;
+
+	public static var bf:Boyfriend;
+
 	var stageSuffix:String = "";
 
 	var camFollow:FlxObject;
@@ -64,9 +67,20 @@ class GameOverSubstate extends MusicBeatSubState
 		bf.playAnim('firstDeath');
 	}
 
+	override function create()
+	{
+		// for lua again man
+		instance = this;
+		PlayState.instance.callOnLuas('onGameOverStart', []);
+
+		super.create();
+	}
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
 
 		if (controls.ACCEPT && !isEnding)
 		{
@@ -78,9 +92,10 @@ class GameOverSubstate extends MusicBeatSubState
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
-					Main.switchState(this, new PlayState());
+					Main.switchState(new PlayState());
 				});
 			});
+			PlayState.instance.callOnLuas('onGameOverConfirm', [true]);
 		}
 
 		if (controls.BACK)
@@ -88,12 +103,12 @@ class GameOverSubstate extends MusicBeatSubState
 			if (PlayState.isStoryMode)
 			{
 				ForeverTools.resetMenuMusic(false, true);
-				Main.switchState(this, new StoryMenuState());
+				Main.switchState(new StoryMenuState());
 			}
 			else
 			{
 				FlxG.sound.music.stop();
-				Main.switchState(this, new FreeplayState());
+				Main.switchState(new FreeplayState());
 			}
 		}
 
@@ -111,5 +126,7 @@ class GameOverSubstate extends MusicBeatSubState
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 			FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));
+
+		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
 	}
 }

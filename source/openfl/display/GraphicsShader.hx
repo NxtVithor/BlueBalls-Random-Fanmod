@@ -6,6 +6,7 @@ import openfl.utils.ByteArray;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+// Edited by gedehari
 class GraphicsShader extends Shader
 {
 	public var bitmap:ShaderInput<BitmapData>;

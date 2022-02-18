@@ -1,9 +1,9 @@
 package meta;
 
+import lime.app.Application;
 import haxe.Json;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 import meta.data.PlayerSettings;
-import meta.state.PlayState;
 import openfl.Lib;
 import sys.io.File;
 
@@ -54,11 +54,13 @@ class CoolUtil
 		return path.toLowerCase().replace(' ', '-');
 	}
 
-	inline public static function readJson(path:String) {
+	inline public static function readJson(path:String)
+	{
 		return Json.parse(File.getContent(path).trim());
 	}
 
-	public static function cleanJson(rawJson:String) {
+	public static function cleanJson(rawJson:String)
+	{
 		while (!rawJson.endsWith("}"))
 			rawJson = rawJson.substr(0, rawJson.length - 1);
 		return rawJson;
@@ -74,19 +76,6 @@ class CoolUtil
 		}
 
 		return daList;
-	}
-
-	public static function getOffsetsFromTxt(path:String):Array<Array<String>>
-	{
-		var fullText:String = Assets.getText(path);
-
-		var firstArray:Array<String> = fullText.split('\n');
-		var swagOffsets:Array<Array<String>> = [];
-
-		for (i in firstArray)
-			swagOffsets.push(i.split(' '));
-
-		return swagOffsets;
 	}
 
 	public static function returnAssetsLibrary(library:String, ?subDir:String = 'assets/images'):Array<String>
@@ -106,19 +95,28 @@ class CoolUtil
 		return libraryArray;
 	}
 
-	public static function getAnimsFromTxt(path:String):Array<Array<String>>
+	// win da time
+	inline static public function alert(title:String, message:String)
 	{
-		var fullText:String = Assets.getText(path);
+		#if desktop
+		Application.current.window.alert(message, title);
+		#end
+	}
 
-		var firstArray:Array<String> = fullText.split('\n');
-		var swagOffsets:Array<Array<String>> = [];
+	public static function precacheSound(sound:String, ?library:String = null):Void
+	{
+		precacheSoundFile(Paths.sound(sound, library));
+	}
 
-		for (i in firstArray)
-		{
-			swagOffsets.push(i.split('--'));
-		}
+	public static function precacheMusic(sound:String, ?library:String = null):Void
+	{
+		precacheSoundFile(Paths.music(sound, library));
+	}
 
-		return swagOffsets;
+	private static function precacheSoundFile(file:Dynamic):Void
+	{
+		if (Assets.exists(file, SOUND) || Assets.exists(file, MUSIC))
+			Assets.getSound(file, true);
 	}
 
 	public static function truncateFloat(number:Float, precision:Int):Float

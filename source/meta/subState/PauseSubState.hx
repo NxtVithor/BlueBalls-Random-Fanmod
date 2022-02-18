@@ -1,5 +1,6 @@
 package meta.subState;
 
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -107,7 +108,7 @@ class PauseSubState extends MusicBeatSubState
 				case "Resume":
 					close();
 				case "Restart Song":
-					Main.switchState(this, new PlayState());
+					Main.switchState(new PlayState());
 				case "Toggle Botplay":
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					PlayState.cpuControlled = !PlayState.cpuControlled;
@@ -117,10 +118,10 @@ class PauseSubState extends MusicBeatSubState
 					if (PlayState.isStoryMode)
 					{
 						ForeverTools.resetMenuMusic(false, true);
-						Main.switchState(this, new StoryMenuState());
+						Main.switchState(new StoryMenuState());
 					}
 					else
-						Main.switchState(this, new FreeplayState());
+						Main.switchState(new FreeplayState());
 			}
 		}
 
@@ -158,5 +159,22 @@ class PauseSubState extends MusicBeatSubState
 			if (item.targetY == 0)
 				item.alpha = 1;
 		}
+	}
+
+	public static function restartSong(noTrans:Bool = false)
+	{
+		// For lua
+		PlayState.instance.paused = true;
+
+		FlxG.sound.music.volume = 0;
+		PlayState.vocals.volume = 0;
+
+		if (noTrans)
+		{
+			FlxTransitionableState.skipNextTransOut = true;
+			FlxG.resetState();
+		}
+		else
+			Main.resetState();
 	}
 }
