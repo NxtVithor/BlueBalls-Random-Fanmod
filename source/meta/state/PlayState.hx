@@ -101,6 +101,7 @@ class PlayState extends MusicBeatState
 	private var paused:Bool = false;
 	var startedCountdown:Bool = false;
 	var inCutscene:Bool = false;
+	var camZooming:Bool = false;
 
 	var video:FlxVideo;
 
@@ -684,7 +685,7 @@ class PlayState extends MusicBeatState
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
 			// camera stuffs
-			var easeNum = CoolUtil.boundTo(1 - elapsed * 3.125, 0, 1);
+			var easeNum = CoolUtil.boundTo(1 - elapsed * 5.125, 0, 1);
 
 			if (!isTutorial)
 			{
@@ -895,7 +896,8 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			// cam displace i think
+			camZooming = !coolNote.mustPress && !isTutorial;
+
 			var daSection:SwagSection = SONG.notes[Math.floor(curStep / 16)];
 			if (!Init.trueSettings.get('No Camera Note Movement') && daSection != null && coolNote.mustPress == daSection.mustHitSection)
 			{
@@ -1519,6 +1521,7 @@ class PlayState extends MusicBeatState
 	{
 		endingSong = true;
 		canPause = false;
+		camZooming = false;
 		songMusic.volume = 0;
 		vocals.volume = 0;
 		if (SONG.validScore)
