@@ -506,7 +506,7 @@ class PlayState extends MusicBeatState
 		Paths.clearUnusedMemory();
 
 		// call the funny intro cutscene depending on the song
-		if (!skipCutscenes() && !seenCutscene)
+		if (!skipCutscenes())
 			songIntroCutscene();
 		else
 			startCountdown();
@@ -2113,7 +2113,7 @@ class PlayState extends MusicBeatState
 	public function callTextbox(?dialogPath:String, ?music:Sound)
 	{
 		if (dialogPath == null)
-			callTextbox(Paths.json('songs/' + curSong.toLowerCase() + '/dialogue'));
+			dialogPath = Paths.json('songs/' + curSong.toLowerCase() + '/dialogue');
 		if (dialogPath != '' && Paths.exists(dialogPath))
 		{
 			for (ui in allUIs)
@@ -2121,10 +2121,11 @@ class PlayState extends MusicBeatState
 
 			startedCountdown = false;
 
-			dialogueBox = new DialogueBox(DialogueBox.loadFromJson(dialogPath));
+			dialogueBox = new DialogueBox(DialogueBox.loadFromJson(dialogPath), music);
 			dialogueBox.cameras = [dialogueHUD];
 			dialogueBox.finishThing = function()
 			{
+				seenCutscene = true;
 				for (hud in allUIs)
 					hud.visible = true;
 				startCountdown();
