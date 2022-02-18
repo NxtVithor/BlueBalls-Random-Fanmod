@@ -1428,11 +1428,11 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if (!isTutorial && FlxG.camera.zoom < 1.35 && (!Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0))
+		if (!isTutorial && FlxG.camera.zoom < 1.35 && !Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0)
 		{
-			FlxG.camera.zoom += 0.015;
+			FlxG.camera.zoom += 0.03;
 			for (hud in allUIs)
-				hud.zoom += 0.03;
+				hud.zoom += 0.05;
 		}
 
 		uiHUD.beatHit();

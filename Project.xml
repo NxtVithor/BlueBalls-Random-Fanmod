@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project>
+<project xmlns="http://lime.software/project/1.0.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://lime.software/project/1.0.3 http://lime.software/xsd/project-1.0.3.xsd">
 
 	<!-- _________________________ Application Settings _________________________ -->
 
 	<app title="Friday Night Funkin': Forever Modding" file="Forever Modding" packageName="com.ninjamuffin99.funkin" package="com.ninjamuffin99.funkin" main="Main" version="0.2.7.1" company="ninjamuffin99" />
+
+	<!-- get real lua -->
+	<haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -15,7 +18,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" background="#000000" hardware="true" vsync="false" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -29,6 +32,7 @@
 	<!-- ________________________________ Defines _______________________________ -->
 
 	<define name="MODS_ALLOWED" if="desktop" />
+	<define name="LUA_ALLOWED" if="desktop" />
 	<define name="VIDEOS_ALLOWED" if="desktop" />
 
 	<!-- _____________________________ Path Settings ____________________________ -->
@@ -45,11 +49,11 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
-	<haxedev set="webgl" />
-
 	<haxelib name="flixel-addons" />
 	<haxelib name="flixel-ui" />
+
 	<haxelib name="discord_rpc" />
+	<haxelib name="linc_luajit" if="LUA_ALLOWED" />
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
