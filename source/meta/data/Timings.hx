@@ -67,7 +67,7 @@ class Timings
 		notesHit = 0;
 		segmentsHit = 0;
 
-		ratingFinal = "f";
+		ratingFinal = "F";
 
 		comboDisplay = '';
 	}

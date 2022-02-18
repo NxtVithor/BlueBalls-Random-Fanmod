@@ -2,6 +2,7 @@ package;
 
 import sys.FileSystem;
 
+#if MODS_ALLOWED
 class ModManager
 {
 	public static var modFolder:String = 'mods';
@@ -19,33 +20,35 @@ class ModManager
 		'weeks'
 	];
 
+	inline public static function modStr(key:String)
+	{
+		return '${ModManager.modFolder}/$key';
+	}
+
 	public static function getModPath(key:String)
 	{
-		#if MODS_ALLOWED
 		var daPath:String = null;
+		// for root mods folder
+		daPath = modStr(key);
+		if (FileSystem.exists(daPath))
+			return daPath;
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
-			daPath = getModPath(folder + '/' + key);
+			daPath = modStr(folder + '/' + key);
 			if (FileSystem.exists(daPath))
 				return daPath;
 		}
-		// for root mods folder
-		daPath = '${ModManager.modFolder}/$key';
-		if (FileSystem.exists(daPath))
-			return daPath;
 		return null;
-		#end
 	}
 
 	public static function loadModsFolders()
 	{
-		#if MODS_ALLOWED
 		var folders:Array<String> = FileSystem.readDirectory(modFolder);
 		modsFolders = [];
 		for (folder in folders)
-			if (FileSystem.isDirectory(getModPath(folder)) && !ignoredModsFolders.contains(folder))
+			if (FileSystem.isDirectory(modStr(folder)) && !ignoredModsFolders.contains(folder))
 				modsFolders.push(folder);
-		#end
 	}
 }
+#end

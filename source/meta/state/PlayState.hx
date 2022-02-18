@@ -1,5 +1,6 @@
 package meta.state;
 
+import meta.data.Script.DebugLuaText;
 import openfl.media.Sound;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -70,9 +71,9 @@ class PlayState extends MusicBeatState
 
 	public var isDead:Bool = false;
 
-	public static var dadOpponent:Character;
-	public static var gf:Character;
-	public static var boyfriend:Boyfriend;
+	public var dadOpponent:Character;
+	public var gf:Character;
+	public var boyfriend:Boyfriend;
 
 	public static var BF_X:Float = 770;
 	public static var BF_Y:Float = 100;
@@ -158,6 +159,8 @@ class PlayState extends MusicBeatState
 	public var camGameShaders:Array<ShaderEffect> = [];
 	public var camHUDShaders:Array<ShaderEffect> = [];
 	public var camOtherShaders:Array<ShaderEffect> = [];
+
+	private var luaDebugGroup:FlxTypedGroup<DebugLuaText>;
 
 	public var camDisplaceX:Float = 0;
 	public var camDisplaceY:Float = 0; // might not use depending on result
@@ -327,6 +330,12 @@ class PlayState extends MusicBeatState
 		add(dadOpponent);
 		add(boyfriend);
 
+		#if LUA_ALLOWED
+		luaDebugGroup = new FlxTypedGroup<DebugLuaText>();
+		luaDebugGroup.cameras = [camOther];
+		add(luaDebugGroup);
+		#end
+
 		setOnLuas('boyfriendName', boyfriend.curCharacter);
 		setOnLuas('dadName', dadOpponent.curCharacter);
 		setOnLuas('gfName', gf.curCharacter);
@@ -441,7 +450,7 @@ class PlayState extends MusicBeatState
 		var scripts:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('scripts'));
 		#if MODS_ALLOWED
 		// for root mods folder
-		var path:String = ModManager.getModPath('scripts');
+		var path:String = ModManager.modStr('scripts');
 		if (FileSystem.isDirectory(path))
 		{
 			for (script in FileSystem.readDirectory(path))
@@ -450,7 +459,7 @@ class PlayState extends MusicBeatState
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
-			var path:String = ModManager.getModPath(folder + '/scripts');
+			var path:String = ModManager.modStr(folder + '/scripts');
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))
@@ -460,7 +469,7 @@ class PlayState extends MusicBeatState
 		#end
 		for (script in scripts)
 			if (script.endsWith('.lua'))
-			luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
+				luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
 
 		// for the stage script
 		daPath = Paths.script('stages/$curStage');
@@ -584,6 +593,24 @@ class PlayState extends MusicBeatState
 			len = copiedArray.length;
 		}
 		return copiedArray;
+	}
+
+	public function addTextToDebug(text:String)
+	{
+		#if LUA_ALLOWED
+		luaDebugGroup.forEachAlive(function(spr:DebugLuaText)
+		{
+			spr.y += 20;
+		});
+
+		if (luaDebugGroup.members.length > 34)
+		{
+			var blah = luaDebugGroup.members[34];
+			blah.destroy();
+			luaDebugGroup.remove(blah);
+		}
+		luaDebugGroup.insert(0, new DebugLuaText(text, luaDebugGroup));
+		#end
 	}
 
 	private function gamepadKeyShit()
@@ -1067,7 +1094,6 @@ class PlayState extends MusicBeatState
 				}
 		}
 
-		// if the song is generated
 		// if the song is generated
 		if (generatedMusic && startedCountdown)
 		{
@@ -2138,12 +2164,6 @@ class PlayState extends MusicBeatState
 
 	public function startCountdown()
 	{
-		if (startedCountdown)
-		{
-			callOnLuas('onStartCountdown', []);
-			return;
-		}
-
 		var ret:Dynamic = callOnLuas('onStartCountdown', []);
 		if (ret != Script.Function_Stop)
 		{

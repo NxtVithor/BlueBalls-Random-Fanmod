@@ -1,11 +1,15 @@
 {
-    "songs": [["Test", "bf", [255, 255, 255]]],
+    "songs": [
+        ["Bopeebo", "dad", [146, 113, 253]],
+        ["Fresh", "dad", [146, 113, 253]],
+        ["Dad Battle", "dad", [146, 113, 253]]
+    ],
 
-    "weekCharacters": ["", "bf", "gf"],
+    "weekCharacters": ["dad", "bf", "gf"],
 
-    "storyName": "",
+    "storyName": "Template Week",
     "weekBefore": "tutorial",
-    "weekName": "Test",
+    "weekName": "Template Week",
     "startUnlocked": true,
 
     "hideStoryMode": false,

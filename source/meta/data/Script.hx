@@ -1,20 +1,15 @@
 package meta.data;
 
-import openfl.filters.ShaderFilter;
-import openfl.filters.BitmapFilter;
-import meta.data.shaders.Shaders;
-import meta.data.dependency.Discord;
-import flixel.system.FlxSound;
-import openfl.media.Sound;
-import flixel.math.FlxMath;
-import flixel.FlxObject;
 import Type.ValueType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
+import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -22,12 +17,17 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import gameObjects.userInterface.notes.Strumline.UIStaticArrow;
 import gameObjects.userInterface.notes.Strumline;
+import meta.data.dependency.Discord;
+import meta.data.shaders.Shaders;
 import meta.state.PlayState;
 import meta.state.menus.FreeplayState;
 import meta.state.menus.StoryMenuState;
 import meta.subState.GameOverSubstate;
 import meta.subState.PauseSubState;
 import openfl.display.BlendMode;
+import openfl.filters.BitmapFilter;
+import openfl.filters.ShaderFilter;
+import openfl.media.Sound;
 
 using StringTools;
 
@@ -67,7 +67,7 @@ class Script
 			return;
 		}
 		scriptPath = script;
-		trace('Lua script loaded:' + script);
+		trace('Lua script loaded: ' + script);
 
 		// Lua shit
 		set('Function_Stop', Function_Stop);
@@ -860,11 +860,11 @@ class Script
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					return PlayState.dadOpponent.x;
+					return PlayState.instance.dadOpponent.x;
 				case 'gf' | 'girlfriend':
-					return PlayState.gf.x;
+					return PlayState.instance.gf.x;
 				default:
-					return PlayState.boyfriend.x;
+					return PlayState.instance.boyfriend.x;
 			}
 		});
 		Lua_helper.add_callback(lua, "setCharacterX", function(type:String, value:Float)
@@ -872,11 +872,11 @@ class Script
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					PlayState.dadOpponent.x = value;
+					PlayState.instance.dadOpponent.x = value;
 				case 'gf' | 'girlfriend':
-					PlayState.gf.x = value;
+					PlayState.instance.gf.x = value;
 				default:
-					PlayState.boyfriend.x = value;
+					PlayState.instance.boyfriend.x = value;
 			}
 		});
 		Lua_helper.add_callback(lua, "getCharacterY", function(type:String)
@@ -884,11 +884,11 @@ class Script
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					return PlayState.dadOpponent.y;
+					return PlayState.instance.dadOpponent.y;
 				case 'gf' | 'girlfriend':
-					return PlayState.gf.y;
+					return PlayState.instance.gf.y;
 				default:
-					return PlayState.boyfriend.y;
+					return PlayState.instance.boyfriend.y;
 			}
 		});
 		Lua_helper.add_callback(lua, "setCharacterY", function(type:String, value:Float)
@@ -896,11 +896,11 @@ class Script
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					PlayState.dadOpponent.y = value;
+					PlayState.instance.dadOpponent.y = value;
 				case 'gf' | 'girlfriend':
-					PlayState.gf.y = value;
+					PlayState.instance.gf.y = value;
 				default:
-					PlayState.boyfriend.y = value;
+					PlayState.instance.boyfriend.y = value;
 			}
 		});
 		Lua_helper.add_callback(lua, "cameraSetTarget", function(target:String)
@@ -959,14 +959,14 @@ class Script
 			switch (character.toLowerCase())
 			{
 				case 'dad':
-					if (PlayState.dadOpponent.animOffsets.exists(anim))
-						PlayState.dadOpponent.playAnim(anim, forced);
+					if (PlayState.instance.dadOpponent.animOffsets.exists(anim))
+						PlayState.instance.dadOpponent.playAnim(anim, forced);
 				case 'gf' | 'girlfriend':
-					if (PlayState.gf.animOffsets.exists(anim))
-						PlayState.gf.playAnim(anim, forced);
+					if (PlayState.instance.gf.animOffsets.exists(anim))
+						PlayState.instance.gf.playAnim(anim, forced);
 				default:
-					if (PlayState.boyfriend.animOffsets.exists(anim))
-						PlayState.boyfriend.playAnim(anim, forced);
+					if (PlayState.instance.boyfriend.animOffsets.exists(anim))
+						PlayState.instance.boyfriend.playAnim(anim, forced);
 			}
 		});
 		Lua_helper.add_callback(lua, "characterDance", function(character:String)
@@ -974,11 +974,11 @@ class Script
 			switch (character.toLowerCase())
 			{
 				case 'dad':
-					PlayState.dadOpponent.dance();
+					PlayState.instance.dadOpponent.dance();
 				case 'gf' | 'girlfriend':
-					PlayState.gf.dance();
+					PlayState.instance.gf.dance();
 				default:
-					PlayState.boyfriend.dance();
+					PlayState.instance.boyfriend.dance();
 			}
 		});
 
@@ -1132,14 +1132,14 @@ class Script
 						}
 						else
 						{
-							var position:Int = PlayState.instance.members.indexOf(PlayState.gf);
-							if (PlayState.instance.members.indexOf(PlayState.boyfriend) < position)
+							var position:Int = PlayState.instance.members.indexOf(PlayState.instance.gf);
+							if (PlayState.instance.members.indexOf(PlayState.instance.boyfriend) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.boyfriend);
+								position = PlayState.instance.members.indexOf(PlayState.instance.boyfriend);
 							}
-							else if (PlayState.instance.members.indexOf(PlayState.dadOpponent) < position)
+							else if (PlayState.instance.members.indexOf(PlayState.instance.dadOpponent) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.dadOpponent);
+								position = PlayState.instance.members.indexOf(PlayState.instance.dadOpponent);
 							}
 							PlayState.instance.insert(position, shit);
 						}

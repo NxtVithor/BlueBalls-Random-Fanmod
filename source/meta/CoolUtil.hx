@@ -1,5 +1,6 @@
 package meta;
 
+import haxe.Exception;
 import lime.app.Application;
 import haxe.Json;
 import openfl.utils.Assets;
@@ -54,9 +55,13 @@ class CoolUtil
 		return path.toLowerCase().replace(' ', '-');
 	}
 
-	inline public static function readJson(path:String)
+	public static function readJson(path:String)
 	{
-		return Json.parse(File.getContent(path).trim());
+		var content:String = File.getContent(path);
+		if (content != null && content.length > 0)
+			return Json.parse(content);
+		else
+			throw new Exception('Invalid JSON file: $path');
 	}
 
 	public static function cleanJson(rawJson:String)

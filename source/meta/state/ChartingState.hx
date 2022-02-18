@@ -295,7 +295,7 @@ class ChartingState extends MusicBeatState
 		#if MODS_ALLOWED
 		// check for modded characters
 		// for root mods folder
-		var path:String = ModManager.getModPath('characters');
+		var path:String = ModManager.modStr('characters');
 		if (FileSystem.isDirectory(path))
 		{
 			for (char in FileSystem.readDirectory(path))
@@ -309,7 +309,7 @@ class ChartingState extends MusicBeatState
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
-			var path:String = ModManager.getModPath(folder + '/characters');
+			var path:String = ModManager.modStr(folder + '/characters');
 			if (FileSystem.isDirectory(path))
 			{
 				for (char in FileSystem.readDirectory(path))
@@ -364,7 +364,7 @@ class ChartingState extends MusicBeatState
 		#if MODS_ALLOWED
 		// check for modded stages
 		// for root mods folder
-		var path:String = ModManager.getModPath('stages');
+		var path:String = ModManager.modStr('stages');
 		if (FileSystem.isDirectory(path))
 		{
 			for (stage in FileSystem.readDirectory(path))
@@ -378,7 +378,7 @@ class ChartingState extends MusicBeatState
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
-			var path:String = ModManager.getModPath(folder + '/stages');
+			var path:String = ModManager.modStr(folder + '/stages');
 			if (FileSystem.isDirectory(path))
 			{
 				for (stage in FileSystem.readDirectory(path))

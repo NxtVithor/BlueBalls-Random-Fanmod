@@ -59,7 +59,7 @@ class Week
 		#if MODS_ALLOWED
 		// check for modded weeks
 		// for root mods folder
-		var path:String = ModManager.getModPath('weeks');
+		var path:String = ModManager.modStr('weeks');
 		if (FileSystem.isDirectory(path))
 		{
 			for (week in FileSystem.readDirectory(path))
@@ -68,7 +68,7 @@ class Week
 		// for mods folders
 		for (folder in ModManager.modsFolders)
 		{
-			var path:String = ModManager.getModPath(folder + '/weeks');
+			var path:String = ModManager.modStr(folder + '/weeks');
 			if (FileSystem.isDirectory(path))
 			{
 				for (week in FileSystem.readDirectory(path))

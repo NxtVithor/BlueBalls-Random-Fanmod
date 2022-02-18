@@ -4,6 +4,7 @@ package gameObjects;
 	The character class initialises any and all characters that exist within gameplay. For now, the character class will
 	stay the same as it was in the original source of the game. I'll most likely make some changes afterwards though!
 **/
+import flixel.util.FlxColor;
 import meta.*;
 import meta.data.*;
 import meta.data.dependency.FNFSprite;
@@ -44,6 +45,8 @@ class Character extends FNFSprite
 	public var curCharacter:String = 'bf';
 
 	public var holdTimer:Float = 0;
+
+	public var healthBarColor:FlxColor;
 
 	var danceIdle:Bool = false;
 
@@ -88,6 +91,7 @@ class Character extends FNFSprite
 		cameraPosition = json.camera_position;
 
 		healthIcon = json.healthicon;
+		healthBarColor = FlxColor.fromRGB(json.healthbar_colors[0], json.healthbar_colors[1], json.healthbar_colors[2]);
 		singDuration = json.sing_duration;
 		flipX = !!json.flip_x;
 		antialiasing = !json.no_antialiasing;

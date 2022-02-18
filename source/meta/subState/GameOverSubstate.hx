@@ -28,7 +28,7 @@ class GameOverSubstate extends MusicBeatSubState
 
 	public function new(x:Float, y:Float)
 	{
-		var daBoyfriendType = PlayState.boyfriend.curCharacter;
+		var daBoyfriendType = PlayState.instance.boyfriend.curCharacter;
 		var daBf:String = '';
 		switch (daBoyfriendType)
 		{
@@ -48,7 +48,7 @@ class GameOverSubstate extends MusicBeatSubState
 		bf = new Boyfriend(x, y, daBf);
 		add(bf);
 
-		PlayState.boyfriend.destroy();
+		PlayState.instance.boyfriend.destroy();
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		camFollow.setPosition(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);

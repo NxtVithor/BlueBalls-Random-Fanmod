@@ -63,18 +63,18 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8));
 		healthBar.scrollFactor.set();
-		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
+		reloadHealthBarColors();
 		// healthBar
 		add(healthBar);
 
 		grpIcons = new FlxTypedGroup<HealthIcon>(2);
 		add(grpIcons);
 
-		iconP1 = new HealthIcon(PlayState.boyfriend.curCharacter, true);
+		iconP1 = new HealthIcon(PlayState.instance.boyfriend.curCharacter, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
 		grpIcons.add(iconP1);
 
-		iconP2 = new HealthIcon(PlayState.dadOpponent.curCharacter, false);
+		iconP2 = new HealthIcon(PlayState.instance.dadOpponent.curCharacter, false);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		grpIcons.add(iconP2);
 
@@ -123,6 +123,12 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 			}
 		}
 		updateCounter();
+	}
+
+	public function reloadHealthBarColors()
+	{
+		healthBar.createFilledBar(PlayState.instance.dadOpponent.healthBarColor, PlayState.instance.boyfriend.healthBarColor);
+		healthBar.updateBar();
 	}
 
 	var counterTextSize:Int = 18;
