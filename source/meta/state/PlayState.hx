@@ -440,7 +440,6 @@ class PlayState extends MusicBeatState
 		// for global scripts
 		var scripts:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('scripts'));
 		#if MODS_ALLOWED
-		// check for modded lua files
 		// for root mods folder
 		var path:String = ModManager.getModPath('scripts');
 		if (FileSystem.isDirectory(path))
@@ -460,6 +459,7 @@ class PlayState extends MusicBeatState
 		}
 		#end
 		for (script in scripts)
+			if (script.endsWith('.lua'))
 			luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
 
 		// for the stage script
