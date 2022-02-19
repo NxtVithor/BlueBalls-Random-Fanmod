@@ -27,9 +27,13 @@ class PauseSubState extends MusicBeatSubState
 	var levelDifficulty:FlxText;
 	var levelBotplay:FlxText;
 
+	static var cheatMoment:Bool = false;
+
 	public function new(x:Float, y:Float)
 	{
 		super();
+
+		cheatMoment = PlayState.usedGameplayFeature;
 
 		pauseMusic = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);
 		pauseMusic.volume = 0;
@@ -48,7 +52,7 @@ class PauseSubState extends MusicBeatSubState
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		levelDifficulty = new FlxText(20, 15 + 32, 0, CoolUtil.difficultyFromNumber(PlayState.storyDifficulty), 32);
+		levelDifficulty = new FlxText(20, 15 + 32, 0, CoolUtil.difficulties[PlayState.storyDifficulty], 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
@@ -113,6 +117,7 @@ class PauseSubState extends MusicBeatSubState
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					PlayState.cpuControlled = !PlayState.cpuControlled;
 					levelBotplay.visible = PlayState.cpuControlled;
+					cheatMoment = true;
 				case "Exit to menu":
 					PlayState.cpuControlled = false;
 					if (PlayState.isStoryMode)
@@ -132,6 +137,9 @@ class PauseSubState extends MusicBeatSubState
 	override function destroy()
 	{
 		pauseMusic.destroy();
+
+		if (cheatMoment)
+			PlayState.usedGameplayFeature = true;
 
 		super.destroy();
 	}

@@ -85,28 +85,35 @@ class StoryMenuState extends MusicBeatState
 
 		for (i in 0...Week.loadedWeeks.length)
 		{
-			Week.setDirectoryFromWeek(Week.loadedWeeks[i]);
+			var leWeek:Week = Week.loadedWeeks[i];
 
-			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weekNames[i]);
-			weekThing.y += (weekThing.height + 20) * i;
-			weekThing.targetY = i;
-			grpWeekText.add(weekThing);
-
-			weekThing.screenCenter(X);
-			weekThing.x -= 25;
-			weekThing.antialiasing = true;
-			// weekThing.updateHitbox();
-
-			// Needs an offset thingie
-			if (!Week.loadedWeeks[i].startUnlocked)
+			if (!leWeek.hideStoryMode)
 			{
-				var lock:FlxSprite = new FlxSprite(weekThing.width + 10 + weekThing.x);
-				lock.frames = ui_tex;
-				lock.animation.addByPrefix('lock', 'lock');
-				lock.animation.play('lock');
-				lock.ID = i;
-				lock.antialiasing = true;
-				grpLocks.add(lock);
+				Week.setDirectoryFromWeek(leWeek);
+
+				var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weekNames[i]);
+				weekThing.y += (weekThing.height + 20) * i;
+				weekThing.targetY = i;
+				grpWeekText.add(weekThing);
+
+				weekThing.screenCenter(X);
+				weekThing.x -= 25;
+				weekThing.antialiasing = true;
+
+				// Needs an offset thingie
+				if (leWeek.weekBefore != null
+					&& leWeek.weekBefore.length > 0
+					&& Week.completedWeeks.get(leWeek.weekBefore)
+					&& !leWeek.startUnlocked)
+				{
+					var lock:FlxSprite = new FlxSprite(weekThing.width + 10 + weekThing.x);
+					lock.frames = ui_tex;
+					lock.animation.addByPrefix('lock', 'lock');
+					lock.animation.play('lock');
+					lock.ID = i;
+					lock.antialiasing = true;
+					grpLocks.add(lock);
+				}
 			}
 		}
 
@@ -129,7 +136,7 @@ class StoryMenuState extends MusicBeatState
 
 		sprDifficulty = new FlxSprite(leftArrow.x + 130, leftArrow.y);
 		sprDifficulty.frames = ui_tex;
-		for (i in CoolUtil.difficultyArray)
+		for (i in CoolUtil.defaultDifficulties)
 			sprDifficulty.animation.addByPrefix(i.toLowerCase(), i.toUpperCase());
 		sprDifficulty.animation.play('easy');
 		changeDifficulty();
@@ -235,8 +242,6 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (Week.loadedWeeks[curWeek].startUnlocked)
 		{
-			Week.setDirectoryFromWeek(Week.loadedWeeks[curWeek]);
-
 			if (stopspamming == false)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));
@@ -257,12 +262,10 @@ class StoryMenuState extends MusicBeatState
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
-			var diffic:String = '-' + CoolUtil.difficultyFromNumber(curDifficulty).toLowerCase();
-			diffic = diffic.replace('-normal', '');
-
 			PlayState.storyDifficulty = curDifficulty;
 
-			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + CoolUtil.formatDifficulty(),
+				PlayState.storyPlaylist[0].toLowerCase());
 			PlayState.storyWeek = curWeek;
 			PlayState.campaignScore = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)
@@ -277,14 +280,13 @@ class StoryMenuState extends MusicBeatState
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
-			curDifficulty = CoolUtil.difficultyLength - 1;
-		if (curDifficulty > CoolUtil.difficultyLength - 1)
+			curDifficulty = CoolUtil.difficulties.length - 1;
+		if (curDifficulty > CoolUtil.difficulties.length - 1)
 			curDifficulty = 0;
 
 		sprDifficulty.offset.x = 0;
 
-		var difficultyString = CoolUtil.difficultyFromNumber(curDifficulty).toLowerCase();
-		sprDifficulty.animation.play(difficultyString);
+		sprDifficulty.animation.play(CoolUtil.defaultDifficulties[curDifficulty].toLowerCase());
 		switch (curDifficulty)
 		{
 			case 0:
@@ -315,6 +317,8 @@ class StoryMenuState extends MusicBeatState
 			curWeek = 0;
 		if (curWeek < 0)
 			curWeek = Week.loadedWeeks.length - 1;
+
+		Week.setDirectoryFromWeek(Week.loadedWeeks[curWeek]);
 
 		var bullShit:Int = 0;
 

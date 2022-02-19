@@ -869,8 +869,8 @@ class ChartingState extends MusicBeatState
 
 	function loadJson(song:String)
 	{
-		var formattedSong:String = CoolUtil.coolFormat(song.toLowerCase());
-		PlayState.SONG = Song.loadFromJson(formattedSong, formattedSong);
+		var daSong:String = song.toLowerCase();
+		PlayState.SONG = Song.loadFromJson(daSong, daSong);
 		Main.resetState();
 	}
 

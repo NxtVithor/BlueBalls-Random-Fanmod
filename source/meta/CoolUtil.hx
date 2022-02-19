@@ -1,5 +1,6 @@
 package meta;
 
+import meta.state.PlayState;
 import haxe.Exception;
 import haxe.Json;
 import lime.app.Application;
@@ -16,20 +17,28 @@ import sys.FileSystem;
 
 class CoolUtil
 {
-	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
-	public static var difficultyLength = difficultyArray.length;
+	public static var defaultDifficulties:Array<String> = ['Easy', 'Normal', 'Hard'];
+	// the chart that has no suffix and is the starting difficulty
+	public static var defaultDifficulty:String = 'Normal';
 
-	inline public static function difficultyFromNumber(number:Int):String
+	public static var difficulties:Array<String> = [];
+
+	public static function formatDifficulty(?num:Int)
 	{
-		return difficultyArray[number];
+		if (num == null)
+			num = PlayState.storyDifficulty;
+
+		var fileSuffix:String = difficulties[num];
+		if (fileSuffix != defaultDifficulty)
+			fileSuffix = '-' + fileSuffix;
+		else
+			fileSuffix = '';
+		return spaceToDash(fileSuffix.toLowerCase());
 	}
 
-	public static function formatSong(song:String, diff:Int):String
+	inline public static function formatSong(song:String, ?diff:Int)
 	{
-		var poop:String = spaceToDash(song);
-		if (diff != 1)
-			poop += '-' + difficultyFromNumber(diff);
-		return poop;
+		return spaceToDash(song) + formatDifficulty(diff);
 	}
 
 	inline public static function getControls()
@@ -37,29 +46,29 @@ class CoolUtil
 		return PlayerSettings.player1.controls;
 	}
 
-	inline public static function boundTo(value:Float, min:Float, max:Float):Float
+	inline public static function boundTo(value:Float, min:Float, max:Float)
 	{
 		return Math.max(min, Math.min(max, value));
 	}
 
-	inline public static function getFPS():Float
+	inline public static function getFPS()
 	{
 		return Lib.current.stage.frameRate;
 	}
 
-	inline public static function dashToSpace(string:String):String
+	inline public static function dashToSpace(string:String)
 	{
 		return string.replace("-", " ");
 	}
 
-	inline public static function spaceToDash(string:String):String
+	inline public static function spaceToDash(string:String)
 	{
 		return string.replace(" ", "-");
 	}
 
 	inline static public function coolFormat(path:String)
 	{
-		return path.toLowerCase().replace(' ', '-');
+		return spaceToDash(path.toLowerCase());
 	}
 
 	public static function readJson(path:String)
@@ -83,7 +92,7 @@ class CoolUtil
 		return str.substring(0, str.lastIndexOf('.'));
 	}
 
-	public static function coolTextFile(path:String):Array<String>
+	public static function coolTextFile(path:String)
 	{
 		var daList:Array<String> = Assets.getText(path).trim().split('\n');
 
@@ -95,7 +104,7 @@ class CoolUtil
 		return daList;
 	}
 
-	public static function returnAssetsLibrary(library:String, ?subDir:String = 'assets/images'):Array<String>
+	public static function returnAssetsLibrary(library:String, ?subDir:String = 'assets/images')
 	{
 		var libraryArray:Array<String> = [];
 		#if !html5
@@ -120,23 +129,23 @@ class CoolUtil
 		#end
 	}
 
-	public static function precacheSound(sound:String, ?library:String = null):Void
+	public static function precacheSound(sound:String, ?library:String = null)
 	{
 		precacheSoundFile(Paths.sound(sound, library));
 	}
 
-	public static function precacheMusic(sound:String, ?library:String = null):Void
+	public static function precacheMusic(sound:String, ?library:String = null)
 	{
 		precacheSoundFile(Paths.music(sound, library));
 	}
 
-	private static function precacheSoundFile(file:Dynamic):Void
+	private static function precacheSoundFile(file:Dynamic)
 	{
 		if (Assets.exists(file, SOUND) || Assets.exists(file, MUSIC))
 			Assets.getSound(file, true);
 	}
 
-	public static function truncateFloat(number:Float, precision:Int):Float
+	public static function truncateFloat(number:Float, precision:Int)
 	{
 		var num = number;
 		num = num * Math.pow(10, precision);
@@ -144,7 +153,7 @@ class CoolUtil
 		return num;
 	}
 
-	public static function numberArray(max:Int, ?min = 0):Array<Int>
+	public static function numberArray(max:Int, ?min = 0)
 	{
 		var dumbArray:Array<Int> = [];
 		for (i in min...max)

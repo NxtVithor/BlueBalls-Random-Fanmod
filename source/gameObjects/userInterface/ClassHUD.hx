@@ -86,7 +86,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		add(scoreBar);
 
 		// small info bar based on scoretxt, kinda like the KE watermark
-		var infoDisplay:String = CoolUtil.dashToSpace(PlayState.SONG.song) + ' - ' + CoolUtil.difficultyFromNumber(PlayState.storyDifficulty);
+		var infoDisplay:String = CoolUtil.dashToSpace(PlayState.SONG.song) + ' - ' + CoolUtil.difficulties[PlayState.storyDifficulty];
 		var engineDisplay:String = "Forever Modding v" + Main.gameVersion;
 		var engineBar:FlxText = new FlxText(0, FlxG.height - 30, 0, engineDisplay, 16);
 		engineBar.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);

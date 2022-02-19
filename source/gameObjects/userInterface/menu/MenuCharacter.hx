@@ -47,7 +47,10 @@ class MenuCharacter extends FlxSprite
 
 		if (character != '')
 		{
-			var base:String = 'menus/base/storymenu/characters';
+			// compatibility again
+			var base:String = 'menucharacters';
+			if (!Paths.exists(base))
+				base = 'menus/base/storymenu/characters';
 			var charFile:MenuCharacterFile = cast CoolUtil.readJson(Paths.json('images/$base/$character'));
 			frames = Paths.getSparrowAtlas('$base/' + charFile.image);
 			animation.addByPrefix('idle', charFile.idle_anim, 24);

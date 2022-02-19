@@ -40,11 +40,12 @@ import openfl.events.KeyboardEvent;
 import openfl.filters.BitmapFilter;
 import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
+
+using StringTools;
 #if !html5
 import sys.FileSystem;
 #end
 
-using StringTools;
 
 #if !html5
 import meta.data.dependency.Discord;
@@ -208,6 +209,9 @@ class PlayState extends MusicBeatState
 
 	// botplay i think
 	public static var cpuControlled:Bool = false;
+
+	// no cheaters lol
+	public static var usedGameplayFeature:Bool = false;
 
 	private var keyPressByController:Bool = false;
 
@@ -505,6 +509,8 @@ class PlayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
+		usedGameplayFeature = cpuControlled;
+
 		Paths.clearUnusedMemory();
 
 		// call the funny intro cutscene depending on the song
@@ -755,6 +761,8 @@ class PlayState extends MusicBeatState
 			luaArray[i].stop();
 		}
 		luaArray = [];
+
+		usedGameplayFeature = false;
 
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
@@ -1717,7 +1725,7 @@ class PlayState extends MusicBeatState
 		Conductor.changeBPM(songData.bpm);
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
-		songDetails = SONG.song + ' - ' + CoolUtil.difficultyFromNumber(storyDifficulty);
+		songDetails = SONG.song + ' - ' + CoolUtil.difficulties[storyDifficulty];
 
 		// String for when the game is paused
 		detailsPausedText = "Paused - " + songDetails;
@@ -1947,6 +1955,9 @@ class PlayState extends MusicBeatState
 
 					persistentUpdate = false;
 
+					// yeah we completed the week!!
+					Week.setCompletedWeek(Week.loadedWeeks[storyWeek].weekName, true);
+
 					// change to the menu state
 					Main.switchState(new StoryMenuState());
 
@@ -1988,15 +1999,12 @@ class PlayState extends MusicBeatState
 
 	private function callDefaultSongEnd()
 	{
-		var difficulty:String = '-' + CoolUtil.difficultyFromNumber(storyDifficulty).toLowerCase();
-		difficulty = difficulty.replace('-normal', '');
-
 		FlxTransitionableState.skipNextTransIn = true;
 		FlxTransitionableState.skipNextTransOut = true;
 
 		prevCamFollow = camFollow;
 
-		PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
+		PlayState.SONG = Song.loadFromJson(CoolUtil.formatSong(PlayState.storyPlaylist[0].toLowerCase(), storyDifficulty), CoolUtil.coolFormat(PlayState.storyPlaylist[0]));
 		ForeverTools.killMusic([songMusic, vocals]);
 
 		persistentUpdate = false;
