@@ -42,11 +42,10 @@ import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
 
 using StringTools;
+
 #if !html5
 import sys.FileSystem;
 #end
-
-
 #if !html5
 import meta.data.dependency.Discord;
 #end
@@ -2004,7 +2003,8 @@ class PlayState extends MusicBeatState
 
 		prevCamFollow = camFollow;
 
-		PlayState.SONG = Song.loadFromJson(CoolUtil.formatSong(PlayState.storyPlaylist[0].toLowerCase(), storyDifficulty), CoolUtil.coolFormat(PlayState.storyPlaylist[0]));
+		PlayState.SONG = Song.loadFromJson(CoolUtil.formatSong(PlayState.storyPlaylist[0].toLowerCase(), storyDifficulty),
+			CoolUtil.coolFormat(PlayState.storyPlaylist[0]));
 		ForeverTools.killMusic([songMusic, vocals]);
 
 		persistentUpdate = false;

@@ -181,7 +181,8 @@ class Week
 		}
 	}
 
-	public static function setCompletedWeek(week:String, ?completed:Bool = true) {
+	public static function setCompletedWeek(week:String, ?completed:Bool = true)
+	{
 		completedWeeks.set(week, true);
 		FlxG.save.data.completedWeeks = completedWeeks;
 		FlxG.save.flush();
