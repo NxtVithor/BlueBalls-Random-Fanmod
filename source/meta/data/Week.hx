@@ -63,7 +63,8 @@ class Week
 		if (FileSystem.isDirectory(path))
 		{
 			for (week in FileSystem.readDirectory(path))
-				weekFiles.push(week);
+				if (week.endsWith('.json'))
+					weekFiles.push(week);
 		}
 		// for mods folders
 		for (folder in ModManager.modsFolders)
@@ -72,6 +73,7 @@ class Week
 			if (FileSystem.isDirectory(path))
 			{
 				for (week in FileSystem.readDirectory(path))
+					if (week.endsWith('.json'))
 					weekFiles.push(week);
 			}
 		}

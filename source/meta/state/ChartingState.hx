@@ -45,6 +45,8 @@ import sys.thread.Thread;
 	As the name implies, this is the class where all of the charting state stuff happens, so when you press 7 the game
 	state switches to this one, where you get to chart songs and such. I'm planning on overhauling this entirely in the future
 	and making it both more practical and more user friendly.
+
+	based on shubs work :)
 **/
 class ChartingState extends MusicBeatState
 {
@@ -300,9 +302,12 @@ class ChartingState extends MusicBeatState
 		{
 			for (char in FileSystem.readDirectory(path))
 			{
-				var realChar:String = char.substring(0, char.lastIndexOf('.')).substring(char.lastIndexOf('/'), char.length);
-				if (!characters.contains(realChar))
-					characters.push(realChar);
+				if (char.endsWith('.json'))
+				{
+					var realChar:String = char.substring(0, char.lastIndexOf('.')).substring(char.lastIndexOf('/'), char.length);
+					if (!characters.contains(realChar))
+						characters.push(realChar);
+				}
 			}
 		}
 
@@ -314,9 +319,12 @@ class ChartingState extends MusicBeatState
 			{
 				for (char in FileSystem.readDirectory(path))
 				{
-					var realChar:String = char.substring(0, char.lastIndexOf('.')).substring(char.lastIndexOf('/'), char.length);
-					if (!characters.contains(realChar))
-						characters.push(realChar);
+					if (char.endsWith('.json'))
+					{
+						var realChar:String = char.substring(0, char.lastIndexOf('.')).substring(char.lastIndexOf('/'), char.length);
+						if (!characters.contains(realChar))
+							characters.push(realChar);
+					}
 				}
 			}
 		}
@@ -359,7 +367,8 @@ class ChartingState extends MusicBeatState
 		var stages:Array<String> = [];
 
 		for (stage in FileSystem.readDirectory(Paths.getPreloadPath('stages')))
-			stages.push(stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length));
+			if (stage.endsWith('.json'))
+				stages.push(stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length));
 
 		#if MODS_ALLOWED
 		// check for modded stages
@@ -369,9 +378,12 @@ class ChartingState extends MusicBeatState
 		{
 			for (stage in FileSystem.readDirectory(path))
 			{
-				var realStage:String = stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length);
-				if (!stages.contains(realStage))
-					stages.push(realStage);
+				if (stage.endsWith('.json'))
+				{
+					var realStage:String = stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length);
+					if (!stages.contains(realStage))
+						stages.push(realStage);
+				}
 			}
 		}
 
@@ -383,9 +395,12 @@ class ChartingState extends MusicBeatState
 			{
 				for (stage in FileSystem.readDirectory(path))
 				{
-					var realStage:String = stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length);
-					if (!stages.contains(realStage))
-						stages.push(realStage);
+					if (stage.endsWith('.json'))
+					{
+						var realStage:String = stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length);
+						if (!stages.contains(realStage))
+							stages.push(realStage);
+					}
 				}
 			}
 		}
