@@ -1,8 +1,8 @@
 package meta.data;
 
-import haxe.Json;
+#if !html5
 import sys.FileSystem;
-import sys.io.File;
+#end
 
 using StringTools;
 
@@ -24,7 +24,9 @@ class Week
 	public static var loadedWeeks:Array<Week> = [];
 
 	// used for menu item
-	public static var weeksNames:Array<String> = [];
+	public static var weekNames:Array<String> = [];
+
+	public var directory:String;
 
 	public var songs:Array<Array<Dynamic>> = [['Test', 'bf', [255, 255, 255]]];
 	public var weekCharacters:Array<String> = ['', 'gf', 'bf'];
@@ -54,27 +56,58 @@ class Week
 
 	public static function loadWeeks()
 	{
-		var weekFiles:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('weeks'));
+		var weekFiles:Array<String> = [];
+		var directoriesShit:Array<String> = [];
+
+		// check for hardcoded weeks
+		for (week in FileSystem.readDirectory(Paths.getPreloadPath('weeks')))
+		{
+			if (week.endsWith('.json'))
+			{
+				weekFiles.push(Paths.getPreloadPath('weeks/$week'));
+				directoriesShit.push(null);
+			}
+		}
 
 		#if MODS_ALLOWED
 		// check for modded weeks
-		// for root mods folder
+		// for root mods directory
 		var path:String = ModManager.modStr('weeks');
 		if (FileSystem.isDirectory(path))
 		{
 			for (week in FileSystem.readDirectory(path))
+			{
 				if (week.endsWith('.json'))
-					weekFiles.push(week);
+				{
+					var daPath:String = '$path/$week';
+					if (!weekFiles.contains(daPath))
+					{
+						weekFiles.push(daPath);
+						weekNames.push(CoolUtil.removeExt(week));
+						directoriesShit.push(null);
+					}
+				}
+			}
 		}
 		// for mods folders
-		for (folder in ModManager.modsFolders)
+		for (folder in ModManager.modsDirectories)
 		{
 			var path:String = ModManager.modStr(folder + '/weeks');
 			if (FileSystem.isDirectory(path))
 			{
 				for (week in FileSystem.readDirectory(path))
+				{
 					if (week.endsWith('.json'))
-					weekFiles.push(week);
+					{
+						var daPath:String = '$path/$week';
+						if (!weekFiles.contains(daPath))
+						{
+							weekFiles.push(daPath);
+							weekNames.push(CoolUtil.removeExt(week));
+							directoriesShit.push(folder);
+						}
+					}
+				}
 			}
 		}
 		#end
@@ -82,13 +115,26 @@ class Week
 		// load the weeks
 		for (i in 0...weekFiles.length)
 		{
-			// ignore other types of files
 			if (weekFiles[i].endsWith('.json'))
 			{
-				weekFiles[i] = weekFiles[i].substring(0, weekFiles[i].lastIndexOf('.'));
-				weeksNames[i] = weekFiles[i].substring(weekFiles[i].lastIndexOf('/'), weekFiles[i].length);
-				loadedWeeks[i] = new Week(Week.loadFromJson(Paths.json('weeks/' + weekFiles[i])));
+				if (directoriesShit[i] != null)
+				{
+					ModManager.currentModDirectory = directoriesShit[i];
+					trace(ModManager.currentModDirectory);
+				}
+				loadedWeeks[i] = new Week(Week.loadFromJson(weekFiles[i]));
+				if (directoriesShit[i] != null)
+					loadedWeeks[i].directory = directoriesShit[i];
 			}
 		}
+		ModManager.currentModDirectory = '';
+	}
+
+	public static function setDirectoryFromWeek(?data:Week = null)
+	{
+		if (data != null && data.directory != null && data.directory.length > 0)
+			ModManager.currentModDirectory = data.directory;
+		else
+			ModManager.currentModDirectory = '';
 	}
 }

@@ -127,7 +127,9 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	public function reloadHealthBarColors()
 	{
-		healthBar.createFilledBar(PlayState.instance.dadOpponent.healthBarColor, PlayState.instance.boyfriend.healthBarColor);
+		var dadColors:Array<Int> = PlayState.instance.dadOpponent.charData.healthbar_colors;
+		var bfColors:Array<Int> = PlayState.instance.boyfriend.charData.healthbar_colors;
+		healthBar.createFilledBar(FlxColor.fromRGB(dadColors[0], dadColors[1], dadColors[2]), FlxColor.fromRGB(bfColors[0], bfColors[1], bfColors[2]));
 		healthBar.updateBar();
 	}
 

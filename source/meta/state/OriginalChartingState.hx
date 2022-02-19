@@ -1041,7 +1041,7 @@ class OriginalChartingState extends MusicBeatState
 
 	function loadAutosave():Void
 	{
-		PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
+		PlayState.SONG = Json.parse(CoolUtil.cleanJson(FlxG.save.data.autosave));
 		Main.resetState();
 	}
 

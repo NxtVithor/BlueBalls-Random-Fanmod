@@ -14,8 +14,10 @@ import openfl.media.Sound;
 import openfl.system.System;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
+#if !html5
 import sys.FileSystem;
 import sys.io.File;
+#end
 
 class Paths
 {
@@ -175,7 +177,7 @@ class Paths
 			Okay so, from what I understand, this loads in the current path based on the level
 			we're in (if a library is not specified), say like week 1 or something, 
 			then checks if the assets you're looking for are there.
-			if not, it checks the shared assets folder.
+			if not, it checks the shared assets directory.
 		 */
 
 		// well I'm rewritinwg it so that the library is the path and it looks for the file type
@@ -185,9 +187,9 @@ class Paths
 		// check if the file is modded
 		if (allowModding)
 		{
-			var result:String = ModManager.getModPath(file);
-			if (result != null)
-				return result;
+			var modPath:String = ModManager.getModPath(file);
+			if (modPath != null)
+				return modPath;
 		}
 		#end
 

@@ -13,9 +13,13 @@ import meta.data.*;
 import meta.data.Alphabet;
 import meta.data.dependency.Discord;
 import openfl.media.Sound;
+#if !html5
 import sys.FileSystem;
+#end
+#if sys
 import sys.thread.Mutex;
 import sys.thread.Thread;
+#end
 
 using StringTools;
 
@@ -59,7 +63,10 @@ class FreeplayState extends MusicBeatState
 
 		// load songs from week data
 		for (i in 0...Week.loadedWeeks.length)
+		{
+			Week.setDirectoryFromWeek(Week.loadedWeeks[i]);
 			addWeek(Week.loadedWeeks[i], i);
+		}
 
 		mutex = new Mutex();
 
@@ -128,17 +135,14 @@ class FreeplayState extends MusicBeatState
 
 	public function addWeek(week:Week, weekNum:Int)
 	{
-		if (!week.hideFreeplay)
+		var num:Int = 0;
+
+		for (song in week.songs)
 		{
-			var num:Int = 0;
+			addSong(song[0], weekNum, song[1], FlxColor.fromRGB(song[2][0], song[2][1], song[2][2]));
 
-			for (song in week.songs)
-			{
-				addSong(song[0], weekNum, song[1], FlxColor.fromRGB(song[2][0], song[2][1], song[2][2]));
-
-				if (week.weekCharacters.length != 1)
-					num++;
-			}
+			if (week.weekCharacters.length != 1)
+				num++;
 		}
 	}
 
@@ -180,7 +184,9 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.ACCEPT)
 		{
-			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(),
+			Week.setDirectoryFromWeek(Week.loadedWeeks[songs[curSelected].week]);
+
+			var poop:String = CoolUtil.formatSong(songs[curSelected].songName.toLowerCase(),
 				CoolUtil.difficultyArray.indexOf(existingDifficulties[curSelected][curDifficulty]));
 
 			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
@@ -250,10 +256,12 @@ class FreeplayState extends MusicBeatState
 		if (curSelected >= songs.length)
 			curSelected = 0;
 
+		Week.setDirectoryFromWeek(Week.loadedWeeks[songs[curSelected].week]);
+
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 
 		// set up color stuffs
-		mainColor = songs[curSelected].songColor;
+		mainColor = songs[curSelected].color;
 
 		// song switching stuffs
 
@@ -319,13 +327,17 @@ class SongMetadata
 	public var songName:String = "";
 	public var week:Int = 0;
 	public var songCharacter:String = "";
-	public var songColor:FlxColor = FlxColor.WHITE;
+	public var color:Int = -7179779;
+	public var directory:String = "";
 
-	public function new(song:String, week:Int, songCharacter:String, songColor:FlxColor)
+	public function new(song:String, week:Int, songCharacter:String, color:Int)
 	{
 		this.songName = song;
 		this.week = week;
 		this.songCharacter = songCharacter;
-		this.songColor = songColor;
+		this.color = color;
+		this.directory = ModManager.currentModDirectory;
+		if (this.directory == null)
+			this.directory = '';
 	}
 }

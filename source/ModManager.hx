@@ -1,14 +1,17 @@
 package;
 
+#if !html5
 import sys.FileSystem;
+#end
 
-#if MODS_ALLOWED
 class ModManager
 {
-	public static var modFolder:String = 'mods';
-	public static var modsFolders:Array<String>;
+	public static final modDirectory:String = 'mods';
+	public static var modsDirectories:Array<String>;
 
-	static final ignoredModsFolders:Array<String> = [
+	public static var currentModDirectory:String = '';
+
+	static final ignoredModsDirectories:Array<String> = [
 		'characters',
 		'fonts',
 		'images',
@@ -22,33 +25,39 @@ class ModManager
 
 	inline public static function modStr(key:String)
 	{
-		return '${ModManager.modFolder}/$key';
+		#if MODS_ALLOWED
+		return '${modDirectory}/$key';
+		#else
+		return key;
+		#end
 	}
 
 	public static function getModPath(key:String)
 	{
-		var daPath:String = null;
-		// for root mods folder
-		daPath = modStr(key);
+		#if MODS_ALLOWED
+		if (currentModDirectory != null && currentModDirectory.length > 0)
+		{
+			var leModDir:String = modStr(currentModDirectory + '/' + key);
+			if (FileSystem.exists(leModDir))
+				return leModDir;
+		}
+		var daPath:String = modStr(key);
 		if (FileSystem.exists(daPath))
 			return daPath;
-		// for mods folders
-		for (folder in ModManager.modsFolders)
-		{
-			daPath = modStr(folder + '/' + key);
-			if (FileSystem.exists(daPath))
-				return daPath;
-		}
 		return null;
+		#else
+		return key;
+		#end
 	}
 
-	public static function loadModsFolders()
+	public static function loadModsDirectories()
 	{
-		var folders:Array<String> = FileSystem.readDirectory(modFolder);
-		modsFolders = [];
-		for (folder in folders)
-			if (FileSystem.isDirectory(modStr(folder)) && !ignoredModsFolders.contains(folder))
-				modsFolders.push(folder);
+		#if MODS_ALLOWED
+		var directories:Array<String> = FileSystem.readDirectory(modDirectory);
+		modsDirectories = [];
+		for (directory in directories)
+			if (FileSystem.isDirectory(modStr(directory)) && !ignoredModsDirectories.contains(directory))
+				modsDirectories.push(directory);
+		#end
 	}
 }
-#end

@@ -1,7 +1,5 @@
 package meta.state;
 
-import meta.data.Script.DebugLuaText;
-import openfl.media.Sound;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -30,6 +28,7 @@ import gameObjects.userInterface.notes.Strumline.UIStaticArrow;
 import meta.*;
 import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
+import meta.data.Script.DebugLuaText;
 import meta.data.Script.ModchartSprite;
 import meta.data.Script.ModchartText;
 import meta.data.Section.SwagSection;
@@ -40,7 +39,10 @@ import meta.subState.*;
 import openfl.events.KeyboardEvent;
 import openfl.filters.BitmapFilter;
 import openfl.filters.ShaderFilter;
+import openfl.media.Sound;
+#if !html5
 import sys.FileSystem;
+#end
 
 using StringTools;
 
@@ -449,17 +451,17 @@ class PlayState extends MusicBeatState
 		// for global scripts
 		var scripts:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('scripts'));
 		#if MODS_ALLOWED
-		// for root mods folder
+		// for root mods directory
 		var path:String = ModManager.modStr('scripts');
 		if (FileSystem.isDirectory(path))
 		{
 			for (script in FileSystem.readDirectory(path))
 				scripts.push(script);
 		}
-		// for mods folders
-		for (folder in ModManager.modsFolders)
+		// for mods directories
+		for (directory in ModManager.modsDirectories)
 		{
-			var path:String = ModManager.modStr(folder + '/scripts');
+			var path:String = ModManager.modStr(directory + '/scripts');
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))

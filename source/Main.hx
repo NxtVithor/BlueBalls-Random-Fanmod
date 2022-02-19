@@ -13,8 +13,10 @@ import meta.data.dependency.FNFTransition;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
+#if !html5
 import sys.FileSystem;
 import sys.io.File;
+#end
 
 // Here we actually import the states and metadata, and just the metadata.
 // It's nice to have modularity so that we don't have ALL elements loaded at the same time.

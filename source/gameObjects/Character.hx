@@ -4,7 +4,6 @@ package gameObjects;
 	The character class initialises any and all characters that exist within gameplay. For now, the character class will
 	stay the same as it was in the original source of the game. I'll most likely make some changes afterwards though!
 **/
-import flixel.util.FlxColor;
 import meta.*;
 import meta.data.*;
 import meta.data.dependency.FNFSprite;
@@ -46,7 +45,7 @@ class Character extends FNFSprite
 
 	public var holdTimer:Float = 0;
 
-	public var healthBarColor:FlxColor;
+	public var charData:CharacterFile;
 
 	var danceIdle:Bool = false;
 
@@ -74,29 +73,28 @@ class Character extends FNFSprite
 			path = Paths.json('characters/bf');
 		}
 
-		var json:CharacterFile = cast CoolUtil.readJson(path);
+		charData = cast CoolUtil.readJson(path);
 
-		if (Paths.exists(Paths.txt('images/${json.image}')))
-			frames = Paths.getPackerAtlas(json.image);
+		if (Paths.exists(Paths.txt('images/${charData.image}')))
+			frames = Paths.getPackerAtlas(charData.image);
 		else
-			frames = Paths.getSparrowAtlas(json.image);
+			frames = Paths.getSparrowAtlas(charData.image);
 
-		if (json.scale != 1)
+		if (charData.scale != 1)
 		{
-			setGraphicSize(Std.int(width * json.scale));
+			setGraphicSize(Std.int(width * charData.scale));
 			updateHitbox();
 		}
 
-		positionArray = json.position;
-		cameraPosition = json.camera_position;
+		positionArray = charData.position;
+		cameraPosition = charData.camera_position;
 
-		healthIcon = json.healthicon;
-		healthBarColor = FlxColor.fromRGB(json.healthbar_colors[0], json.healthbar_colors[1], json.healthbar_colors[2]);
-		singDuration = json.sing_duration;
-		flipX = !!json.flip_x;
-		antialiasing = !json.no_antialiasing;
+		healthIcon = charData.healthicon;
+		singDuration = charData.sing_duration;
+		flipX = !!charData.flip_x;
+		antialiasing = !charData.no_antialiasing;
 
-		animationsArray = json.animations;
+		animationsArray = charData.animations;
 		if (animationsArray != null && animationsArray.length > 0)
 		{
 			for (anim in animationsArray)

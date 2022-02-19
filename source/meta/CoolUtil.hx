@@ -1,11 +1,11 @@
 package meta;
 
 import haxe.Exception;
-import lime.app.Application;
 import haxe.Json;
-import openfl.utils.Assets;
+import lime.app.Application;
 import meta.data.PlayerSettings;
 import openfl.Lib;
+import openfl.utils.Assets;
 import sys.io.File;
 
 using StringTools;
@@ -16,13 +16,20 @@ import sys.FileSystem;
 
 class CoolUtil
 {
-	// tymgus45
 	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
 	public static var difficultyLength = difficultyArray.length;
 
-	public static function difficultyFromNumber(number:Int):String
+	inline public static function difficultyFromNumber(number:Int):String
 	{
 		return difficultyArray[number];
+	}
+
+	public static function formatSong(song:String, diff:Int):String
+	{
+		var poop:String = spaceToDash(song);
+		if (diff != 1)
+			poop += '-' + difficultyFromNumber(diff);
+		return poop;
 	}
 
 	inline public static function getControls()
@@ -59,7 +66,7 @@ class CoolUtil
 	{
 		var content:String = File.getContent(path);
 		if (content != null && content.length > 0)
-			return Json.parse(content);
+			return Json.parse(cleanJson(content));
 		else
 			throw new Exception('Invalid JSON file: $path');
 	}
@@ -69,6 +76,11 @@ class CoolUtil
 		while (!rawJson.endsWith("}"))
 			rawJson = rawJson.substr(0, rawJson.length - 1);
 		return rawJson;
+	}
+
+	inline public static function removeExt(str:String)
+	{
+		return str.substring(0, str.lastIndexOf('.'));
 	}
 
 	public static function coolTextFile(path:String):Array<String>
@@ -89,10 +101,10 @@ class CoolUtil
 		#if !html5
 		var unfilteredLibrary = FileSystem.readDirectory('$subDir/$library');
 
-		for (folder in unfilteredLibrary)
+		for (directory in unfilteredLibrary)
 		{
-			if (!folder.contains('.'))
-				libraryArray.push(folder);
+			if (!directory.contains('.'))
+				libraryArray.push(directory);
 		}
 		trace(libraryArray);
 		#end

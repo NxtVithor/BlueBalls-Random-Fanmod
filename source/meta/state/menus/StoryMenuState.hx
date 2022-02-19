@@ -85,7 +85,9 @@ class StoryMenuState extends MusicBeatState
 
 		for (i in 0...Week.loadedWeeks.length)
 		{
-			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weeksNames[i]);
+			Week.setDirectoryFromWeek(Week.loadedWeeks[i]);
+
+			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weekNames[i]);
 			weekThing.y += (weekThing.height + 20) * i;
 			weekThing.targetY = i;
 			grpWeekText.add(weekThing);
@@ -233,6 +235,8 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (Week.loadedWeeks[curWeek].startUnlocked)
 		{
+			Week.setDirectoryFromWeek(Week.loadedWeeks[curWeek]);
+
 			if (stopspamming == false)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));

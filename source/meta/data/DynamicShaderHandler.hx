@@ -1,19 +1,21 @@
 package meta.data;
 
-import meta.state.PlayState;
-import sys.io.File;
-import haxe.display.Display.Package;
-import openfl.display.GraphicsShader;
 import flixel.FlxG;
 import flixel.graphics.tile.FlxGraphicsShader;
+import haxe.display.Display.Package;
+import meta.state.PlayState;
+import openfl.display.GraphicsShader;
+#if !html5
 import sys.FileSystem;
+import sys.io.File;
+#end
 
 /**
 	Class to handle animated shaders, calling the new consturctor is enough, 
 	the update function will be automatically called by the playstate.
 
-	Shaders should be placed at /shaders folder, with ".frag" extension, 
-	See shaders folder for examples and guides.
+	Shaders should be placed at /shaders directory, with ".frag" extension, 
+	See shaders directory for examples and guides.
 
 	Optimize variable might help with some heavy shaders but only makes a difference on decent Intel CPUs.
 

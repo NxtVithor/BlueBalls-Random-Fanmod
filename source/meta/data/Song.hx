@@ -42,15 +42,8 @@ class Song
 		this.bpm = bpm;
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	public static function loadFromJson(jsonInput:String, ?directory:String):SwagSong
 	{
-		return parseJSONshit(CoolUtil.cleanJson(File.getContent(Paths.songJson(folder.toLowerCase(), jsonInput.toLowerCase()))));
-	}
-
-	public static function parseJSONshit(rawJson:String):SwagSong
-	{
-		var swagShit:SwagSong = cast Json.parse(rawJson).song;
-		swagShit.validScore = true;
-		return swagShit;
+		return CoolUtil.readJson(Paths.songJson(directory.toLowerCase(), jsonInput.toLowerCase())).song;
 	}
 }

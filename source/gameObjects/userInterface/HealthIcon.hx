@@ -3,7 +3,9 @@ package gameObjects.userInterface;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
+#if !html5
 import sys.FileSystem;
+#end
 
 using StringTools;
 

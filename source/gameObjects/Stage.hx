@@ -97,14 +97,12 @@ class Stage extends FlxTypedGroup<FlxBasic>
 			}
 		}
 
-		if (Paths.exists(Paths.json('stages/$curStage')))
-			stageData = loadFromJson(Paths.json('stages/$curStage'));
-		else
+		if (!Paths.exists(Paths.json('stages/$curStage')))
 		{
 			trace('stage $curStage not found, revert to default stage');
 			curStage = 'stage';
-			stageData = loadFromJson(Paths.json('stages/$curStage'));
 		}
+		stageData = loadFromJson(curStage);
 
 		PlayState.curStage = curStage;
 		PlayState.defaultCamZoom = stageData.defaultZoom;
@@ -565,6 +563,6 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 	public static function loadFromJson(path:String):StageFile
 	{
-		return cast CoolUtil.readJson(path);
+		return cast CoolUtil.readJson(Paths.json('stages/$path'));
 	}
 }

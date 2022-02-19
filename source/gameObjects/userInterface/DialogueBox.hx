@@ -345,7 +345,6 @@ class DialogueBox extends FlxSpriteGroup
 		return cast CoolUtil.readJson(path);
 	}
 
-	// dont ask me why there is the same code twice
 	public static function loadCharacterFromJson(path:String):DialogueCharacter
 	{
 		return cast CoolUtil.readJson(path);

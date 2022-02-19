@@ -33,7 +33,9 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.geom.ColorTransform;
 import openfl.net.FileReference;
+#if !html5
 import sys.FileSystem;
+#end
 
 using StringTools;
 
@@ -279,7 +281,7 @@ class ChartingState extends MusicBeatState
 
 		var loadAutosaveBtn:FlxButton = new FlxButton(reloadSongJson.x, reloadSongJson.y + 30, 'Load Autosave', function()
 		{
-			PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
+			PlayState.SONG = Song.loadFromJson(FlxG.save.data.autosave);
 			Main.resetState();
 		});
 
@@ -296,7 +298,7 @@ class ChartingState extends MusicBeatState
 
 		#if MODS_ALLOWED
 		// check for modded characters
-		// for root mods folder
+		// for root mods directory
 		var path:String = ModManager.modStr('characters');
 		if (FileSystem.isDirectory(path))
 		{
@@ -311,10 +313,10 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		// for mods folders
-		for (folder in ModManager.modsFolders)
+		// for mods directories
+		for (directory in ModManager.modsDirectories)
 		{
-			var path:String = ModManager.modStr(folder + '/characters');
+			var path:String = ModManager.modStr(directory + '/characters');
 			if (FileSystem.isDirectory(path))
 			{
 				for (char in FileSystem.readDirectory(path))
@@ -372,7 +374,7 @@ class ChartingState extends MusicBeatState
 
 		#if MODS_ALLOWED
 		// check for modded stages
-		// for root mods folder
+		// for root mods directory
 		var path:String = ModManager.modStr('stages');
 		if (FileSystem.isDirectory(path))
 		{
@@ -387,10 +389,10 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		// for mods folders
-		for (folder in ModManager.modsFolders)
+		// for mods directories
+		for (directory in ModManager.modsDirectories)
 		{
-			var path:String = ModManager.modStr(folder + '/stages');
+			var path:String = ModManager.modStr(directory + '/stages');
 			if (FileSystem.isDirectory(path))
 			{
 				for (stage in FileSystem.readDirectory(path))

@@ -15,7 +15,9 @@ import meta.data.Timings;
 import meta.data.Week.WeekFile;
 import meta.data.Week;
 import meta.state.PlayState;
+#if !html5
 import sys.FileSystem;
+#end
 
 using StringTools;
 

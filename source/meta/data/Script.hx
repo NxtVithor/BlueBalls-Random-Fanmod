@@ -89,7 +89,7 @@ class Script
 		set('isStoryMode', PlayState.isStoryMode);
 		set('difficulty', PlayState.storyDifficulty);
 		set('weekRaw', PlayState.storyWeek);
-		set('week', Week.weeksNames[PlayState.storyWeek]);
+		set('week', Week.weekNames[PlayState.storyWeek]);
 		set('seenCutscene', PlayState.seenCutscene);
 
 		/*
