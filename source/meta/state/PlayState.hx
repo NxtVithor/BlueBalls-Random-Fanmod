@@ -455,14 +455,16 @@ class PlayState extends MusicBeatState
 		// for global scripts
 		var scripts:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('scripts'));
 		for (script in FileSystem.readDirectory(path))
-			scripts.push('$path/$script');
+			if (script.endsWith('.lua'))
+				scripts.push('$path/$script');
 		#if MODS_ALLOWED
 		// for root mods directory
 		path = ModManager.modStr('scripts');
 		if (FileSystem.isDirectory(path))
 		{
 			for (script in FileSystem.readDirectory(path))
-				scripts.push('$path/$script');
+				if (script.endsWith('.lua'))
+					scripts.push('$path/$script');
 		}
 		// for active mods directory
 		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
@@ -471,13 +473,13 @@ class PlayState extends MusicBeatState
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))
-					scripts.push('$path/$script');
+					if (script.endsWith('.lua'))
+						scripts.push('$path/$script');
 			}
 		}
 		#end
 		for (script in scripts)
-			if (script.endsWith('.lua'))
-				luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
+			luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
 
 		// for the stage script
 		path = '';
