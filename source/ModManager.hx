@@ -64,7 +64,7 @@ class ModManager
 			for (i in 0...rawModsList.length)
 			{
 				var data:Array<String> = parseModFromList(i);
-				modsList[i] = [data[0], data[1] == '1'];
+				modsList.push([data[0], data[1] == '1']);
 				if (!ignoredDirectories.contains(data[0].toLowerCase()) && data[1] != '1')
 					ignoredDirectories.push(data[0]);
 			}
