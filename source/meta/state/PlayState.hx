@@ -256,6 +256,8 @@ class PlayState extends MusicBeatState
 		FlxCamera.defaultCameras = [camGame];
 		allUIs.push(camHUD);
 
+		camZooming = !isTutorial;
+
 		persistentUpdate = persistentDraw = true;
 
 		// default song
@@ -1278,27 +1280,9 @@ class PlayState extends MusicBeatState
 				coolNote.isSustainNote
 			]);
 
-			camZooming = !coolNote.mustPress && !isTutorial;
-
 			var daSection:SwagSection = SONG.notes[Math.floor(curStep / 16)];
-			if (!Init.trueSettings.get('No Camera Note Movement') && daSection != null && coolNote.mustPress == daSection.mustHitSection)
-			{
-				camDisplaceX = 0;
-				camDisplaceY = 0;
-
-				var camDisplaceExtend:Float = 15;
-				switch (coolNote.noteData)
-				{
-					case 0:
-						camDisplaceX = -camDisplaceExtend;
-					case 1:
-						camDisplaceY = camDisplaceExtend;
-					case 2:
-						camDisplaceY = -camDisplaceExtend;
-					case 3:
-						camDisplaceX = camDisplaceExtend;
-				}
-			}
+			if (daSection != null && coolNote.mustPress == daSection.mustHitSection)
+				camDisplace(coolNote.noteData);
 
 			// special thanks to sam, they gave me the original system which kinda inspired my idea for this new one
 			if (canDisplayJudgement)
@@ -1354,7 +1338,10 @@ class PlayState extends MusicBeatState
 		if (playSound)
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 		if (includeAnimation)
+		{
+			camDisplace(direction);
 			character.playAnim('sing' + UIStaticArrow.getArrowFromNumber(direction).toUpperCase() + 'miss', lockMiss);
+		}
 		decreaseCombo(popMiss);
 	}
 
@@ -1423,6 +1410,28 @@ class PlayState extends MusicBeatState
 					if (coolNote.canBeHit && coolNote.mustPress && coolNote.isSustainNote && holdControls[coolNote.noteData])
 						goodNoteHit(coolNote, char, strumline);
 				});
+			}
+		}
+	}
+
+	function camDisplace(direction:Int)
+	{
+		if (!Init.trueSettings.get('No Camera Note Movement'))
+		{
+			camDisplaceX = 0;
+			camDisplaceY = 0;
+
+			var camDisplaceExtend:Float = 15;
+			switch (direction)
+			{
+				case 0:
+					camDisplaceX = -camDisplaceExtend;
+				case 1:
+					camDisplaceY = camDisplaceExtend;
+				case 2:
+					camDisplaceY = -camDisplaceExtend;
+				case 3:
+					camDisplaceX = camDisplaceExtend;
 			}
 		}
 	}
@@ -1834,7 +1843,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if (!isTutorial && FlxG.camera.zoom < 1.35 && !Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0)
+		if (camZooming && FlxG.camera.zoom < 1.35 && !Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0)
 		{
 			FlxG.camera.zoom += 0.03;
 			for (hud in allUIs)
@@ -1915,7 +1924,6 @@ class PlayState extends MusicBeatState
 		endingSong = true;
 		seenCutscene = false;
 		canPause = false;
-		camZooming = false;
 
 		#if LUA_ALLOWED
 		var ret:Dynamic = callOnLuas('onEndSong', []);

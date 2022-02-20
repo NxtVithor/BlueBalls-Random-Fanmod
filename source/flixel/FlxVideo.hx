@@ -1,5 +1,6 @@
 package flixel;
 
+#if VIDEOS_ALLOWED
 #if web
 import openfl.net.NetConnection;
 import openfl.net.NetStream;
@@ -8,6 +9,7 @@ import openfl.media.Video;
 #else
 import openfl.events.Event;
 import vlc.VlcBitmap;
+#end
 #end
 import flixel.FlxBasic;
 import flixel.FlxG;
