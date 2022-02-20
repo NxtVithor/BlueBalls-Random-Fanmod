@@ -2123,6 +2123,8 @@ class PlayState extends MusicBeatState
 			if (callback != null)
 				callback();
 		};
+		#else
+		callback();
 		#end
 	}
 
