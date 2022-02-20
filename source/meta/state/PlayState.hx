@@ -1431,16 +1431,20 @@ class PlayState extends MusicBeatState
 	{
 		if (!paused)
 			updateRPC(false);
+		#if VIDEOS_ALLOWED
 		if (video != null)
 			video.onFocus();
+		#end
 		super.onFocus();
 	}
 
 	override public function onFocusLost()
 	{
 		updateRPC(true);
+		#if VIDEOS_ALLOWED
 		if (video != null)
 			video.onFocusLost();
+		#end
 		super.onFocusLost();
 	}
 
@@ -2103,6 +2107,7 @@ class PlayState extends MusicBeatState
 
 	public function startVideo(path:String, ?callback)
 	{
+		#if VIDEOS_ALLOWED
 		inCutscene = true;
 
 		var bg:FlxSprite = new FlxSprite(-FlxG.width, -FlxG.height).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
@@ -2118,6 +2123,7 @@ class PlayState extends MusicBeatState
 			if (callback != null)
 				callback();
 		};
+		#end
 	}
 
 	public function callTextbox(?dialogPath:String, ?music:Sound)
