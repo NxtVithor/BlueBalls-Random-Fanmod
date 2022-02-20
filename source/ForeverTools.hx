@@ -30,16 +30,21 @@ class ForeverTools
 	public static function returnSkinAsset(asset:String, assetModifier:String = 'base', changeableSkin:String = 'default', baseLibrary:String,
 			?defaultChangeableSkin:String = 'default', ?defaultBaseAsset:String = 'base'):String
 	{
-		var realAsset = '$baseLibrary/$changeableSkin/$assetModifier/$asset';
-		if (!Paths.exists(Paths.getPath('images/' + realAsset + '.png', IMAGE)))
+		var realAsset = '$baseLibrary/$asset';
+		var failedShit = function()
 		{
-			realAsset = '$baseLibrary/$defaultChangeableSkin/$assetModifier/$asset';
-			if (!Paths.exists(Paths.getPath('images/' + realAsset + '.png', IMAGE)))
-				realAsset = '$baseLibrary/$defaultChangeableSkin/$defaultBaseAsset/$asset';
-			else
-				realAsset = '$baseLibrary/$asset';
+			return !Paths.exists(Paths.getPath('images/' + realAsset + '.png', IMAGE));
 		}
-
+		if (failedShit())
+		{
+			realAsset = '$baseLibrary/$changeableSkin/$assetModifier/$asset';
+			if (failedShit())
+			{
+				realAsset = '$baseLibrary/$defaultChangeableSkin/$assetModifier/$asset';
+				if (failedShit())
+					realAsset = '$baseLibrary/$defaultChangeableSkin/$defaultBaseAsset/$asset';
+			}
+		}
 		return realAsset;
 	}
 

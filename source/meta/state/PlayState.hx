@@ -136,10 +136,10 @@ class PlayState extends MusicBeatState
 	var previousFrameTime:Int = 0;
 	var songTime:Float = 0;
 
-	public static var camHUD:FlxCamera;
-	public static var camGame:FlxCamera;
-	public static var camOther:FlxCamera;
-	public static var dialogueHUD:FlxCamera;
+	public var camHUD:FlxCamera;
+	public var camGame:FlxCamera;
+	public var camOther:FlxCamera;
+	public var dialogueHUD:FlxCamera;
 
 	// used by tutorial
 	var cameraTwn:FlxTween;
@@ -165,14 +165,14 @@ class PlayState extends MusicBeatState
 
 	private var luaDebugGroup:FlxTypedGroup<DebugLuaText>;
 
-	public var camDisplaceX:Float = 0;
-	public var camDisplaceY:Float = 0; // might not use depending on result
+	var camDisplaceX:Float = 0;
+	var camDisplaceY:Float = 0; // might not use depending on result
 
 	public static var cameraSpeed:Float = 1;
 
 	public static var defaultCamZoom:Float = 1.05;
 
-	public static var forceZoom:Array<Float> = [0, 0, 0, 0];
+	public var forceZoom:Array<Float> = [0, 0, 0, 0];
 
 	public static var songScore:Int = 0;
 
@@ -188,7 +188,7 @@ class PlayState extends MusicBeatState
 
 	public var stageBuild:Stage;
 
-	public static var uiHUD:ClassHUD;
+	public var uiHUD:ClassHUD;
 
 	public static var daPixelZoom:Float = 6;
 	public static var determinedChartType:String = "";
@@ -197,9 +197,9 @@ class PlayState extends MusicBeatState
 	public var cpuStrums:Strumline;
 	public var playerStrums:Strumline;
 
-	public static var strumLineNotes:FlxTypedGroup<UIStaticArrow>;
-	public static var strumLines:FlxTypedGroup<Strumline>;
-	public static var strumHUD:Array<FlxCamera> = [];
+	public var strumLineNotes:FlxTypedGroup<UIStaticArrow>;
+	public var strumLines:FlxTypedGroup<Strumline>;
+	public var strumHUD:Array<FlxCamera> = [];
 
 	private var allUIs:Array<FlxCamera> = [];
 
@@ -221,10 +221,9 @@ class PlayState extends MusicBeatState
 	{
 		super.create();
 
-		// for script shit bruh
 		instance = this;
 
-		// reset any values and variables that are static
+		// reset any variables that are static
 		songScore = 0;
 		combo = 0;
 		health = 1;
@@ -311,7 +310,9 @@ class PlayState extends MusicBeatState
 		dadOpponent = new Character(DAD_X, DAD_Y, SONG.player2);
 		boyfriend = new Boyfriend(BF_X, BF_Y, SONG.player1);
 
-		var camPos:FlxPoint = new FlxPoint(gf.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+		var camPos:FlxPoint = new FlxPoint(gf.getGraphicMidpoint().x, gf.getGraphicMidpoint().y);
+		camPos.x += gf.cameraPosition[0];
+		camPos.y += gf.cameraPosition[1];
 
 		stageBuild.repositionPlayers(curStage, boyfriend, dadOpponent, gf);
 		stageBuild.dadPosition(curStage, boyfriend, dadOpponent, gf, camPos);
@@ -456,9 +457,9 @@ class PlayState extends MusicBeatState
 
 		#if LUA_ALLOWED
 		// lua shit
-		var path:String = ModManager.modStr('scripts');
+		var path:String = Paths.getPreloadPath('scripts');
 		// for global scripts
-		var scripts:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('scripts'));
+		var scripts:Array<String> = FileSystem.readDirectory(path);
 		for (script in FileSystem.readDirectory(path))
 			if (script.endsWith('.lua'))
 				scripts.push('$path/$script');
@@ -974,19 +975,15 @@ class PlayState extends MusicBeatState
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
 			// camera stuffs
-			var easeNum = CoolUtil.boundTo(1 - elapsed * 5.125, 0, 1);
-
-			if (!isTutorial)
-			{
-				FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom + forceZoom[0], FlxG.camera.zoom, easeNum);
-				for (hud in allUIs)
-					hud.zoom = FlxMath.lerp(1 + forceZoom[1], hud.zoom, easeNum);
-			}
+			var easeLerp:Float = 0.95;
+			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom + forceZoom[0], FlxG.camera.zoom, easeLerp);
+			for (hud in allUIs)
+				hud.zoom = FlxMath.lerp(1 + forceZoom[1], hud.zoom, easeLerp);
 
 			// not even forcezoom anymore but still
-			FlxG.camera.angle = FlxMath.lerp(0 + forceZoom[2], FlxG.camera.angle, easeNum);
+			FlxG.camera.angle = FlxMath.lerp(0 + forceZoom[2], FlxG.camera.angle, easeLerp);
 			for (hud in allUIs)
-				hud.angle = FlxMath.lerp(0 + forceZoom[3], hud.angle, easeNum);
+				hud.angle = FlxMath.lerp(0 + forceZoom[3], hud.angle, easeLerp);
 
 			isTutorial = curSong.toLowerCase() == 'tutorial' && dadOpponent.curCharacter == 'gf';
 
@@ -1267,7 +1264,7 @@ class PlayState extends MusicBeatState
 			coolNote.wasGoodHit = true;
 			vocals.volume = 1;
 
-			camZooming = !coolNote.mustPress && !isTutorial;
+			camZooming = !isTutorial || !coolNote.mustPress;
 
 			characterPlayAnimation(coolNote, character);
 			var receptor:UIStaticArrow = characterStrums.receptors.members[coolNote.noteData];

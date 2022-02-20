@@ -30,8 +30,7 @@ class MainMenuState extends MusicBeatState
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
 
-	var optionShit:Array<String> = ['story mode', 'freeplay', 'options'];
-	var canSnap:Array<Float> = [];
+	var optionShit:Array<String> = ['story_mode', 'freeplay', #if MODS_ALLOWED 'mods', #end 'options'];
 
 	// the create 'state'
 	override function create()
@@ -53,20 +52,23 @@ class MainMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		// background
+		var scrollY:Float = 0.1;
+		var sizeMult:Float = 1.1;
+
 		bg = new FlxSprite(-85);
 		bg.loadGraphic(Paths.image('menus/base/menuBG'));
 		bg.scrollFactor.x = 0;
-		bg.scrollFactor.y = 0.18;
-		bg.setGraphicSize(Std.int(bg.width * 1.1));
+		bg.scrollFactor.y = scrollY;
+		bg.setGraphicSize(Std.int(bg.width * sizeMult));
 		bg.updateHitbox();
 		bg.screenCenter();
 		bg.antialiasing = true;
 		add(bg);
 
-		magenta = new FlxSprite(-85).loadGraphic(Paths.image('menus/base/menuDesat'));
+		magenta = new FlxSprite(bg.x).loadGraphic(Paths.image('menus/base/menuDesat'));
 		magenta.scrollFactor.x = 0;
-		magenta.scrollFactor.y = 0.18;
-		magenta.setGraphicSize(Std.int(magenta.width * 1.1));
+		magenta.scrollFactor.y = scrollY;
+		magenta.setGraphicSize(Std.int(magenta.width * sizeMult));
 		magenta.updateHitbox();
 		magenta.screenCenter();
 		magenta.visible = false;
@@ -83,49 +85,36 @@ class MainMenuState extends MusicBeatState
 		add(menuItems);
 
 		// create the menu items themselves
-		var tex = Paths.getSparrowAtlas('menus/base/title/FNF_main_menu_assets');
-
 		// loop through the menu options
 		for (i in 0...optionShit.length)
 		{
-			var menuItem:FlxSprite = new FlxSprite(0, 80 + (i * 200));
-			menuItem.frames = tex;
-			// add the animations in a cool way (real
+			var menuItem:FlxSprite = new FlxSprite(0, 80 + i * 160);
+			menuItem.frames = Paths.getSparrowAtlas('menus/base/mainmenu/menu_' + optionShit[i]);
+			// add the animations in a cool way
 			menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
 			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
 			menuItem.animation.play('idle');
-			canSnap[i] = -1;
 			// set the id
 			menuItem.ID = i;
 			// menuItem.alpha = 0;
 
 			// placements
 			menuItem.screenCenter(X);
-			// if the id is divisible by 2
-			if (menuItem.ID % 2 == 0)
-				menuItem.x += 1000;
-			else
-				menuItem.x -= 1000;
+			var addX:Int = 1000;
+			if (menuItem.ID % 2 != 0)
+				addX = -addX;
+			menuItem.x += addX;
 
 			// actually add the item
 			menuItems.add(menuItem);
 			menuItem.scrollFactor.set();
 			menuItem.antialiasing = true;
 			menuItem.updateHitbox();
-
-			/*
-				FlxTween.tween(menuItem, {alpha: 1, x: FlxG.width / 2 - menuItem.width / 2}, 0.35, {
-					ease: FlxEase.smootherStepInOut,
-					onComplete: function(tween:FlxTween)
-					{
-						canSnap[i] = 0;
-					}
-			});*/
 		}
 
 		// set the camera to actually follow the camera object that was created before
 		var camLerp = Main.framerateAdjust(0.10);
-		FlxG.camera.follow(camFollow, null, camLerp);
+		FlxG.camera.follow(camFollow, LOCKON, camLerp);
 
 		updateSelection();
 
@@ -137,16 +126,10 @@ class MainMenuState extends MusicBeatState
 		add(versionShit);
 	}
 
-	// var colorTest:Float = 0;
 	var selectedSomethin:Bool = false;
-
-	// var counterControl:Float = 0;
 
 	override function update(elapsed:Float)
 	{
-		// colorTest += 0.125;
-		// bg.color = FlxColor.fromHSB(colorTest, 100, 100, 0.5);
-
 		var up = controls.UI_UP;
 		var down = controls.UI_DOWN;
 		var up_p = controls.UI_UP_P;
@@ -172,26 +155,6 @@ class MainMenuState extends MusicBeatState
 
 						FlxG.sound.play(Paths.sound('scrollMenu'));
 					}
-					/* idk something about it isn't working yet I'll rewrite it later
-						else
-						{
-							// paaaaaaaiiiiiiiinnnn
-							var curDir:Int = 0;
-							if (i == 0)
-								curDir = -1;
-							else if (i == 1)
-								curDir = 1;
-
-							if (counterControl < 2)
-								counterControl += 0.05;
-
-							if (counterControl >= 1)
-							{
-								curSelected += (curDir * (counterControl / 24));
-								if (curSelected % 1 == 0)
-									FlxG.sound.play(Paths.sound('scrollMenu'));
-							}
-					}*/
 
 					if (curSelected < 0)
 						curSelected = optionShit.length - 1;
@@ -200,8 +163,6 @@ class MainMenuState extends MusicBeatState
 				}
 			}
 		}
-		// else
-		// 	counterControl = 0;
 
 		if (controls.ACCEPT && !selectedSomethin)
 		{
@@ -226,14 +187,14 @@ class MainMenuState extends MusicBeatState
 				{
 					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
 					{
-						var daChoice:String = optionShit[Math.floor(curSelected)];
-
-						switch (daChoice)
+						switch (optionShit[Math.floor(curSelected)])
 						{
-							case 'story mode':
+							case 'story_mode':
 								Main.switchState(new StoryMenuState());
 							case 'freeplay':
 								Main.switchState(new FreeplayState());
+							case 'mods':
+								Main.switchState(new ModsMenuState());
 							case 'options':
 								transIn = FlxTransitionableState.defaultTransIn;
 								transOut = FlxTransitionableState.defaultTransOut;

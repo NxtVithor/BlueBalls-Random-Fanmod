@@ -7,7 +7,6 @@ import flixel.effects.FlxFlicker;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
 import gameObjects.userInterface.menu.Checkmark;
 import gameObjects.userInterface.menu.Selector;
 import meta.MusicBeat.MusicBeatState;
@@ -145,7 +144,6 @@ class OptionsMenuState extends MusicBeatState
 
 		// re-add
 		add(infoText);
-		regenInfoText();
 
 		// reset the selection
 		if (subgroupName == 'main')
@@ -218,9 +216,6 @@ class OptionsMenuState extends MusicBeatState
 	}
 
 	var infoText:FlxText;
-	var finalText:String;
-	var textValue:String = '';
-	var infoTimer:FlxTimer;
 
 	override public function update(elapsed:Float)
 	{
@@ -245,26 +240,8 @@ class OptionsMenuState extends MusicBeatState
 			if (textValue == null)
 				textValue = "";
 
-			if (finalText != textValue)
-			{
-				// trace('call??');
-				// trace(textValue);
-				regenInfoText();
-
-				var textSplit = [];
-				finalText = textValue;
-				textSplit = finalText.split("");
-
-				var loopTimes = 0;
-				infoTimer = new FlxTimer().start(0.025, function(tmr:FlxTimer)
-				{
-					//
-					infoText.text += textSplit[loopTimes];
-					infoText.screenCenter(X);
-
-					loopTimes++;
-				}, textSplit.length);
-			}
+			infoText.text = textValue;
+			infoText.screenCenter(X);
 		}
 
 		// move the attachments if there are any
@@ -286,14 +263,6 @@ class OptionsMenuState extends MusicBeatState
 			else
 				Main.switchState(new MainMenuState());
 		}
-	}
-
-	private function regenInfoText()
-	{
-		if (infoTimer != null)
-			infoTimer.cancel();
-		if (infoText != null)
-			infoText.text = "";
 	}
 
 	function updateSelections()

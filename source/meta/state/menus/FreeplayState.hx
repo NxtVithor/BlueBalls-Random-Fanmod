@@ -51,8 +51,8 @@ class FreeplayState extends MusicBeatState
 	private var mainColor = FlxColor.WHITE;
 	private var bg:FlxSprite;
 	private var scoreBG:FlxSprite;
+	private var bgColorTween:FlxTween;
 
-	private var existingSongs:Array<String> = [];
 	private var existingDifficulties:Array<Array<String>> = [];
 
 	override function create()
@@ -62,12 +62,9 @@ class FreeplayState extends MusicBeatState
 		// reload weeks list
 		Week.loadWeeks();
 
-		// load songs from week data
+		// load songs metadata from week data
 		for (i in 0...Week.loadedWeeks.length)
-		{
-			Week.setDirectoryFromWeek(Week.loadedWeeks[i]);
 			addWeek(Week.loadedWeeks[i], i);
-		}
 
 		mutex = new Mutex();
 
@@ -83,6 +80,8 @@ class FreeplayState extends MusicBeatState
 
 		for (i in 0...songs.length)
 		{
+			ModManager.currentModDirectory = songs[i].directory;
+
 			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].songName, true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
@@ -121,6 +120,8 @@ class FreeplayState extends MusicBeatState
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, songColor:FlxColor)
 	{
+		Week.setDirectoryFromWeek(Week.loadedWeeks[weekNum]);
+
 		var coolDifficultyArray = [];
 		for (i in CoolUtil.difficulties)
 		{
@@ -131,7 +132,7 @@ class FreeplayState extends MusicBeatState
 
 		if (coolDifficultyArray.length > 0)
 		{
-			songs.push(new SongMetadata(songName, weekNum, songCharacter, songColor));
+			songs.push(new SongMetadata(songName, weekNum, songCharacter, songColor, ModManager.currentModDirectory));
 			existingDifficulties.push(coolDifficultyArray);
 		}
 	}
@@ -157,7 +158,7 @@ class FreeplayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		FlxTween.color(bg, 0.35, bg.color, mainColor);
+		bgColorTween = FlxTween.color(bg, 0.35, bg.color, mainColor);
 
 		var lerpVal = Main.framerateAdjust(0.1);
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, lerpVal));
@@ -268,8 +269,6 @@ class FreeplayState extends MusicBeatState
 		// set up color stuffs
 		mainColor = songs[curSelected].color;
 
-		// song switching stuffs
-
 		var bullShit:Int = 0;
 
 		for (i in 0...iconArray.length)
@@ -285,13 +284,9 @@ class FreeplayState extends MusicBeatState
 			bullShit++;
 
 			item.alpha = 0.6;
-			// item.setGraphicSize(Std.int(item.width * 0.8));
 
 			if (item.targetY == 0)
-			{
 				item.alpha = 1;
-				// item.setGraphicSize(Std.int(item.width));
-			}
 		}
 
 		changeDiff();
@@ -316,8 +311,8 @@ class FreeplayState extends MusicBeatState
 
 							curSongPlaying = curSelected;
 						}
-						else
-							trace("Skipping " + index);
+						// else
+						// 	trace("Skipping " + index);
 					}
 				}
 			});
@@ -335,14 +330,13 @@ class SongMetadata
 	public var color:Int = -7179779;
 	public var directory:String = "";
 
-	public function new(song:String, week:Int, songCharacter:String, color:Int)
+	public function new(song:String, week:Int, songCharacter:String, color:Int, ?directory:String)
 	{
 		this.songName = song;
 		this.week = week;
 		this.songCharacter = songCharacter;
 		this.color = color;
-		this.directory = ModManager.currentModDirectory;
-		if (this.directory == null)
-			this.directory = '';
+		if (directory != null)
+			this.directory = directory;
 	}
 }

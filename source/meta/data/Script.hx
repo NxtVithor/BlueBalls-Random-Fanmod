@@ -15,6 +15,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import gameObjects.userInterface.ClassHUD;
 import gameObjects.userInterface.notes.Strumline.UIStaticArrow;
 import gameObjects.userInterface.notes.Strumline;
 import meta.data.dependency.Discord;
@@ -211,7 +212,7 @@ class Script
 		Lua_helper.add_callback(lua, "getProperty", function(variable:String)
 		{
 			var killMe:Array<String> = variable.split('.');
-			killMe = compatilityStuff(killMe);
+			killMe = compatibilityStuff(killMe, true);
 			if (killMe.length > 1)
 			{
 				return Reflect.getProperty(getPropertyLoopThingWhatever(killMe), killMe[killMe.length - 1]);
@@ -221,7 +222,7 @@ class Script
 		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic)
 		{
 			var killMe:Array<String> = variable.split('.');
-			killMe = compatilityStuff(killMe);
+			killMe = compatibilityStuff(killMe, true);
 			if (killMe.length > 1)
 			{
 				return Reflect.setProperty(getPropertyLoopThingWhatever(killMe), killMe[killMe.length - 1], value);
@@ -284,7 +285,7 @@ class Script
 		Lua_helper.add_callback(lua, "getPropertyFromClass", function(classVar:String, variable:String)
 		{
 			var killMe:Array<String> = variable.split('.');
-			killMe = compatilityStuff(killMe);
+			killMe = compatibilityStuff(killMe);
 			if (killMe.length > 1)
 			{
 				var coverMeInPiss:Dynamic = Reflect.getProperty(Type.resolveClass(classVar), killMe[0]);
@@ -299,6 +300,7 @@ class Script
 		Lua_helper.add_callback(lua, "setPropertyFromClass", function(classVar:String, variable:String, value:Dynamic)
 		{
 			var killMe:Array<String> = variable.split('.');
+			killMe = compatibilityStuff(killMe);
 			if (killMe.length > 1)
 			{
 				var coverMeInPiss:Dynamic = Reflect.getProperty(Type.resolveClass(classVar), killMe[0]);
@@ -666,32 +668,32 @@ class Script
 		Lua_helper.add_callback(lua, "addScore", function(value:Int = 0)
 		{
 			PlayState.songScore += value;
-			PlayState.uiHUD.updateScoreText();
+			PlayState.instance.uiHUD.updateScoreText();
 		});
 		Lua_helper.add_callback(lua, "addMisses", function(value:Int = 0)
 		{
 			PlayState.misses += value;
-			PlayState.uiHUD.updateScoreText();
+			PlayState.instance.uiHUD.updateScoreText();
 		});
 		Lua_helper.add_callback(lua, "addHits", function(value:Int = 0)
 		{
 			PlayState.songHits += value;
-			PlayState.uiHUD.updateScoreText();
+			PlayState.instance.uiHUD.updateScoreText();
 		});
 		Lua_helper.add_callback(lua, "setScore", function(value:Int = 0)
 		{
 			PlayState.songScore = value;
-			PlayState.uiHUD.updateScoreText();
+			PlayState.instance.uiHUD.updateScoreText();
 		});
 		Lua_helper.add_callback(lua, "setMisses", function(value:Int = 0)
 		{
 			PlayState.misses = value;
-			PlayState.uiHUD.updateScoreText();
+			PlayState.instance.uiHUD.updateScoreText();
 		});
 		Lua_helper.add_callback(lua, "setHits", function(value:Int = 0)
 		{
 			PlayState.songHits = value;
-			PlayState.uiHUD.updateScoreText();
+			PlayState.instance.uiHUD.updateScoreText();
 		});
 
 		Lua_helper.add_callback(lua, "setHealth", function(value:Float = 0)
@@ -1094,7 +1096,8 @@ class Script
 				var shit:ModchartSprite = PlayState.instance.modchartSprites.get(tag);
 				if (!shit.wasAdded)
 				{
-					if (front) {
+					if (front)
+					{
 						getInstance().add(shit);
 					}
 					else
@@ -2002,7 +2005,7 @@ class Script
 		return Function_Continue;
 	}
 
-	function resultIsAllowed(leLua:State, leResult:Null<Int>)
+	static function resultIsAllowed(leLua:State, leResult:Null<Int>)
 	{
 		switch (Lua.type(leLua, leResult))
 		{
@@ -2018,24 +2021,21 @@ class Script
 		if (ignoreCheck || getBool('luaDebugMode'))
 		{
 			if (deprecated && !getBool('luaDeprecatedWarnings'))
-			{
 				return;
-			}
-			// PlayState.instance.addTextToDebug(text);
+			PlayState.instance.addTextToDebug(text);
 			trace(text);
 		}
 		#end
 	}
 
-	inline function getTextObject(name:String):FlxText
+	inline static function getTextObject(name:String):FlxText
 	{
 		return PlayState.instance.modchartTexts.exists(name) ? PlayState.instance.modchartTexts.get(name) : Reflect.getProperty(PlayState.instance, name);
 	}
 
-	function getGroupStuff(leArray:Dynamic, variable:String)
+	static function getGroupStuff(leArray:Dynamic, variable:String)
 	{
 		var killMe:Array<String> = variable.split('.');
-		killMe = compatilityStuff(killMe);
 		if (killMe.length > 1)
 		{
 			var coverMeInPiss:Dynamic = Reflect.getProperty(leArray, killMe[0]);
@@ -2048,7 +2048,7 @@ class Script
 		return Reflect.getProperty(leArray, variable);
 	}
 
-	function loadFrames(spr:FlxSprite, image:String, spriteType:String)
+	static function loadFrames(spr:FlxSprite, image:String, spriteType:String)
 	{
 		switch (spriteType.toLowerCase().trim())
 		{
@@ -2060,8 +2060,8 @@ class Script
 		}
 	}
 
-	// what if im a average psych lua coder
-	function compatilityStuff(killMe:Array<String>)
+	// why im a average psych lua coder sometimes
+	static function compatibilityStuff(killMe:Array<String>, ?fixNullShit:Bool = false)
 	{
 		switch (killMe[0])
 		{
@@ -2072,10 +2072,19 @@ class Script
 					killMe.insert(2, 'members');
 				}
 		}
+
+		if (fixNullShit && !PlayState.instance.isDead)
+		{
+			if (Reflect.getProperty(PlayState.instance.stageBuild, killMe[0]) != null)
+				killMe.insert(0, 'stageBuild');
+			else if (Reflect.getProperty(PlayState.instance.uiHUD, killMe[0]) != null)
+				killMe.insert(0, 'uiHUD');
+		}
+
 		return killMe;
 	}
 
-	function setGroupStuff(leArray:Dynamic, variable:String, value:Dynamic)
+	static function setGroupStuff(leArray:Dynamic, variable:String, value:Dynamic)
 	{
 		var killMe:Array<String> = variable.split('.');
 		if (killMe.length > 1)
@@ -2091,7 +2100,7 @@ class Script
 		Reflect.setProperty(leArray, variable, value);
 	}
 
-	function resetTextTag(tag:String)
+	static function resetTextTag(tag:String)
 	{
 		if (!PlayState.instance.modchartTexts.exists(tag))
 		{
@@ -2108,7 +2117,7 @@ class Script
 		PlayState.instance.modchartTexts.remove(tag);
 	}
 
-	function resetSpriteTag(tag:String)
+	static function resetSpriteTag(tag:String)
 	{
 		if (!PlayState.instance.modchartSprites.exists(tag))
 		{
@@ -2125,7 +2134,7 @@ class Script
 		PlayState.instance.modchartSprites.remove(tag);
 	}
 
-	function cancelTween(tag:String)
+	static function cancelTween(tag:String)
 	{
 		if (PlayState.instance.modchartTweens.exists(tag))
 		{
@@ -2135,7 +2144,7 @@ class Script
 		}
 	}
 
-	function tweenShit(tag:String, vars:String)
+	static function tweenShit(tag:String, vars:String)
 	{
 		cancelTween(tag);
 		var variables:Array<String> = vars.replace(' ', '').split('.');
@@ -2156,7 +2165,7 @@ class Script
 		return sexyProp;
 	}
 
-	function cancelTimer(tag:String)
+	static function cancelTimer(tag:String)
 	{
 		if (PlayState.instance.modchartTimers.exists(tag))
 		{
@@ -2168,7 +2177,7 @@ class Script
 	}
 
 	// Better optimized than using some getProperty shit or idk
-	function getFlxEaseByString(?ease:String = '')
+	static function getFlxEaseByString(?ease:String = '')
 	{
 		switch (ease.toLowerCase().trim())
 		{
@@ -2248,7 +2257,7 @@ class Script
 		return FlxEase.linear;
 	}
 
-	function blendModeFromString(blend:String):BlendMode
+	static function blendModeFromString(blend:String):BlendMode
 	{
 		switch (blend.toLowerCase().trim())
 		{
@@ -2284,20 +2293,20 @@ class Script
 		return NORMAL;
 	}
 
-	function cameraFromString(cam:String):FlxCamera
+	static function cameraFromString(cam:String):FlxCamera
 	{
 		switch (cam.toLowerCase())
 		{
 			case 'camhud' | 'hud':
-				return PlayState.camHUD;
+				return PlayState.instance.camHUD;
 			case 'camother' | 'other':
-				return PlayState.camOther;
+				return PlayState.instance.camOther;
 			default:
-				return PlayState.camGame;
+				return PlayState.instance.camGame;
 		}
 	}
 
-	function getPropertyLoopThingWhatever(killMe:Array<String>, ?checkForTextsToo:Bool = true):Dynamic
+	static function getPropertyLoopThingWhatever(killMe:Array<String>, ?checkForTextsToo:Bool = true):Dynamic
 	{
 		var coverMeInPiss:Dynamic = getObjectDirectly(killMe[0], checkForTextsToo);
 		for (i in 1...killMe.length - 1)
@@ -2307,7 +2316,7 @@ class Script
 		return coverMeInPiss;
 	}
 
-	function getObjectDirectly(objectName:String, ?checkForTextsToo:Bool = true):Dynamic
+	static function getObjectDirectly(objectName:String, ?checkForTextsToo:Bool = true):Dynamic
 	{
 		var coverMeInPiss:Dynamic = null;
 		if (PlayState.instance.modchartSprites.exists(objectName))
@@ -2334,7 +2343,7 @@ class Script
 		lua = null;
 	}
 
-	inline function getInstance()
+	inline static function getInstance()
 	{
 		return PlayState.instance.isDead ? GameOverSubstate.instance : PlayState.instance;
 	}
@@ -2376,7 +2385,7 @@ class ModchartText extends FlxText
 	{
 		super(x, y, width, text, 16);
 		setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		cameras = [PlayState.camHUD];
+		cameras = [PlayState.instance.camHUD];
 		scrollFactor.set();
 		borderSize = 2;
 	}

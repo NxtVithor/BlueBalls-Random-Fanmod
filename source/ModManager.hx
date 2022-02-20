@@ -16,6 +16,7 @@ class ModManager
 		'fonts',
 		'images',
 		'music',
+		'scripts',
 		'shaders',
 		'songs',
 		'sounds',

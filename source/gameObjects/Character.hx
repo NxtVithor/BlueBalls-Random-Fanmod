@@ -4,6 +4,7 @@ package gameObjects;
 	The character class initialises any and all characters that exist within gameplay. For now, the character class will
 	stay the same as it was in the original source of the game. I'll most likely make some changes afterwards though!
 **/
+import flixel.util.FlxColor;
 import meta.*;
 import meta.data.*;
 import meta.data.dependency.FNFSprite;
@@ -45,8 +46,6 @@ class Character extends FNFSprite
 
 	public var holdTimer:Float = 0;
 
-	public var charData:CharacterFile;
-
 	var danceIdle:Bool = false;
 
 	public var singDuration:Float = 4;
@@ -56,6 +55,8 @@ class Character extends FNFSprite
 
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
+
+	public var healthBarColor:FlxColor;
 
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
 	{
@@ -73,7 +74,7 @@ class Character extends FNFSprite
 			path = Paths.json('characters/bf');
 		}
 
-		charData = cast CoolUtil.readJson(path);
+		var charData:CharacterFile = cast CoolUtil.readJson(path);
 
 		if (Paths.exists(Paths.txt('images/${charData.image}')))
 			frames = Paths.getPackerAtlas(charData.image);
@@ -90,6 +91,8 @@ class Character extends FNFSprite
 		cameraPosition = charData.camera_position;
 
 		healthIcon = charData.healthicon;
+		healthBarColor = FlxColor.fromRGB(charData.healthbar_colors[0], charData.healthbar_colors[1], charData.healthbar_colors[2]);
+
 		singDuration = charData.sing_duration;
 		flipX = !!charData.flip_x;
 		antialiasing = !charData.no_antialiasing;

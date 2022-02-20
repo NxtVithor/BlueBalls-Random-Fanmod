@@ -38,7 +38,7 @@ class Timings
 		"F" => 65,
 	];
 
-	public static var ratingFinal:String = "F";
+	public static var ratingFinal:String = "?";
 	public static var notesHit:Int = 0;
 	public static var segmentsHit:Int = 0;
 	public static var comboDisplay:String = '';
@@ -115,7 +115,7 @@ class Timings
 			comboDisplay = judgementsMap.get(smallestRating)[4];
 
 		// this updates the most so uh
-		PlayState.uiHUD.updateScoreText();
+		PlayState.instance.uiHUD.updateScoreText();
 	}
 
 	public static function getAccuracy()
@@ -134,10 +134,5 @@ class Timings
 				ratingFinal = score;
 			}
 		}
-	}
-
-	public static function returnScoreRating()
-	{
-		return ratingFinal;
 	}
 }

@@ -28,18 +28,18 @@ using StringTools;
 class ClassHUD extends FlxTypedGroup<FlxBasic>
 {
 	// set up variables and stuff here
-	var infoBar:FlxText; // small side bar like kade engine that tells you engine info
-	var scoreBar:FlxText;
+	public var infoBar:FlxText; // small side bar like kade engine that tells you engine info
+	public var scoreBar:FlxText;
 
 	var scoreLast:Float = -1;
 
-	private var healthBarBG:FlxSprite;
-	private var healthBar:FlxBar;
+	public var healthBarBG:FlxSprite;
+	public var healthBar:FlxBar;
 
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
 
-	private var grpIcons:FlxTypedGroup<HealthIcon>;
+	public var grpIcons:FlxTypedGroup<HealthIcon>;
 
 	private var stupidHealth:Float = 0;
 
@@ -128,9 +128,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	public function reloadHealthBarColors()
 	{
-		var dadColors:Array<Int> = PlayState.instance.dadOpponent.charData.healthbar_colors;
-		var bfColors:Array<Int> = PlayState.instance.boyfriend.charData.healthbar_colors;
-		healthBar.createFilledBar(FlxColor.fromRGB(dadColors[0], dadColors[1], dadColors[2]), FlxColor.fromRGB(bfColors[0], bfColors[1], bfColors[2]));
+		healthBar.createFilledBar(PlayState.instance.dadOpponent.healthBarColor, PlayState.instance.boyfriend.healthBarColor);
 		healthBar.updateBar();
 	}
 
@@ -192,7 +190,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 				{
 					scoreBar.text += divider + 'Combo Breaks: ' + PlayState.misses;
 					scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
-					scoreBar.text += divider + Timings.returnScoreRating();
+					scoreBar.text += divider + Timings.ratingFinal;
 				}
 			}
 			else
