@@ -6,11 +6,9 @@ import sys.io.File;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import meta.MusicBeat.MusicBeatState;
-import meta.data.*;
 import meta.data.Alphabet;
 import meta.data.dependency.Discord;
 
@@ -70,8 +68,8 @@ class ModsMenuState extends MusicBeatState
 			grpModsText.add(songText);
 		}
 
-		infoText = new FlxText(5, FlxG.height - 24, 0, "", 32);
-		infoText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		infoText = new FlxText(5, 0, FlxG.width, "", 32);
+		infoText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		infoText.textField.background = true;
 		infoText.textField.backgroundColor = FlxColor.BLACK;
 		add(infoText);
@@ -118,7 +116,11 @@ class ModsMenuState extends MusicBeatState
 
 		// set text
 		infoText.text = mods[curSelected].description;
+
+		// set the position of text
 		infoText.screenCenter(X);
+		infoText.fieldWidth = 0;
+		infoText.y = FlxG.height - infoText.height - 24;
 
 		// set up color stuffs
 		mainColor = mods[curSelected].color;

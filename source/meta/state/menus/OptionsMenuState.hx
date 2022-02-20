@@ -101,7 +101,6 @@ class OptionsMenuState extends MusicBeatState
 		infoText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		infoText.textField.background = true;
 		infoText.textField.backgroundColor = FlxColor.BLACK;
-		add(infoText);
 
 		mainSelection = curSelection;
 
@@ -147,9 +146,13 @@ class OptionsMenuState extends MusicBeatState
 
 		// reset the selection
 		if (subgroupName == 'main')
+		{
+			infoText.visible = false;
 			curSelection = mainSelection;
+		}
 		else
 		{
+			infoText.visible = true;
 			mainSelection = curSelection;
 			curSelection = 0;
 		}
@@ -235,13 +238,12 @@ class OptionsMenuState extends MusicBeatState
 		if (Init.gameSettings.get(activeSubgroup.members[curSelection].text) != null)
 		{
 			// lol had to set this or else itd tell me expected }
-			var currentSetting = Init.gameSettings.get(activeSubgroup.members[curSelection].text);
-			var textValue = currentSetting[2];
-			if (textValue == null)
-				textValue = "";
-
-			infoText.text = textValue;
-			infoText.screenCenter(X);
+			var textValue:String = Init.gameSettings.get(activeSubgroup.members[curSelection].text)[2];
+			if (textValue != null)
+			{
+				infoText.text = textValue;
+				infoText.screenCenter(X);
+			}
 		}
 
 		// move the attachments if there are any
