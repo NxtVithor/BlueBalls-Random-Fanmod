@@ -1,5 +1,6 @@
 package gameObjects;
 
+import meta.subState.GameOverSubstate;
 import haxe.Exception;
 import sys.io.File;
 import haxe.Json;
@@ -367,6 +368,21 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 				// add to the final array
 				add(stageCurtains);
+		}
+
+		// custom gameover shit go here
+		switch (curStage.toLowerCase())
+		{
+			case 'school' | 'schoolEvil':
+				GameOverSubstate.characterName = 'bf-pixel-dead';
+				GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
+				GameOverSubstate.loopSoundName = 'gameOver-pixel';
+				GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
+			default:
+				GameOverSubstate.characterName = 'bf';
+				GameOverSubstate.deathSoundName = 'fnf_loss_sfx';
+				GameOverSubstate.loopSoundName = 'gameOver';
+				GameOverSubstate.endSoundName = 'gameOverEnd';
 		}
 	}
 

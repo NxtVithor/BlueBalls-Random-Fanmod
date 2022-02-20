@@ -148,6 +148,8 @@ class PlayState extends MusicBeatState
 
 	public var shaderUpdates:Array<Float->Void> = [];
 
+	public var shader_chromatic_abberation:ChromaticAberrationEffect;
+
 	// lua shit
 	public static var luaArray:Array<Script> = [];
 
@@ -157,7 +159,6 @@ class PlayState extends MusicBeatState
 	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
 	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
 	public var modchartTexts:Map<String, ModchartText> = new Map<String, ModchartText>();
-	public var shader_chromatic_abberation:ChromaticAberrationEffect;
 	public var camGameShaders:Array<ShaderEffect> = [];
 	public var camHUDShaders:Array<ShaderEffect> = [];
 	public var camOtherShaders:Array<ShaderEffect> = [];
@@ -450,25 +451,27 @@ class PlayState extends MusicBeatState
 
 		#if LUA_ALLOWED
 		// lua shit
-		var daPath:String = '';
+		var path:String = ModManager.modStr('scripts');
 		// for global scripts
 		var scripts:Array<String> = FileSystem.readDirectory(Paths.getPreloadPath('scripts'));
+		for (script in FileSystem.readDirectory(path))
+			scripts.push('$path/$script');
 		#if MODS_ALLOWED
 		// for root mods directory
-		var path:String = ModManager.modStr('scripts');
+		path = ModManager.modStr('scripts');
 		if (FileSystem.isDirectory(path))
 		{
 			for (script in FileSystem.readDirectory(path))
-				scripts.push(script);
+				scripts.push('$path/$script');
 		}
 		// for active mods directory
 		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
 		{
-			var path:String = ModManager.modStr(ModManager.currentModDirectory + '/scripts');
+			path = ModManager.modStr(ModManager.currentModDirectory + '/scripts');
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))
-					scripts.push(script);
+					scripts.push('$path/$script');
 			}
 		}
 		#end
@@ -477,9 +480,10 @@ class PlayState extends MusicBeatState
 				luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
 
 		// for the stage script
-		daPath = Paths.script('stages/$curStage');
-		if (Paths.exists(daPath))
-			luaArray.push(new Script(daPath));
+		path = '';
+		path = Paths.script('stages/$curStage');
+		if (Paths.exists(path))
+			luaArray.push(new Script(path));
 
 		// for the characters scripts
 		var charBase:String = 'characters';
@@ -493,9 +497,9 @@ class PlayState extends MusicBeatState
 				luaArray.push(new Script(script));
 
 		// for the song script
-		daPath = Paths.script('data/${curSong.toLowerCase()}/script');
-		if (Paths.exists(daPath))
-			luaArray.push(new Script(daPath));
+		path = Paths.script('data/${curSong.toLowerCase()}/script');
+		if (Paths.exists(path))
+			luaArray.push(new Script(path));
 		#end
 
 		keysArray = [

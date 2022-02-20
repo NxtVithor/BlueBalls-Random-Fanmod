@@ -20,6 +20,11 @@ class GameOverSubstate extends MusicBeatSubState
 
 	var stageSuffix:String = "";
 
+	public static var characterName:String = 'bf';
+	public static var deathSoundName:String = 'fnf_loss_sfx';
+	public static var loopSoundName:String = 'gameOver';
+	public static var endSoundName:String = 'gameOverEnd';
+
 	var camFollow:FlxPoint;
 	var camFollowPos:FlxObject;
 
