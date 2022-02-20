@@ -8,7 +8,8 @@ import meta.state.PlayState;
 **/
 class Timings
 {
-	//
+	public static var skipCalculations:Bool = false;
+
 	public static var accuracy:Float;
 	public static var trueAccuracy:Float;
 	public static var judgementRates:Array<Float>;
@@ -89,34 +90,32 @@ class Timings
 
 	public static function updateAccuracy(judgement:Int, ?isSustain:Bool = false, ?segmentCount:Int = 1)
 	{
-		if (!isSustain)
-		{
-			notesHit++;
-			accuracy += (Math.max(0, judgement));
-		}
-		else
-		{
-			accuracy += (Math.max(0, judgement) / segmentCount);
-		}
-		trueAccuracy = (accuracy / notesHit);
+		if (!skipCalculations) {
+			if (!isSustain)
+			{
+				notesHit++;
+				accuracy += (Math.max(0, judgement));
+			}
+			else
+			{
+				accuracy += (Math.max(0, judgement) / segmentCount);
+			}
+			trueAccuracy = (accuracy / notesHit);
 
-		updateFCDisplay();
-		updateScoreRating();
+			updateFCDisplay();
+			updateScoreRating();
+		}
 	}
 
 	public static function updateFCDisplay()
 	{
-		var ret:Dynamic = PlayState.instance.callOnLuas('onRecalculateRating', []);
-		if (ret != Script.Function_Stop)
-		{
-			// update combo display
-			comboDisplay = '';
-			if (judgementsMap.get(smallestRating)[4] != null)
-				comboDisplay = judgementsMap.get(smallestRating)[4];
+		// update combo display
+		comboDisplay = '';
+		if (judgementsMap.get(smallestRating)[4] != null)
+			comboDisplay = judgementsMap.get(smallestRating)[4];
 
-			// this updates the most so uh
-			PlayState.uiHUD.updateScoreText();
-		}
+		// this updates the most so uh
+		PlayState.uiHUD.updateScoreText();
 	}
 
 	public static function getAccuracy()

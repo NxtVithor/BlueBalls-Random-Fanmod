@@ -1,5 +1,6 @@
 package gameObjects.userInterface;
 
+import meta.data.Script;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -178,18 +179,25 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		PlayState.instance.setOnLuas('misses', PlayState.misses);
 		PlayState.instance.setOnLuas('hits', PlayState.songHits);
 
-		if (!PlayState.cpuControlled)
+		var ret:Dynamic = PlayState.instance.callOnLuas('onRecalculateRating', []);
+
+		Timings.skipCalculations = ret != Script.Function_Stop && !PlayState.cpuControlled;
+
+		if (ret != Script.Function_Stop)
 		{
-			scoreBar.text = 'Score: ' + PlayState.songScore;
-			if (Init.trueSettings.get('Display Accuracy'))
+			if (!PlayState.cpuControlled)
 			{
-				scoreBar.text += divider + 'Combo Breaks: ' + PlayState.misses;
-				scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
-				scoreBar.text += divider + Timings.returnScoreRating();
+				scoreBar.text = 'Score: ' + PlayState.songScore;
+				if (Init.trueSettings.get('Display Accuracy'))
+				{
+					scoreBar.text += divider + 'Combo Breaks: ' + PlayState.misses;
+					scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
+					scoreBar.text += divider + Timings.returnScoreRating();
+				}
 			}
+			else
+				scoreBar.text = 'Botplay';
 		}
-		else
-			scoreBar.text = 'Botplay';
 
 		scoreBar.x = (FlxG.width / 2 - scoreBar.width / 2);
 

@@ -194,9 +194,10 @@ class PlayState extends MusicBeatState
 	public static var determinedChartType:String = "";
 
 	// strumlines
-	private var dadStrums:Strumline;
-	private var boyfriendStrums:Strumline;
+	public var cpuStrums:Strumline;
+	public var playerStrums:Strumline;
 
+	public static var strumLineNotes:FlxTypedGroup<UIStaticArrow>;
 	public static var strumLines:FlxTypedGroup<Strumline>;
 	public static var strumHUD:Array<FlxCamera> = [];
 
@@ -256,8 +257,6 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.reset(camGame);
 		FlxCamera.defaultCameras = [camGame];
 		allUIs.push(camHUD);
-
-		camZooming = !isTutorial;
 
 		persistentUpdate = persistentDraw = true;
 
@@ -396,29 +395,28 @@ class PlayState extends MusicBeatState
 
 		// initialize ui elements
 		startingSong = true;
-		startedCountdown = true;
 
 		// strums setup
 		strumLines = new FlxTypedGroup<Strumline>();
 
 		var placement = 20 + FlxG.width / 2;
-		dadStrums = new Strumline(placement - FlxG.width / 4, this, dadOpponent, false, true, false, 4, Init.trueSettings.get('Downscroll'));
-		dadStrums.visible = !Init.trueSettings.get('Centered Notefield');
-		boyfriendStrums = new Strumline(placement + (!Init.trueSettings.get('Centered Notefield') ? FlxG.width / 4 : 0), this, boyfriend, true, false, true,
-			4, Init.trueSettings.get('Downscroll'));
+		cpuStrums = new Strumline(placement - FlxG.width / 4, this, dadOpponent, false, true, false, 4, Init.trueSettings.get('Downscroll'));
+		cpuStrums.visible = !Init.trueSettings.get('Centered Notefield');
+		playerStrums = new Strumline(placement + (!Init.trueSettings.get('Centered Notefield') ? FlxG.width / 4 : 0), this, boyfriend, true, false, true, 4,
+			Init.trueSettings.get('Downscroll'));
 
-		strumLines.add(dadStrums);
-		strumLines.add(boyfriendStrums);
+		strumLines.add(cpuStrums);
+		strumLines.add(playerStrums);
 
-		for (i in 0...boyfriendStrums.receptors.length)
+		for (i in 0...playerStrums.receptors.length)
 		{
-			setOnLuas('defaultPlayerStrumX' + i, boyfriendStrums.receptors.members[i].x);
-			setOnLuas('defaultPlayerStrumY' + i, boyfriendStrums.receptors.members[i].y);
+			setOnLuas('defaultPlayerStrumX' + i, playerStrums.receptors.members[i].x);
+			setOnLuas('defaultPlayerStrumY' + i, playerStrums.receptors.members[i].y);
 		}
-		for (i in 0...dadStrums.receptors.length)
+		for (i in 0...cpuStrums.receptors.length)
 		{
-			setOnLuas('defaultOpponentStrumX' + i, dadStrums.receptors.members[i].x);
-			setOnLuas('defaultOpponentStrumY' + i, dadStrums.receptors.members[i].y);
+			setOnLuas('defaultOpponentStrumX' + i, cpuStrums.receptors.members[i].x);
+			setOnLuas('defaultOpponentStrumY' + i, cpuStrums.receptors.members[i].y);
 		}
 
 		// strumline camera setup
@@ -439,6 +437,13 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(camHUD);
 
 		add(strumLines);
+
+		strumLineNotes = new FlxTypedGroup<UIStaticArrow>();
+		for (strumline in strumLines)
+			strumline.receptors.forEachAlive(function(arrow:UIStaticArrow)
+			{
+				strumLineNotes.add(arrow);
+			});
 
 		uiHUD = new ClassHUD();
 		add(uiHUD);
@@ -479,7 +484,9 @@ class PlayState extends MusicBeatState
 		}
 		#end
 		for (script in scripts)
-			luaArray.push(new Script(script));
+			// bitch why
+			if (script.endsWith('.lua'))
+				luaArray.push(new Script(script));
 
 		// for the stage script
 		path = '';
@@ -657,7 +664,7 @@ class PlayState extends MusicBeatState
 		var key:Int = getKeyFromEvent(eventKey);
 
 		if (key >= 0
-			&& !boyfriendStrums.autoplay
+			&& !playerStrums.autoplay
 			&& (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || keyPressByController)
 			&& (FlxG.keys.enabled && !paused && (FlxG.state.active || FlxG.state.persistentUpdate)))
 		{
@@ -670,7 +677,7 @@ class PlayState extends MusicBeatState
 				var pressedNotes:Array<Note> = [];
 				var notesStopped:Bool = false;
 
-				boyfriendStrums.allNotes.forEachAlive(function(daNote:Note)
+				playerStrums.allNotes.forEachAlive(function(daNote:Note)
 				{
 					if (daNote.noteData == key && daNote.canBeHit && !daNote.isSustainNote && !daNote.tooLate && !daNote.wasGoodHit)
 						possibleNoteList.push(daNote);
@@ -685,7 +692,7 @@ class PlayState extends MusicBeatState
 						for (doubleNote in pressedNotes)
 						{
 							if (Math.abs(doubleNote.strumTime - epicNote.strumTime) < 1)
-								destroyNote(boyfriendStrums, doubleNote);
+								destroyNote(playerStrums, doubleNote);
 							else
 								notesStopped = true;
 						}
@@ -693,7 +700,7 @@ class PlayState extends MusicBeatState
 						// eee jack detection before was not super good
 						if (!notesStopped)
 						{
-							goodNoteHit(epicNote, boyfriend, boyfriendStrums);
+							goodNoteHit(epicNote, boyfriend, playerStrums);
 							pressedNotes.push(epicNote);
 						}
 					}
@@ -711,9 +718,8 @@ class PlayState extends MusicBeatState
 				Conductor.songPosition = previousTime;
 			}
 
-			if (boyfriendStrums.receptors.members[key] != null
-				&& boyfriendStrums.receptors.members[key].animation.curAnim.name != 'confirm')
-				boyfriendStrums.receptors.members[key].playAnim('pressed');
+			if (playerStrums.receptors.members[key] != null && playerStrums.receptors.members[key].animation.curAnim.name != 'confirm')
+				playerStrums.receptors.members[key].playAnim('pressed');
 
 			callOnLuas('onKeyPress', [key]);
 		}
@@ -727,8 +733,8 @@ class PlayState extends MusicBeatState
 		if (FlxG.keys.enabled && !paused && (FlxG.state.active || FlxG.state.persistentUpdate) && key >= 0)
 		{
 			// receptor reset
-			if (boyfriendStrums.receptors.members[key] != null)
-				boyfriendStrums.receptors.members[key].playAnim('static');
+			if (playerStrums.receptors.members[key] != null)
+				playerStrums.receptors.members[key].playAnim('static');
 
 			callOnLuas('onKeyRelease', [key]);
 		}
@@ -767,6 +773,7 @@ class PlayState extends MusicBeatState
 		}
 		luaArray = [];
 
+		Timings.skipCalculations = false;
 		usedGameplayFeature = false;
 
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
@@ -893,8 +900,8 @@ class PlayState extends MusicBeatState
 			health = 2;
 
 		// sync botplay to bf strums autoplay
-		if (boyfriendStrums.autoplay != cpuControlled)
-			boyfriendStrums.autoplay = cpuControlled;
+		if (playerStrums.autoplay != cpuControlled)
+			playerStrums.autoplay = cpuControlled;
 
 		if (!inCutscene)
 		{
@@ -903,8 +910,7 @@ class PlayState extends MusicBeatState
 			// pause the game if the game is allowed to pause and enter is pressed
 			if (controls.PAUSE && startedCountdown && canPause)
 			{
-				var ret:Dynamic = callOnLuas('onPause', []);
-				if (ret != Script.Function_Stop)
+				if (callOnLuas('onPause', []) != Script.Function_Stop)
 				{
 					// update drawing stuffs
 					persistentUpdate = false;
@@ -986,8 +992,7 @@ class PlayState extends MusicBeatState
 
 			if (health <= 0 && startedCountdown)
 			{
-				var ret:Dynamic = callOnLuas('onGameOver', []);
-				if (ret != Script.Function_Stop)
+				if (callOnLuas('onGameOver', []) != Script.Function_Stop)
 				{
 					// startTimer.active = false;
 					persistentUpdate = persistentDraw = false;
@@ -1224,7 +1229,7 @@ class PlayState extends MusicBeatState
 			var holdControls:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
 			if ((boyfriend != null && boyfriend.animation != null)
 				&& (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-					&& (!holdControls.contains(true) || boyfriendStrums.autoplay))
+					&& (!holdControls.contains(true) || playerStrums.autoplay))
 				&& (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')))
 				boyfriend.dance();
 		}
@@ -1261,6 +1266,8 @@ class PlayState extends MusicBeatState
 		{
 			coolNote.wasGoodHit = true;
 			vocals.volume = 1;
+
+			camZooming = !coolNote.mustPress && !isTutorial;
 
 			characterPlayAnimation(coolNote, character);
 			var receptor:UIStaticArrow = characterStrums.receptors.members[coolNote.noteData];
@@ -2151,8 +2158,6 @@ class PlayState extends MusicBeatState
 			for (ui in allUIs)
 				ui.visible = false;
 
-			startedCountdown = false;
-
 			dialogueBox = new DialogueBox(DialogueBox.loadFromJson(dialogPath), music);
 			dialogueBox.cameras = [dialogueHUD];
 			dialogueBox.finishThing = function()
@@ -2197,9 +2202,14 @@ class PlayState extends MusicBeatState
 
 	public function startCountdown()
 	{
-		var ret:Dynamic = callOnLuas('onStartCountdown', []);
-		if (ret != Script.Function_Stop)
+		if (startedCountdown)
 		{
+			callOnLuas('onStartCountdown', []);
+			return;
+		}
+		if (callOnLuas('onStartCountdown', []) != Script.Function_Stop)
+		{
+			startedCountdown = true;
 			seenCutscene = true;
 			inCutscene = false;
 			Conductor.songPosition = -(Conductor.crochet * 5);
@@ -2212,8 +2222,6 @@ class PlayState extends MusicBeatState
 
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
-				startedCountdown = true;
-
 				charactersDance(curBeat);
 
 				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();

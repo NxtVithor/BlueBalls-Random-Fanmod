@@ -118,7 +118,10 @@ class Script
 		set('rating', 0);
 		set('ratingName', '');
 		set('ratingFC', '');
-		set('version', Main.foreverEngineVersion.trim());
+		// psych troll
+		set('version', '0.5.1');
+		// no not really
+		set('fmVersion', Main.foreverEngineVersion.trim());
 
 		set('inGameOver', false);
 		set('mustHitSection', false);
@@ -208,6 +211,7 @@ class Script
 		Lua_helper.add_callback(lua, "getProperty", function(variable:String)
 		{
 			var killMe:Array<String> = variable.split('.');
+			killMe = compatilityStuff(killMe);
 			if (killMe.length > 1)
 			{
 				return Reflect.getProperty(getPropertyLoopThingWhatever(killMe), killMe[killMe.length - 1]);
@@ -217,6 +221,7 @@ class Script
 		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic)
 		{
 			var killMe:Array<String> = variable.split('.');
+			killMe = compatilityStuff(killMe);
 			if (killMe.length > 1)
 			{
 				return Reflect.setProperty(getPropertyLoopThingWhatever(killMe), killMe[killMe.length - 1], value);
@@ -279,6 +284,7 @@ class Script
 		Lua_helper.add_callback(lua, "getPropertyFromClass", function(classVar:String, variable:String)
 		{
 			var killMe:Array<String> = variable.split('.');
+			killMe = compatilityStuff(killMe);
 			if (killMe.length > 1)
 			{
 				var coverMeInPiss:Dynamic = Reflect.getProperty(Type.resolveClass(classVar), killMe[0]);
@@ -656,38 +662,6 @@ class Script
 			cancelTimer(tag);
 		});
 
-		/*Lua_helper.add_callback(lua, "getPropertyAdvanced", function(varsStr:String) {
-				var variables:Array<String> = varsStr.replace(' ', '').split(',');
-				var leClass:Class<Dynamic> = Type.resolveClass(variables[0]);
-				if(variables.length > 2) {
-					var curProp:Dynamic = Reflect.getProperty(leClass, variables[1]);
-					if(variables.length > 3) {
-						for (i in 2...variables.length-1) {
-							curProp = Reflect.getProperty(curProp, variables[i]);
-						}
-					}
-					return Reflect.getProperty(curProp, variables[variables.length-1]);
-				} else if(variables.length == 2) {
-					return Reflect.getProperty(leClass, variables[variables.length-1]);
-				}
-				return null;
-			});
-			Lua_helper.add_callback(lua, "setPropertyAdvanced", function(varsStr:String, value:Dynamic) {
-				var variables:Array<String> = varsStr.replace(' ', '').split(',');
-				var leClass:Class<Dynamic> = Type.resolveClass(variables[0]);
-				if(variables.length > 2) {
-					var curProp:Dynamic = Reflect.getProperty(leClass, variables[1]);
-					if(variables.length > 3) {
-						for (i in 2...variables.length-1) {
-							curProp = Reflect.getProperty(curProp, variables[i]);
-						}
-					}
-					return Reflect.setProperty(curProp, variables[variables.length-1], value);
-				} else if(variables.length == 2) {
-					return Reflect.setProperty(leClass, variables[variables.length-1], value);
-				}
-		});*/
-
 		// stupid bietch ass functions
 		Lua_helper.add_callback(lua, "addScore", function(value:Int = 0)
 		{
@@ -813,13 +787,13 @@ class Script
 		{
 			CoolUtil.precacheMusic(name);
 		});
+		// coming soon lol
 		Lua_helper.add_callback(lua, "triggerEvent", function(name:String, arg1:Dynamic, arg2:Dynamic)
 		{
 			// var value1:String = arg1;
 			// var value2:String = arg2;
 			// PlayState.instance.triggerEventNote(name, value1, value2);
 			// trace('Triggered event: ' + name + ', ' + value1 + ', ' + value2);
-			return;
 		});
 
 		Lua_helper.add_callback(lua, "startCountdown", function(variable:String)
@@ -942,7 +916,7 @@ class Script
 		// keep that for compatibility
 		Lua_helper.add_callback(lua, "setRatingFC", function(value:String)
 		{
-			return;
+			Timings.comboDisplay = value;
 		});
 		Lua_helper.add_callback(lua, "getMouseX", function(camera:String)
 		{
@@ -1120,8 +1094,7 @@ class Script
 				var shit:ModchartSprite = PlayState.instance.modchartSprites.get(tag);
 				if (!shit.wasAdded)
 				{
-					if (front)
-					{
+					if (front) {
 						getInstance().add(shit);
 					}
 					else
@@ -2062,6 +2035,7 @@ class Script
 	function getGroupStuff(leArray:Dynamic, variable:String)
 	{
 		var killMe:Array<String> = variable.split('.');
+		killMe = compatilityStuff(killMe);
 		if (killMe.length > 1)
 		{
 			var coverMeInPiss:Dynamic = Reflect.getProperty(leArray, killMe[0]);
@@ -2084,6 +2058,21 @@ class Script
 			default:
 				spr.frames = Paths.getSparrowAtlas(image);
 		}
+	}
+
+	// what if im a average psych lua coder
+	function compatilityStuff(killMe:Array<String>)
+	{
+		switch (killMe[0])
+		{
+			case 'playerStrums' | 'cpuStrums':
+				if (killMe[1] == 'members')
+				{
+					killMe[1] = 'receptors';
+					killMe.insert(2, 'members');
+				}
+		}
+		return killMe;
 	}
 
 	function setGroupStuff(leArray:Dynamic, variable:String, value:Dynamic)
@@ -2355,7 +2344,6 @@ class ModchartSprite extends FlxSprite
 {
 	public var wasAdded:Bool = false;
 
-	// public var isInFront:Bool = false;
 	var hShader:DynamicShaderHandler;
 
 	public function new(?x:Float = 0, ?y:Float = 0, shaderSprite:Bool = false, type:String = '', optimize:Bool = false)
