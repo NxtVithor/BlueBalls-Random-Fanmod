@@ -479,7 +479,7 @@ class PlayState extends MusicBeatState
 		}
 		#end
 		for (script in scripts)
-			luaArray.push(new Script(Paths.script(script.substring(0, script.lastIndexOf('.')))));
+			luaArray.push(new Script(script));
 
 		// for the stage script
 		path = '';
