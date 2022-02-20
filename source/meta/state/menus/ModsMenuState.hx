@@ -46,6 +46,10 @@ class ModsMenuState extends MusicBeatState
 	{
 		super.create();
 
+		// load mods list
+		ModManager.loadModsList();
+		ModManager.loadModsDirectories();
+
 		// load mods metadata
 		for (directory in ModManager.modsDirectories)
 			mods.push(new ModMetadata(directory));
@@ -96,12 +100,17 @@ class ModsMenuState extends MusicBeatState
 		}
 
 		if (controls.BACK)
+		{
+			ModManager.saveModsList();
+			ModManager.loadModsList();
+			ModManager.loadModsDirectories();
 			Main.switchState(new MainMenuState());
+		}
 
 		if (controls.ACCEPT)
 		{
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-			trace(mods[curSelected]);
+			ModManager.modsList[curSelected][1] = ModManager.modsList[curSelected][1];
 		}
 	}
 
