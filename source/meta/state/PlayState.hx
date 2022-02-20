@@ -459,10 +459,10 @@ class PlayState extends MusicBeatState
 			for (script in FileSystem.readDirectory(path))
 				scripts.push(script);
 		}
-		// for mods directories
-		for (directory in ModManager.modsDirectories)
+		// for active mods directory
+		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
 		{
-			var path:String = ModManager.modStr(directory + '/scripts');
+			var path:String = ModManager.modStr(ModManager.currentModDirectory + '/scripts');
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))

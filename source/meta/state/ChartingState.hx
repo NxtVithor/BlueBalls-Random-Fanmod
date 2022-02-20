@@ -313,10 +313,10 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		// for mods directories
-		for (directory in ModManager.modsDirectories)
+		// for active mods directory
+		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
 		{
-			var path:String = ModManager.modStr(directory + '/characters');
+			var path:String = ModManager.modStr(ModManager.currentModDirectory + '/characters');
 			if (FileSystem.isDirectory(path))
 			{
 				for (char in FileSystem.readDirectory(path))
@@ -389,10 +389,10 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		// for mods directories
-		for (directory in ModManager.modsDirectories)
+		// for active mods directory
+		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
 		{
-			var path:String = ModManager.modStr(directory + '/stages');
+			var path:String = ModManager.modStr(ModManager.currentModDirectory + '/stages');
 			if (FileSystem.isDirectory(path))
 			{
 				for (stage in FileSystem.readDirectory(path))
