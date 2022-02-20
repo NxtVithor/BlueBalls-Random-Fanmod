@@ -138,9 +138,8 @@ class FreeplayState extends MusicBeatState
 
 	public function addWeek(week:Week, weekNum:Int)
 	{
-		if ((week.weekBefore != null && week.weekBefore.length > 0 && Week.completedWeeks.get(week.weekBefore))
-			|| week.startUnlocked
-			|| !week.hideFreeplay)
+		if (!week.hideFreeplay
+			&& ((week.weekBefore != null && week.weekBefore.length > 0 && Week.completedWeeks.get(week.weekBefore)) || week.startUnlocked))
 		{
 			var num:Int = 0;
 

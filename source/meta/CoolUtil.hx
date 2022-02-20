@@ -73,7 +73,15 @@ class CoolUtil
 
 	public static function readJson(path:String)
 	{
-		var content:String = File.getContent(path);
+		var content:String = null;
+		try
+		{
+			content = File.getContent(path);
+		}
+		catch (e:Exception)
+		{
+			throw new Exception('The file doesn\'t exist or is unreadable: $path');
+		}
 		if (content != null && content.length > 0)
 			return Json.parse(cleanJson(content));
 		else

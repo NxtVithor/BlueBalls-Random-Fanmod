@@ -1,5 +1,6 @@
 package meta.subState;
 
+import flixel.math.FlxPoint;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.math.FlxMath;
@@ -19,7 +20,7 @@ class GameOverSubstate extends MusicBeatSubState
 
 	var stageSuffix:String = "";
 
-	var camFollow:FlxObject;
+	var camFollow:FlxPoint;
 	var camFollowPos:FlxObject;
 
 	var updateCam:Bool = false;
@@ -50,12 +51,10 @@ class GameOverSubstate extends MusicBeatSubState
 
 		PlayState.instance.boyfriend.destroy();
 
-		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);
-		add(camFollow);
-
 		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
 		Conductor.changeBPM(100);
+
+		camFollow = new FlxPoint(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);
 
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;

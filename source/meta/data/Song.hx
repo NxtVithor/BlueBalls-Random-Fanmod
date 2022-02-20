@@ -1,8 +1,6 @@
 package meta.data;
 
-import haxe.Json;
 import meta.data.Section.SwagSection;
-import sys.io.File;
 
 using StringTools;
 

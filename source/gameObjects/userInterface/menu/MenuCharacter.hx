@@ -47,9 +47,9 @@ class MenuCharacter extends FlxSprite
 
 		if (character != '')
 		{
-			// compatibility again
+			// compatibility moment
 			var base:String = 'menucharacters';
-			if (!Paths.exists(base))
+			if (!Paths.exists(Paths.json('images/$base/$character')))
 				base = 'menus/base/storymenu/characters';
 			var charFile:MenuCharacterFile = cast CoolUtil.readJson(Paths.json('images/$base/$character'));
 			frames = Paths.getSparrowAtlas('$base/' + charFile.image);

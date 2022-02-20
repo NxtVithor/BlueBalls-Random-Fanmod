@@ -99,10 +99,10 @@ class PlayState extends MusicBeatState
 	// I'm funny just trust me
 	private var curSection:Int = 0;
 
-	private var camFollow:FlxObject;
+	private var camFollow:FlxPoint;
 	private var camFollowPos:FlxObject;
 
-	private static var prevCamFollow:FlxObject;
+	private static var prevCamFollow:FlxPoint;
 
 	// Discord RPC variables
 	public static var songDetails:String = "";
@@ -372,8 +372,7 @@ class PlayState extends MusicBeatState
 		camPos.set(gf.x + (gf.frameWidth / 2), gf.y + (gf.frameHeight / 2));
 
 		// create the game camera
-		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(camPos.x, camPos.y);
+		camFollow = new FlxPoint(camPos.x, camPos.y);
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		camFollowPos.setPosition(camPos.x, camPos.y);
 		// check if the camera was following someone previously
@@ -383,13 +382,12 @@ class PlayState extends MusicBeatState
 			prevCamFollow = null;
 		}
 
-		add(camFollow);
 		add(camFollowPos);
 
 		// actually set the camera up
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.camera.zoom = defaultCamZoom;
-		FlxG.camera.focusOn(camFollow.getPosition());
+		FlxG.camera.focusOn(camFollow);
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
@@ -1038,7 +1036,8 @@ class PlayState extends MusicBeatState
 					getCenterX = char.getMidpoint().x + 200;
 			}
 
-			camFollow.setPosition(getCenterX + camDisplaceX + char.cameraPosition[0], getCenterY + camDisplaceY + char.cameraPosition[1]);
+			camFollow.x = getCenterX + camDisplaceX + char.cameraPosition[0];
+			camFollow.y = getCenterY + camDisplaceY + char.cameraPosition[1];
 
 			if (isTutorial)
 			{
@@ -1075,7 +1074,8 @@ class PlayState extends MusicBeatState
 					getCenterY = char.getMidpoint().y - 225;
 			}
 
-			camFollow.setPosition(getCenterX + camDisplaceX - char.cameraPosition[0], getCenterY + camDisplaceY + char.cameraPosition[1]);
+			camFollow.x = getCenterX + camDisplaceX - char.cameraPosition[0];
+			camFollow.y = getCenterY + camDisplaceY + char.cameraPosition[1];
 
 			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
 				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {
@@ -2032,7 +2032,7 @@ class PlayState extends MusicBeatState
 					FlxG.sound.play(Paths.sound('Lights_Turn_On'));
 					camFollow.y = -2050;
 					camFollow.x += 200;
-					FlxG.camera.focusOn(camFollow.getPosition());
+					FlxG.camera.focusOn(camFollow);
 					FlxG.camera.zoom = 1.5;
 
 					new FlxTimer().start(0.8, function(tmr:FlxTimer)

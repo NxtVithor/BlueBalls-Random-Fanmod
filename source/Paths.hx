@@ -26,15 +26,6 @@ class Paths
 	inline public static final SOUND_EXT = "ogg";
 	inline public static final VIDEO_EXT = "mp4";
 
-	// level we're loading
-	static var currentLevel:String;
-
-	// set the current level top the condition of this function if called
-	static public function setCurrentLevel(name:String)
-	{
-		currentLevel = name.toLowerCase();
-	}
-
 	// stealing my own code from psych engine
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 	public static var currentTrackedTextures:Map<String, Texture> = [];
@@ -274,9 +265,13 @@ class Paths
 		return getPath('$key.lua', TEXT, library);
 	}
 
-	inline static public function songJson(song:String, secondSong:String, ?library:String)
+	static public function songJson(song:String, secondSong:String, ?library:String)
 	{
-		return json('songs/${CoolUtil.coolFormat(song)}/${CoolUtil.coolFormat(secondSong)}', library);
+		// compatibility friend
+		var daPath:String = json('data/${CoolUtil.coolFormat(song)}/${CoolUtil.coolFormat(secondSong)}', library);
+		if (!exists(daPath))
+			daPath = json('songs/${CoolUtil.coolFormat(song)}/${CoolUtil.coolFormat(secondSong)}', library);
+		return daPath;
 	}
 
 	static public function sound(key:String, ?library:String):Dynamic

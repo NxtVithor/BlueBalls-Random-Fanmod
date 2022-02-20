@@ -70,11 +70,11 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		grpIcons = new FlxTypedGroup<HealthIcon>(2);
 		add(grpIcons);
 
-		iconP1 = new HealthIcon(PlayState.instance.boyfriend.curCharacter, true);
+		iconP1 = new HealthIcon(PlayState.instance.boyfriend.healthIcon, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
 		grpIcons.add(iconP1);
 
-		iconP2 = new HealthIcon(PlayState.instance.dadOpponent.curCharacter, false);
+		iconP2 = new HealthIcon(PlayState.instance.dadOpponent.healthIcon, false);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		grpIcons.add(iconP2);
 
