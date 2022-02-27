@@ -123,7 +123,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				halloweenBG.frames = hallowTex;
 				halloweenBG.animation.addByPrefix('idle', 'halloweem bg0');
 				halloweenBG.animation.addByPrefix('lightning', 'halloweem bg lightning strike', 24, false);
-				halloweenBG.animation.play('idle');
+				if (!Init.trueSettings.get('Disable Flashing Lights')) halloweenBG.animation.play('idle');
 				halloweenBG.antialiasing = true;
 				add(halloweenBG);
 
