@@ -1,5 +1,6 @@
 package meta.state.menus;
 
+import meta.data.Week;
 import flixel.tweens.FlxTween;
 import haxe.Json;
 import sys.io.File;
@@ -30,14 +31,15 @@ class ModsMenuState extends MusicBeatState
 
 	static var curDifficulty:Int = 1;
 
+	var activeText:FlxText;
+	var darkBG:FlxSprite;
+
 	var infoText:FlxText;
-	var subInfoText:FlxText;
 
 	private var grpModsText:FlxTypedGroup<Alphabet>;
 
 	private var mainColor = FlxColor.WHITE;
 	private var bg:FlxSprite;
-	private var scoreBG:FlxSprite;
 	private var bgColorTween:FlxTween;
 
 	override function create()
@@ -70,8 +72,17 @@ class ModsMenuState extends MusicBeatState
 			grpModsText.add(songText);
 		}
 
-		infoText = new FlxText(5, 0, FlxG.width, "", 32);
-		infoText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		activeText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
+		activeText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+
+		darkBG = new FlxSprite(activeText.x - activeText.width, 0).makeGraphic(Std.int(FlxG.width * 0.35), 46, 0xFF000000);
+		darkBG.alpha = 0.6;
+		add(darkBG);
+
+		add(activeText);
+
+		infoText = new FlxText(0, 0, FlxG.width, "", 32);
+		infoText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		infoText.textField.background = true;
 		infoText.textField.backgroundColor = FlxColor.BLACK;
 		add(infoText);
@@ -100,6 +111,7 @@ class ModsMenuState extends MusicBeatState
 		if (controls.BACK)
 		{
 			ModManager.saveModsList();
+			Week.loadWeeks();
 			Main.switchState(new MainMenuState());
 		}
 
@@ -109,6 +121,14 @@ class ModsMenuState extends MusicBeatState
 			var leDir:String = mods[curSelected].directory;
 			ModManager.modsList.set(leDir, !ModManager.modsList.get(leDir));
 		}
+
+		// set text shit
+		activeText.text = ModManager.modsList.get(mods[curSelected].directory) ? "ACTIVE" : "INACTIVE";
+		activeText.x = FlxG.width - activeText.width - 5;
+		darkBG.width = activeText.width + 8;
+		darkBG.x = FlxG.width - darkBG.width;
+		infoText.text = mods[curSelected].description;
+		infoText.y = FlxG.height - infoText.height;
 	}
 
 	function changeSelection(change:Int = 0)
@@ -119,14 +139,6 @@ class ModsMenuState extends MusicBeatState
 			curSelected = mods.length - 1;
 		if (curSelected >= mods.length)
 			curSelected = 0;
-
-		// set text
-		infoText.text = mods[curSelected].description;
-
-		// set the position of text
-		infoText.screenCenter(X);
-		infoText.fieldWidth = 0;
-		infoText.y = FlxG.height - infoText.height - 24;
 
 		// set up color stuffs
 		mainColor = mods[curSelected].color;

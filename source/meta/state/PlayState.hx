@@ -257,7 +257,8 @@ class PlayState extends MusicBeatState
 		FlxCamera.defaultCameras = [camGame];
 		allUIs.push(camHUD);
 
-		persistentUpdate = persistentDraw = true;
+		persistentUpdate = true;
+		persistentDraw = true;
 
 		// default song
 		if (SONG == null)
@@ -393,6 +394,10 @@ class PlayState extends MusicBeatState
 		FlxG.camera.focusOn(camFollow);
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
+
+		FlxG.fixedTimestep = false;
+
+		moveCamera(!SONG.notes[0].mustHitSection);
 
 		// initialize ui elements
 		startingSong = true;
@@ -637,7 +642,10 @@ class PlayState extends MusicBeatState
 	private function gamepadKeyShit()
 	{
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-		keyPressByController = gamepad != null && (!gamepad.justReleased.ANY || gamepad.pressed.ANY);
+		keyPressByController = !FlxG.keys.justReleased.ANY
+			&& !FlxG.keys.pressed.ANY
+			&& gamepad != null
+			&& (!gamepad.justReleased.ANY || gamepad.pressed.ANY);
 
 		if (keyPressByController)
 		{
@@ -904,6 +912,26 @@ class PlayState extends MusicBeatState
 		if (playerStrums.autoplay != cpuControlled)
 			playerStrums.autoplay = cpuControlled;
 
+		var curSection = SONG.notes[Std.int(curStep / 16)];
+		if (generatedMusic && curSection != null)
+			moveCamera(!curSection.mustHitSection);
+
+		var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4, 0, 1);
+		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
+
+		// camera stuffs
+		var easeLerp:Float = CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1);
+		FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom + forceZoom[0], FlxG.camera.zoom, easeLerp);
+		for (hud in allUIs)
+			hud.zoom = FlxMath.lerp(1 + forceZoom[1], hud.zoom, easeLerp);
+
+		// not even forcezoom anymore but still
+		FlxG.camera.angle = FlxMath.lerp(0 + forceZoom[2], FlxG.camera.angle, easeLerp);
+		for (hud in allUIs)
+			hud.angle = FlxMath.lerp(0 + forceZoom[3], hud.angle, easeLerp);
+
+		isTutorial = curSong.toLowerCase() == 'tutorial' && dadOpponent.curCharacter == 'gf';
+
 		if (!inCutscene)
 		{
 			gamepadKeyShit();
@@ -967,32 +995,12 @@ class PlayState extends MusicBeatState
 
 			// boyfriend.playAnim('singLEFT', true);
 
-			var curSection = SONG.notes[Std.int(curStep / 16)];
-			if (generatedMusic && curSection != null)
-				moveCamera(!curSection.mustHitSection);
-
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4, 0, 1);
-			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
-
-			// camera stuffs
-			var easeLerp:Float = 0.95;
-			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom + forceZoom[0], FlxG.camera.zoom, easeLerp);
-			for (hud in allUIs)
-				hud.zoom = FlxMath.lerp(1 + forceZoom[1], hud.zoom, easeLerp);
-
-			// not even forcezoom anymore but still
-			FlxG.camera.angle = FlxMath.lerp(0 + forceZoom[2], FlxG.camera.angle, easeLerp);
-			for (hud in allUIs)
-				hud.angle = FlxMath.lerp(0 + forceZoom[3], hud.angle, easeLerp);
-
-			isTutorial = curSong.toLowerCase() == 'tutorial' && dadOpponent.curCharacter == 'gf';
-
 			if (health <= 0 && startedCountdown)
 			{
 				if (callOnLuas('onGameOver', []) != Script.Function_Stop)
 				{
-					// startTimer.active = false;
-					persistentUpdate = persistentDraw = false;
+					persistentUpdate = false;
+					persistentDraw = false;
 					paused = true;
 					isDead = true;
 
@@ -1008,10 +1016,11 @@ class PlayState extends MusicBeatState
 			// spawn in the notes from the array
 			if (unspawnNotes[0] != null && (unspawnNotes[0].strumTime - Conductor.songPosition) < 3500)
 			{
-				var dunceNote:Note = unspawnNotes[0];
 				// push note to its correct strumline
-				strumLines.members[Math.floor((dunceNote.noteData + (dunceNote.mustPress ? 4 : 0)) / numberOfKeys)].push(dunceNote);
-				unspawnNotes.splice(unspawnNotes.indexOf(dunceNote), 1);
+				strumLines.members[
+					Math.floor((unspawnNotes[0].noteData + (unspawnNotes[0].mustPress ? 4 : 0)) / numberOfKeys)
+				].push(unspawnNotes[0]);
+				unspawnNotes.splice(unspawnNotes.indexOf(unspawnNotes[0]), 1);
 			}
 
 			noteCalls();

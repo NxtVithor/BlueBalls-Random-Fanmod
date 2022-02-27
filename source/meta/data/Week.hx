@@ -100,22 +100,25 @@ class Week
 				}
 			}
 		}
-		// for mods folders
-		for (folder in ModManager.modsDirectories)
+		// for mods directories
+		for (directory in ModManager.modsDirectories)
 		{
-			var path:String = ModManager.modStr(folder + '/weeks');
-			if (FileSystem.isDirectory(path))
+			if (ModManager.modsList.get(directory))
 			{
-				for (week in FileSystem.readDirectory(path))
+				var path:String = ModManager.modStr(directory + '/weeks');
+				if (FileSystem.isDirectory(path))
 				{
-					if (week.endsWith('.json'))
+					for (week in FileSystem.readDirectory(path))
 					{
-						var daPath:String = '$path/$week';
-						if (!weekFiles.contains(daPath))
+						if (week.endsWith('.json'))
 						{
-							weekFiles.push(daPath);
-							weekNames.push(CoolUtil.removeExt(week));
-							directoriesShit.push(folder);
+							var daPath:String = '$path/$week';
+							if (!weekFiles.contains(daPath))
+							{
+								weekFiles.push(daPath);
+								weekNames.push(CoolUtil.removeExt(week));
+								directoriesShit.push(directory);
+							}
 						}
 					}
 				}

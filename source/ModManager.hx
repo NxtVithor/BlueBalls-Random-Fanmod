@@ -1,6 +1,5 @@
 package;
 
-import haxe.Exception;
 import sys.io.File;
 import meta.CoolUtil;
 #if !html5
@@ -33,7 +32,7 @@ class ModManager
 		if (currentModDirectory != null && currentModDirectory.length > 0)
 		{
 			var leModDir:String = modStr(currentModDirectory + '/' + key);
-			if (!modsList.get(currentModDirectory) && FileSystem.exists(leModDir))
+			if (modsList.get(currentModDirectory) && FileSystem.exists(leModDir))
 				return leModDir;
 		}
 		var daPath:String = modStr(key);
@@ -49,8 +48,7 @@ class ModManager
 	public static function loadModsList()
 	{
 		if (!FileSystem.exists(modsListPath))
-			File.saveContent(modsListPath, '');
-		modsList.clear();
+			saveModsList();
 		// first read the file
 		var leMods:Array<String> = CoolUtil.coolTextFile(modsListPath);
 		for (i in 0...leMods.length)
@@ -58,7 +56,8 @@ class ModManager
 			if (leMods.length > 1 && leMods[0].length > 0)
 			{
 				var modSplit:Array<String> = leMods[i].split('|');
-				modsList.set(modSplit[0], modSplit[1] == '1');
+				if (!ignoredDirectories.contains(modSplit[0].toLowerCase()))
+					modsList.set(modSplit[0], modSplit[1] == '1');
 			}
 		}
 		// then add other dirs
@@ -86,7 +85,7 @@ class ModManager
 		var directories:Array<String> = FileSystem.readDirectory(modDirectory);
 		modsDirectories = [];
 		for (directory in directories)
-			if (FileSystem.isDirectory(modStr(directory)) && !ignoredDirectories.contains(directory))
+			if (FileSystem.isDirectory(modStr(directory)) && !ignoredDirectories.contains(directory.toLowerCase()))
 				modsDirectories.push(directory);
 		#end
 	}

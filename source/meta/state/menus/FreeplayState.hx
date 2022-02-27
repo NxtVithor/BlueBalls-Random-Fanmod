@@ -35,6 +35,7 @@ class FreeplayState extends MusicBeatState
 	static var curDifficulty:Int = 1;
 
 	var scoreText:FlxText;
+	var scoreBG:FlxSprite;
 	var diffText:FlxText;
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
@@ -50,7 +51,6 @@ class FreeplayState extends MusicBeatState
 
 	private var mainColor = FlxColor.WHITE;
 	private var bg:FlxSprite;
-	private var scoreBG:FlxSprite;
 	private var bgColorTween:FlxTween;
 
 	private var existingDifficulties:Array<Array<String>> = [];
@@ -65,6 +65,10 @@ class FreeplayState extends MusicBeatState
 		// load songs metadata from week data
 		for (i in 0...Week.loadedWeeks.length)
 			addWeek(Week.loadedWeeks[i], i);
+
+		// hotfix again lol
+		while (songs[curSelected] == null)
+			curSelected--;
 
 		mutex = new Mutex();
 

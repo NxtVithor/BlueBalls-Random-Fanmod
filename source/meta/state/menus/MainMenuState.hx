@@ -49,7 +49,8 @@ class MainMenuState extends MusicBeatState
 		#end
 
 		// uh
-		persistentUpdate = persistentDraw = true;
+		persistentUpdate = true;
+		persistentDraw = true;
 
 		// background
 		var scrollY:Float = 0.1;
