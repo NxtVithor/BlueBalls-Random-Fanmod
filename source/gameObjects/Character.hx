@@ -67,7 +67,7 @@ class Character extends FNFSprite
 		antialiasing = true;
 
 		var path:String = Paths.json('characters/$curCharacter');
-		// If a character couldn't be found, change him to BF just to prevent a crash
+		// If a character couldn't be found, change him to BF to prevent a crash
 		if (!Paths.exists(path))
 		{
 			curCharacter = 'bf';

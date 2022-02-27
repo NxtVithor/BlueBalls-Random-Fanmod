@@ -199,7 +199,6 @@ class PlayState extends MusicBeatState
 
 	public var strumLineNotes:FlxTypedGroup<UIStaticArrow>;
 	public var strumLines:FlxTypedGroup<Strumline>;
-	public var strumHUD:Array<FlxCamera> = [];
 
 	private var allUIs:Array<FlxCamera> = [];
 
@@ -255,6 +254,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.cameras.reset(camGame);
 		FlxCamera.defaultCameras = [camGame];
+		FlxG.cameras.add(camHUD);
 		allUIs.push(camHUD);
 
 		persistentUpdate = true;
@@ -404,6 +404,7 @@ class PlayState extends MusicBeatState
 
 		// strums setup
 		strumLines = new FlxTypedGroup<Strumline>();
+		strumLines.cameras = [camHUD];
 
 		var placement = 20 + FlxG.width / 2;
 		cpuStrums = new Strumline(placement - FlxG.width / 4, this, dadOpponent, false, true, false, 4, Init.trueSettings.get('Downscroll'));
@@ -424,23 +425,6 @@ class PlayState extends MusicBeatState
 			setOnLuas('defaultOpponentStrumX' + i, cpuStrums.receptors.members[i].x);
 			setOnLuas('defaultOpponentStrumY' + i, cpuStrums.receptors.members[i].y);
 		}
-
-		// strumline camera setup
-		strumHUD = [];
-		for (i in 0...strumLines.length)
-		{
-			// generate a new strum camera
-			strumHUD[i] = new FlxCamera();
-			strumHUD[i].bgColor.alpha = 0;
-
-			strumHUD[i].cameras = [camHUD];
-			allUIs.push(strumHUD[i]);
-			FlxG.cameras.add(strumHUD[i]);
-			// set this strumline's camera to the designated camera
-			strumLines.members[i].cameras = [strumHUD[i]];
-		}
-
-		FlxG.cameras.add(camHUD);
 
 		add(strumLines);
 
@@ -2161,8 +2145,8 @@ class PlayState extends MusicBeatState
 			dialogPath = Paths.json('songs/' + curSong.toLowerCase() + '/dialogue');
 		if (dialogPath != '' && Paths.exists(dialogPath))
 		{
-			for (ui in allUIs)
-				ui.visible = false;
+			for (hud in allUIs)
+				hud.visible = false;
 
 			dialogueBox = new DialogueBox(DialogueBox.loadFromJson(dialogPath), music);
 			dialogueBox.cameras = [dialogueHUD];
