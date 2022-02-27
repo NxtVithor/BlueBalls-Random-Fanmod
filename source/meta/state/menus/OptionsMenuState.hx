@@ -73,7 +73,7 @@ class OptionsMenuState extends MusicBeatState
 					['Counter', getFromOption], ['', null], ['Notes', null], ['', null], ["Note Skin", getFromOption], ["Clip Style", getFromOption],
 					['No Camera Note Movement', getFromOption], ['Disable Note Splashes', getFromOption], ['Opaque Arrows', getFromOption],
 					['Opaque Holds', getFromOption], ['', null], ['Accessibility Settings', null], ['', null], ['Filter', getFromOption],
-					['Disable Antialiasing', getFromOption], ["Stage Opacity", getFromOption], ["Opacity Type", getFromOption],
+					['Disable Flashing Lights', getFromOption], ['Disable Antialiasing', getFromOption], ["Stage Opacity", getFromOption], ["Opacity Type", getFromOption],
 					['Reduced Movements', getFromOption],
 				]
 			]
