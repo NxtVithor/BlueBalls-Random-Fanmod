@@ -28,8 +28,6 @@ class ModsMenuState extends MusicBeatState
 
 	static var curSelected:Int = 0;
 
-	var curSongPlaying:Int = -1;
-
 	static var curDifficulty:Int = 1;
 
 	var infoText:FlxText;
@@ -47,8 +45,8 @@ class ModsMenuState extends MusicBeatState
 		super.create();
 
 		// load mods list
-		ModManager.loadModsList();
 		ModManager.loadModsDirectories();
+		ModManager.loadModsList();
 
 		// load mods metadata
 		for (directory in ModManager.modsDirectories)
@@ -102,15 +100,14 @@ class ModsMenuState extends MusicBeatState
 		if (controls.BACK)
 		{
 			ModManager.saveModsList();
-			ModManager.loadModsList();
-			ModManager.loadModsDirectories();
 			Main.switchState(new MainMenuState());
 		}
 
 		if (controls.ACCEPT)
 		{
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-			ModManager.modsList[curSelected][1] = ModManager.modsList[curSelected][1];
+			var leDir:String = mods[curSelected].directory;
+			ModManager.modsList.set(leDir, !ModManager.modsList.get(leDir));
 		}
 	}
 
@@ -134,8 +131,6 @@ class ModsMenuState extends MusicBeatState
 		// set up color stuffs
 		mainColor = mods[curSelected].color;
 
-		// song switching stuffs
-
 		var bullShit:Int = 0;
 
 		for (item in grpModsText.members)
@@ -155,41 +150,31 @@ class ModMetadata
 {
 	public var directory:String;
 	public var name:String;
-	public var description:String;
-	public var color:FlxColor;
-	public var restart:Bool;
-	public var alphabet:Alphabet;
+	public var description:String = "No description provided.";
+	public var color:FlxColor = 0xFF665AFF;
+	public var restart:Bool = false;
 
 	public function new(directory:String)
 	{
 		this.directory = directory;
 		this.name = directory;
-		this.description = "No description provided.";
-		this.color = 0xFF665AFF;
-		this.restart = false;
 
-		// try loading json
 		var path = ModManager.modStr(directory + "/pack.json");
 		if (Paths.exists(path))
 		{
-			var rawJson:String = CoolUtil.cleanJson(File.getContent(path));
+			var rawJson:String = File.getContent(path);
 			if (rawJson != null && rawJson.length > 0)
 			{
-				// dogshit convert
 				var data:Dynamic = Json.parse(rawJson);
-				var name:String = data.name;
-				var description:String = data.description;
-				var colors:Array<Int> = data.colors;
-				var restart:Bool = data.restart;
 
-				if (name != null && name.length > 0)
-					this.name = name;
-				if (description != null && description.length > 0)
-					this.description = description;
-				if (colors != null && colors.length > 2)
-					this.color = FlxColor.fromRGB(colors[0], colors[1], colors[2]);
+				if (data.name != null && data.name.length > 0)
+					this.name = data.name;
+				if (data.description != null && data.description.length > 0)
+					this.description = data.description;
+				if (data.colors != null && data.colors.length > 2)
+					this.color = FlxColor.fromRGB(data.colors[0], data.colors[1], data.colors[2]);
 
-				this.restart = restart;
+				this.restart = data.restart;
 			}
 		}
 	}

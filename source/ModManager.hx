@@ -10,27 +10,21 @@ import sys.FileSystem;
 class ModManager
 {
 	public static final modDirectory:String = 'mods';
-	public static final rawModsListPath:String = 'rawModsList.txt';
-	public static var modsDirectories:Array<String>;
-
-	public static var currentModDirectory:String = '';
-
-	public static final baseIgnoredDirectories:Array<String> = [
+	public static final ignoredDirectories:Array<String> = [
 		'characters', 'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'stages', 'weeks', 'fonts',
 		'scripts'
 	];
-	public static var ignoredDirectories:Array<String> = [];
+	public static final modsListPath:String = 'modsList.txt';
 
-	public static var modsList:Array<Array<Dynamic>> = [];
-	static var rawModsList:Array<String> = [];
+	public static var modsDirectories:Array<String> = [];
+
+	public static var currentModDirectory:String = '';
+
+	public static var modsList:Map<String, Bool> = new Map<String, Bool>();
 
 	inline public static function modStr(key:String)
 	{
-		#if MODS_ALLOWED
 		return '${modDirectory}/$key';
-		#else
-		return key;
-		#end
 	}
 
 	public static function getModPath(key:String)
@@ -39,7 +33,7 @@ class ModManager
 		if (currentModDirectory != null && currentModDirectory.length > 0)
 		{
 			var leModDir:String = modStr(currentModDirectory + '/' + key);
-			if (FileSystem.exists(leModDir))
+			if (!modsList.get(currentModDirectory) && FileSystem.exists(leModDir))
 				return leModDir;
 		}
 		var daPath:String = modStr(key);
@@ -54,48 +48,36 @@ class ModManager
 	// in the psych format so the same code lol
 	public static function loadModsList()
 	{
-		if (!FileSystem.exists(rawModsListPath))
-			saveModsList();
-		ignoredDirectories = baseIgnoredDirectories;
-		modsList = [];
-		rawModsList = CoolUtil.coolTextFile(rawModsListPath);
-		if (rawModsList.length > 1 && rawModsList[0].length > 0)
+		if (!FileSystem.exists(modsListPath))
+			File.saveContent(modsListPath, '');
+		modsList.clear();
+		// first read the file
+		var leMods:Array<String> = CoolUtil.coolTextFile(modsListPath);
+		for (i in 0...leMods.length)
 		{
-			for (i in 0...rawModsList.length)
+			if (leMods.length > 1 && leMods[0].length > 0)
 			{
-				var data:Array<String> = parseModFromList(i);
-				modsList.push([data[0], data[1] == '1']);
-				if (!ignoredDirectories.contains(data[0].toLowerCase()) && data[1] != '1')
-					ignoredDirectories.push(data[0]);
+				var modSplit:Array<String> = leMods[i].split('|');
+				modsList.set(modSplit[0], modSplit[1] == '1');
 			}
 		}
-	}
-
-	public static function parseModFromList(index:Int)
-	{
-		if (rawModsList[index] != null && rawModsList[index].length > 0)
-			return rawModsList[index].split('|');
-		else
-			return null;
+		// then add other dirs
+		// i like it false by default. -shadowmario
+		for (directory in modsDirectories)
+			if (!modsList.exists(directory))
+				modsList.set(directory, false);
 	}
 
 	public static function saveModsList()
 	{
 		var fileStr:String = '';
-		for (mod in modsList)
+		for (mod in modsList.keys())
 		{
 			if (fileStr.length > 0)
 				fileStr += '\n';
-			fileStr += mod[0] + '|' + (mod[1] ? '1' : '0');
+			fileStr += mod + '|' + (modsList.get(mod) ? '1' : '0');
 		}
-		try
-		{
-			File.saveContent(rawModsListPath, fileStr);
-		}
-		catch (e:Exception)
-		{
-			throw new Exception("Can't save mods list.");
-		}
+		File.saveContent(modsListPath, fileStr);
 	}
 
 	public static function loadModsDirectories()

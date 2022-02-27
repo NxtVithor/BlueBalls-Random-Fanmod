@@ -225,8 +225,8 @@ class Init extends FlxState
 
 		#if MODS_ALLOWED
 		// load mods directories
-		ModManager.loadModsList();
 		ModManager.loadModsDirectories();
+		ModManager.loadModsList();
 		#end
 
 		// load weeks
