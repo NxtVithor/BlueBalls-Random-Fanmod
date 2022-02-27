@@ -169,7 +169,7 @@ class MainMenuState extends MusicBeatState
 			selectedSomethin = true;
 			FlxG.sound.play(Paths.sound('confirmMenu'));
 
-			FlxFlicker.flicker(magenta, 0.8, 0.1, false);
+			if (!Init.trueSettings.get('Disable Flashing Lights')) FlxFlicker.flicker(magenta, 0.8, 0.1, false);
 
 			menuItems.forEach(function(spr:FlxSprite)
 			{
