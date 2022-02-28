@@ -1644,6 +1644,8 @@ class PlayState extends MusicBeatState
 		if (!cache)
 		{
 			var diffText:FlxText = new FlxText(0, 0, 0, CoolUtil.truncateFloat(diff, 3) + ' ms');
+			if (cpuControlled)
+				diffText.text += ' (BOT)';
 			switch (daRating)
 			{
 				case 'shit' | 'bad':

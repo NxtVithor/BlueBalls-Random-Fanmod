@@ -93,6 +93,10 @@ class FreeplayState extends MusicBeatState
 
 			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
 			icon.sprTracker = songText;
+			icon.copyAlpha = true;
+
+			icon.xAdd = songText.width + 10;
+			icon.yAdd = -30;
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
@@ -274,13 +278,6 @@ class FreeplayState extends MusicBeatState
 		mainColor = songs[curSelected].color;
 
 		var bullShit:Int = 0;
-
-		for (i in 0...iconArray.length)
-		{
-			iconArray[i].alpha = 0.6;
-		}
-
-		iconArray[curSelected].alpha = 1;
 
 		for (item in grpSongs.members)
 		{

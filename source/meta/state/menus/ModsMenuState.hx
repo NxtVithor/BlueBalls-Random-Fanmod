@@ -1,5 +1,8 @@
 package meta.state.menus;
 
+import sys.FileSystem;
+import openfl.display.BitmapData;
+import meta.data.dependency.AttachedSprite;
 import meta.data.Week;
 import flixel.tweens.FlxTween;
 import haxe.Json;
@@ -15,14 +18,6 @@ import meta.data.dependency.Discord;
 
 using StringTools;
 
-#if !html5
-import sys.FileSystem;
-#end
-#if sys
-import sys.thread.Mutex;
-import sys.thread.Thread;
-#end
-
 class ModsMenuState extends MusicBeatState
 {
 	var mods:Array<ModMetadata> = [];
@@ -37,6 +32,8 @@ class ModsMenuState extends MusicBeatState
 	var infoText:FlxText;
 
 	private var grpModsText:FlxTypedGroup<Alphabet>;
+
+	private var iconArray:Array<AttachedSprite> = [];
 
 	private var mainColor = FlxColor.WHITE;
 	private var bg:FlxSprite;
@@ -54,6 +51,10 @@ class ModsMenuState extends MusicBeatState
 		for (directory in ModManager.modsDirectories)
 			mods.push(new ModMetadata(directory));
 
+		// hotfix comback
+		while (mods[curSelected] == null)
+			curSelected--;
+
 		#if !html5
 		Discord.changePresence('MODS MENU', 'Main Menu');
 		#end
@@ -66,10 +67,36 @@ class ModsMenuState extends MusicBeatState
 
 		for (i in 0...mods.length)
 		{
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, mods[i].name, true, false);
-			songText.isMenuItem = true;
-			songText.targetY = i;
-			grpModsText.add(songText);
+			var modText:Alphabet = new Alphabet(0, (70 * i) + 30, mods[i].name, true, false);
+			modText.isMenuItem = true;
+			modText.targetY = i;
+			grpModsText.add(modText);
+
+			var icon:AttachedSprite = new AttachedSprite(modText);
+
+			// Don't ever cache the icons, it's a waste of loaded memory
+			var loadedIcon:BitmapData = null;
+			var iconToUse:String = ModManager.modStr(mods[i].directory + '/pack.png');
+			if (FileSystem.exists(iconToUse))
+			{
+				loadedIcon = BitmapData.fromFile(iconToUse);
+				icon.loadGraphic(loadedIcon, true, 150, 150);
+				icon.animation.add("icon", [
+					for (i in 0...(Math.floor(loadedIcon.width / 150) * Math.floor(loadedIcon.height / 150)))
+						i
+				], 10);
+				icon.animation.play("icon");
+			}
+			else
+				icon.loadGraphic(Paths.image('menus/base/modsmenu/unknownMod'));
+
+			icon.copyAlpha = true;
+
+			icon.xAdd = modText.width + 10;
+			icon.yAdd = -45;
+
+			iconArray.push(icon);
+			add(icon);
 		}
 
 		activeText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);

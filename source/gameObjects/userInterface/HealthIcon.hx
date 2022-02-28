@@ -1,18 +1,13 @@
 package gameObjects.userInterface;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
+import meta.data.dependency.AttachedSprite;
 import flixel.graphics.FlxGraphic;
-#if !html5
-import sys.FileSystem;
-#end
 
 using StringTools;
 
-class HealthIcon extends FlxSprite
+class HealthIcon extends AttachedSprite
 {
 	// rewrite using da new icon system as ninjamuffin would say it
-	public var sprTracker:FlxSprite;
 	public var initialWidth:Float = 0;
 	public var initialHeight:Float = 0;
 
@@ -40,13 +35,5 @@ class HealthIcon extends FlxSprite
 		animation.play('icon');
 
 		antialiasing = !char.endsWith('-pixel');
-	}
-
-	override function update(elapsed:Float)
-	{
-		super.update(elapsed);
-
-		if (sprTracker != null)
-			setPosition(sprTracker.x + sprTracker.width + 10, sprTracker.y - 30);
 	}
 }
