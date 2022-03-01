@@ -25,7 +25,7 @@ import gameObjects.*;
 import gameObjects.userInterface.*;
 import gameObjects.userInterface.notes.*;
 import haxe.Json;
-import lime.utils.Assets;
+import openfl.Assets;
 import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
 import meta.data.Conductor.BPMChangeEvent;
@@ -233,7 +233,10 @@ class OriginalChartingState extends MusicBeatState
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
 
-		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		var characters:Array<String> = [];
+		var charListPath:String = Paths.getPreloadPath('characterList.txt');
+		if (Assets.exists(charListPath))
+			characters = CoolUtil.coolTextFile(charListPath);
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{

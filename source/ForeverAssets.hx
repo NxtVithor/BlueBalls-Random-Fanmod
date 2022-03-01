@@ -15,11 +15,12 @@ import meta.data.Timings;
 import meta.data.Week.WeekFile;
 import meta.data.Week;
 import meta.state.PlayState;
-#if !html5
+
+using StringTools;
+#if sys
 import sys.FileSystem;
 #end
 
-using StringTools;
 
 /**
 	Forever Assets is a class that manages the different asset types, basically a compilation of switch statements that are

@@ -15,7 +15,6 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.Alphabet;
 import meta.state.PlayState;
 import openfl.media.Sound;
-import sys.io.File;
 
 using StringTools;
 

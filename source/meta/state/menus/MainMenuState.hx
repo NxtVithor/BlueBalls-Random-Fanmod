@@ -44,7 +44,7 @@ class MainMenuState extends MusicBeatState
 		// make sure the music is playing
 		ForeverTools.resetMenuMusic();
 
-		#if !html5
+		#if sys
 		Discord.changePresence('MENU SCREEN', 'Main Menu');
 		#end
 
@@ -170,7 +170,8 @@ class MainMenuState extends MusicBeatState
 			selectedSomethin = true;
 			FlxG.sound.play(Paths.sound('confirmMenu'));
 
-			if (!Init.trueSettings.get('Disable Flashing Lights')) FlxFlicker.flicker(magenta, 0.8, 0.1, false);
+			if (!Init.trueSettings.get('Disable Flashing Lights'))
+				FlxFlicker.flicker(magenta, 0.8, 0.1, false);
 
 			menuItems.forEach(function(spr:FlxSprite)
 			{
@@ -194,8 +195,10 @@ class MainMenuState extends MusicBeatState
 								Main.switchState(new StoryMenuState());
 							case 'freeplay':
 								Main.switchState(new FreeplayState());
+							#if MODS_ALLOWED
 							case 'mods':
 								Main.switchState(new ModsMenuState());
+							#end
 							case 'options':
 								transIn = FlxTransitionableState.defaultTransIn;
 								transOut = FlxTransitionableState.defaultTransOut;

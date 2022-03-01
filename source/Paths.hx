@@ -6,15 +6,14 @@ package;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import lime.utils.Assets;
 import meta.CoolUtil;
+import openfl.Assets;
 import openfl.display.BitmapData;
 import openfl.display3D.textures.Texture;
 import openfl.media.Sound;
 import openfl.system.System;
 import openfl.utils.AssetType;
-import openfl.utils.Assets as OpenFlAssets;
-#if !html5
+#if sys
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -114,7 +113,7 @@ class Paths
 	public static function returnGraphic(key:String, ?library:String, ?textureCompression:Bool = false)
 	{
 		var path = getPath('images/$key.png', IMAGE, library);
-		if (FileSystem.exists(path))
+		if (exists(path))
 		{
 			if (!currentTrackedAssets.exists(key))
 			{
@@ -145,13 +144,16 @@ class Paths
 		return null;
 	}
 
-	inline public static function soundPath(key:String, path:String, ?library:String)
+	inline public static function soundPath(key:String, ?path:String, ?library:String)
 	{
-		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
+		var daPath:String = '$key.$SOUND_EXT';
+		if (path != null)
+			daPath = '$path/$daPath';
+		var gottenPath:String = getPath(daPath, SOUND, library);
 		return gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
 	}
 
-	public static function returnSound(path:String, key:String, ?library:String):Any
+	public static function returnSound(?path:String, key:String, ?library:String):Any
 	{
 		// I hate this so god damn much
 		var gottenPath:String = soundPath(key, path, library);
@@ -198,7 +200,7 @@ class Paths
 		if (ModManager.getModPath(path) != null || FileSystem.exists(path))
 			return true;
 		#end
-		return OpenFlAssets.exists(path);
+		return Assets.exists(path);
 	}
 
 	/*  
@@ -220,9 +222,18 @@ class Paths
 	inline public static function getPreloadPath(file:String)
 	{
 		var returnPath:String = 'assets/$file';
-		if (!FileSystem.exists(returnPath))
+		if (!exists(returnPath))
 			returnPath = CoolUtil.coolFormat(returnPath);
 		return returnPath;
+	}
+
+	inline public static function readFile(path:String)
+	{
+		#if sys
+		return File.getContent(path);
+		#else
+		return Assets.getText(path);
+		#end
 	}
 
 	inline static public function file(file:String, type:AssetType = TEXT, ?library:String)
@@ -325,7 +336,7 @@ class Paths
 	inline static public function getSparrowAtlas(key:String, ?library:String)
 	{
 		var graphic:FlxGraphic = returnGraphic(key, library);
-		return (FlxAtlasFrames.fromSparrow(graphic, File.getContent(file('images/$key.xml', library))));
+		return (FlxAtlasFrames.fromSparrow(graphic, readFile(file('images/$key.xml', library))));
 	}
 
 	inline static public function getPackerAtlas(key:String, ?library:String)

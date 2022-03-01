@@ -1,9 +1,5 @@
 package gameObjects;
 
-import meta.subState.GameOverSubstate;
-import haxe.Exception;
-import sys.io.File;
-import haxe.Json;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -12,10 +8,13 @@ import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
 import flixel.tweens.FlxTween;
 import gameObjects.background.*;
+import haxe.Exception;
+import haxe.Json;
 import meta.CoolUtil;
 import meta.data.Conductor;
 import meta.data.dependency.FNFSprite;
 import meta.state.PlayState;
+import meta.subState.GameOverSubstate;
 
 using StringTools;
 
@@ -82,7 +81,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 					case 'pico' | 'blammed' | 'philly-nice':
 						curStage = 'philly';
 					case 'milf' | 'satin-panties' | 'high':
-						curStage = 'highway';
+						curStage = 'limo';
 					case 'cocoa' | 'eggnog':
 						curStage = 'mall';
 					case 'winter-horrorland':
@@ -164,7 +163,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 				var street:FNFSprite = new FNFSprite(-40, streetBehind.y).loadGraphic(Paths.image('backgrounds/' + curStage + '/street'));
 				add(street);
-			case 'highway':
+			case 'limo':
 				var skyBG:FNFSprite = new FNFSprite(-120, -50).loadGraphic(Paths.image('backgrounds/' + curStage + '/limoSunset'));
 				skyBG.scrollFactor.set(0.1, 0.1);
 				add(skyBG);
@@ -393,7 +392,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 		switch (curStage)
 		{
-			case 'highway':
+			case 'limo':
 				gfVersion = 'gf-car';
 			case 'mall' | 'mallEvil':
 				gfVersion = 'gf-christmas';
@@ -455,8 +454,8 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		// trace('update backgrounds');
 		switch (PlayState.curStage)
 		{
-			case 'highway':
-				// trace('highway update');
+			case 'limo':
+				// trace('limo update');
 				grpLimoDancers.forEach(function(dancer:BackgroundDancer)
 				{
 					dancer.dance();

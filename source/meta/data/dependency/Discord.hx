@@ -1,8 +1,10 @@
 package meta.data.dependency;
 
+#if LUA_ALLOWED
 import llua.Lua.Lua_helper;
 import llua.State;
-#if !html5
+#end
+#if sys
 import discord_rpc.DiscordRpc;
 #end
 import lime.app.Application;
@@ -13,7 +15,7 @@ import lime.app.Application;
 **/
 class Discord
 {
-	#if !html5
+	#if sys
 	// set up the rich presence initially
 	public static function initializeRPC()
 	{

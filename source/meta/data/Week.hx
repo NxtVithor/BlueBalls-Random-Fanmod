@@ -4,7 +4,7 @@ import flixel.FlxG;
 
 using StringTools;
 
-#if !html5
+#if sys
 import sys.FileSystem;
 #end
 
@@ -70,11 +70,13 @@ class Week
 		var directoriesShit:Array<String> = [];
 
 		// check for hardcoded weeks
-		for (week in FileSystem.readDirectory(Paths.getPreloadPath('weeks')))
+		var coolWeekList:Array<String> = CoolUtil.coolTextFile(Paths.getPreloadPath('weekList.txt'));
+		for (week in coolWeekList)
 		{
-			if (week.endsWith('.json'))
+			var daPath:String = Paths.getPreloadPath('weeks/$week.json');
+			if (!weekFiles.contains(daPath))
 			{
-				weekFiles.push(Paths.getPreloadPath('weeks/$week'));
+				weekFiles.push(daPath);
 				weekNames.push(CoolUtil.removeExt(week));
 				directoriesShit.push('');
 			}
@@ -113,6 +115,7 @@ class Week
 						if (week.endsWith('.json'))
 						{
 							var daPath:String = '$path/$week';
+
 							if (!weekFiles.contains(daPath))
 							{
 								weekFiles.push(daPath);
@@ -125,7 +128,6 @@ class Week
 			}
 		}
 		#end
-
 		// load the weeks
 		for (i in 0...weekFiles.length)
 		{
@@ -139,14 +141,12 @@ class Week
 			}
 		}
 		ModManager.currentModDirectory = '';
-
 		// generate unlocked weeks map
 		if (FlxG.save.data.completedWeeks != null)
 			completedWeeks = FlxG.save.data.completedWeeks;
 		for (week in loadedWeeks)
 			if (!completedWeeks.exists(week.weekName))
 				completedWeeks.set(week.weekName, week.startUnlocked);
-
 		// add custom difficulties
 		CoolUtil.difficulties = CoolUtil.defaultDifficulties;
 		var lowerCaseDiffs:Array<String> = [];
@@ -158,7 +158,6 @@ class Week
 
 			if (diffStr != null)
 				diffStr = diffStr.trim();
-
 			if (diffStr != null && diffStr.length > 0)
 			{
 				var diffs:Array<String> = diffStr.split(',');
@@ -173,7 +172,6 @@ class Week
 					}
 					--i;
 				}
-
 				if (diffs.length > 0 && diffs[0].length > 0)
 				{
 					for (diff in diffs)

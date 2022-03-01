@@ -1,17 +1,15 @@
 package meta;
 
-import meta.state.PlayState;
+import lime.app.Application;
 import haxe.Exception;
 import haxe.Json;
-import lime.app.Application;
 import meta.data.PlayerSettings;
+import meta.state.PlayState;
 import openfl.Lib;
-import openfl.utils.Assets;
-import sys.io.File;
 
 using StringTools;
 
-#if !html5
+#if sys
 import sys.FileSystem;
 #end
 
@@ -71,12 +69,20 @@ class CoolUtil
 		return spaceToDash(path.toLowerCase());
 	}
 
+	inline static public function getContent(path:String)
+	{
+		#if sys
+		return Paths.readFile(path);
+		#else
+		#end
+	}
+
 	public static function readJson(path:String)
 	{
 		var content:String = null;
 		try
 		{
-			content = File.getContent(path);
+			content = Paths.readFile(path);
 		}
 		catch (e:Exception)
 		{
@@ -102,7 +108,7 @@ class CoolUtil
 
 	public static function coolTextFile(path:String)
 	{
-		var daList:Array<String> = File.getContent(path).trim().split('\n');
+		var daList:Array<String> = Paths.readFile(path).trim().split('\n');
 
 		for (i in 0...daList.length)
 		{
@@ -115,7 +121,7 @@ class CoolUtil
 	public static function returnAssetsLibrary(library:String, ?subDir:String = 'assets/images')
 	{
 		var libraryArray:Array<String> = [];
-		#if !html5
+		#if sys
 		var unfilteredLibrary = FileSystem.readDirectory('$subDir/$library');
 
 		for (directory in unfilteredLibrary)
@@ -149,8 +155,8 @@ class CoolUtil
 
 	private static function precacheSoundFile(file:Dynamic)
 	{
-		if (Assets.exists(file, SOUND) || Assets.exists(file, MUSIC))
-			Assets.getSound(file, true);
+		if (Paths.exists(file))
+			Paths.returnSound(null, file);
 	}
 
 	public static function truncateFloat(number:Float, precision:Int)

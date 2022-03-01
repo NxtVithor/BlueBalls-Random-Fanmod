@@ -6,7 +6,6 @@ import flixel.system.FlxAssets.FlxShader;
 import openfl.display.BitmapData;
 import openfl.display.Shader;
 import openfl.display.ShaderInput;
-import openfl.utils.Assets;
 import flixel.FlxG;
 import openfl.Lib;
 
@@ -458,7 +457,6 @@ class VCRDistortionEffect extends Effect
 		shader.data.vignetteMoving.value = [vignetteMoving];
 		shader.data.glitchModifier.value = [glitchFactor];
 		shader.data.iResolution.value = [Lib.current.stage.stageWidth, Lib.current.stage.stageHeight];
-		// var noise = Assets.getBitmapData(Paths.image("noise2"));
 		// shader.data.noiseTex.input = noise;
 		PlayState.instance.shaderUpdates.push(update);
 	}

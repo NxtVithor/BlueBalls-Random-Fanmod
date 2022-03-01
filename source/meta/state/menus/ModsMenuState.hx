@@ -1,23 +1,27 @@
 package meta.state.menus;
 
-import sys.FileSystem;
-import openfl.display.BitmapData;
-import meta.data.dependency.AttachedSprite;
-import meta.data.Week;
-import flixel.tweens.FlxTween;
-import haxe.Json;
-import sys.io.File;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import haxe.Json;
 import meta.MusicBeat.MusicBeatState;
 import meta.data.Alphabet;
+import meta.data.Week;
+import meta.data.dependency.AttachedSprite;
 import meta.data.dependency.Discord;
+import openfl.display.BitmapData;
+import sys.io.File;
 
 using StringTools;
+#if sys
+import sys.FileSystem;
+#end
 
+
+#if MODS_ALLOWED
 class ModsMenuState extends MusicBeatState
 {
 	var mods:Array<ModMetadata> = [];
@@ -55,7 +59,7 @@ class ModsMenuState extends MusicBeatState
 		while (mods[curSelected] == null)
 			curSelected--;
 
-		#if !html5
+		#if sys
 		Discord.changePresence('MODS MENU', 'Main Menu');
 		#end
 
@@ -201,7 +205,7 @@ class ModMetadata
 		var path = ModManager.modStr(directory + "/pack.json");
 		if (Paths.exists(path))
 		{
-			var rawJson:String = File.getContent(path);
+			var rawJson:String = Paths.readFile(path);
 			if (rawJson != null && rawJson.length > 0)
 			{
 				var data:Dynamic = Json.parse(rawJson);
@@ -218,3 +222,4 @@ class ModMetadata
 		}
 	}
 }
+#end

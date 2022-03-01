@@ -43,10 +43,10 @@ import openfl.media.Sound;
 
 using StringTools;
 
-#if !html5
+#if sys
 import sys.FileSystem;
 #end
-#if !html5
+#if sys
 import meta.data.dependency.Discord;
 #end
 
@@ -332,7 +332,7 @@ class PlayState extends MusicBeatState
 		add(gf);
 
 		// add limo cus dumb layering
-		if (curStage == 'highway')
+		if (curStage == 'limo')
 			add(stageBuild.limo);
 
 		add(dadOpponent);
@@ -546,7 +546,7 @@ class PlayState extends MusicBeatState
 
 		// Uncomment the code below to apply the effect
 
-		// var shader:GraphicsShader = new GraphicsShader("", File.getContent(Paths.shaderFrag("vhs")));
+		// var shader:GraphicsShader = new GraphicsShader("", Paths.readFile(Paths.shaderFrag("vhs")));
 
 		// FlxG.camera.setFilters([new ShaderFilter(shader)]);
 
@@ -757,6 +757,7 @@ class PlayState extends MusicBeatState
 
 	override public function destroy()
 	{
+		#if LUA_ALLOWED
 		preventLuaRemove = true;
 		for (i in 0...luaArray.length)
 		{
@@ -764,6 +765,7 @@ class PlayState extends MusicBeatState
 			luaArray[i].stop();
 		}
 		luaArray = [];
+		#end
 
 		Timings.skipCalculations = false;
 		usedGameplayFeature = false;
@@ -1434,6 +1436,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	#if (VIDEOS_ALLOWED && desktop)
 	override public function onFocus()
 	{
 		if (!paused)
@@ -1454,10 +1457,11 @@ class PlayState extends MusicBeatState
 		#end
 		super.onFocusLost();
 	}
+	#end
 
 	public static function updateRPC(pausedRPC:Bool)
 	{
-		#if !html5
+		#if sys
 		var displayRPC:String = (pausedRPC) ? detailsPausedText : songDetails;
 
 		if (health > 0)
@@ -1716,7 +1720,7 @@ class PlayState extends MusicBeatState
 
 			resyncVocals();
 
-			#if !html5
+			#if sys
 			// Song duration in a float, useful for the time left feature
 			songLength = FlxG.sound.music.length;
 
@@ -1928,7 +1932,7 @@ class PlayState extends MusicBeatState
 		#if LUA_ALLOWED
 		var ret:Dynamic = callOnLuas('onEndSong', []);
 		#else
-		var ret:Dynamic = FunkinLua.Function_Continue;
+		var ret:Dynamic = Script.Function_Continue;
 		#end
 
 		if (ret != Script.Function_Stop)

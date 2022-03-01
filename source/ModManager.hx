@@ -1,9 +1,9 @@
 package;
 
-import sys.io.File;
 import meta.CoolUtil;
-#if !html5
+#if sys
 import sys.FileSystem;
+import sys.io.File;
 #end
 
 class ModManager
@@ -47,6 +47,7 @@ class ModManager
 	// in the psych format so the same code lol
 	public static function loadModsList()
 	{
+		#if MODS_ALLOWED
 		if (!FileSystem.exists(modsListPath))
 			saveModsList();
 		// first read the file
@@ -65,10 +66,12 @@ class ModManager
 		for (directory in modsDirectories)
 			if (!modsList.exists(directory))
 				modsList.set(directory, false);
+		#end
 	}
 
 	public static function saveModsList()
 	{
+		#if MODS_ALLOWED
 		var fileStr:String = '';
 		for (mod in modsList.keys())
 		{
@@ -77,6 +80,7 @@ class ModManager
 			fileStr += mod + '|' + (modsList.get(mod) ? '1' : '0');
 		}
 		File.saveContent(modsListPath, fileStr);
+		#end
 	}
 
 	public static function loadModsDirectories()

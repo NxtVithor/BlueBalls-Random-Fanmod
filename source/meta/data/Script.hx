@@ -15,8 +15,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import gameObjects.userInterface.ClassHUD;
-import gameObjects.userInterface.notes.Strumline.UIStaticArrow;
 import gameObjects.userInterface.notes.Strumline;
 import meta.data.dependency.Discord;
 import meta.data.shaders.Shaders;
@@ -29,9 +27,6 @@ import openfl.display.BlendMode;
 import openfl.filters.BitmapFilter;
 import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
-
-using StringTools;
-
 #if LUA_ALLOWED
 import llua.Convert;
 import llua.Lua;
@@ -39,7 +34,8 @@ import llua.LuaL;
 import llua.State;
 #end
 
-#if LUA_ALLOWED
+using StringTools;
+
 // sorry shadowmario if i borrow your code a bit
 class Script
 {
@@ -50,10 +46,13 @@ class Script
 
 	public var scriptPath:String = '';
 
+	#if LUA_ALLOWED
 	public var lua:State = null;
+	#end
 
 	public function new(script:String)
 	{
+		#if LUA_ALLOWED
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
@@ -1951,17 +1950,21 @@ class Script
 		Discord.addLuaCallbacks(lua);
 
 		call('onCreate', []);
+		#end
 	}
 
 	public function set(variable:String, data:Dynamic)
 	{
+		#if LUA_ALLOWED
 		if (lua == null)
 			return;
 
 		Convert.toLua(lua, data);
 		Lua.setglobal(lua, variable);
+		#end
 	}
 
+	#if LUA_ALLOWED
 	public function getBool(variable:String)
 	{
 		var result:String = null;
@@ -1972,8 +1975,9 @@ class Script
 		if (result == null)
 			return false;
 
-		return (result == 'true');
+		return result == 'true';
 	}
+	#end
 
 	public function call(event:String, args:Array<Dynamic>):Dynamic
 	{
@@ -2005,6 +2009,7 @@ class Script
 		return Function_Continue;
 	}
 
+	#if LUA_ALLOWED
 	static function resultIsAllowed(leLua:State, leResult:Null<Int>)
 	{
 		switch (Lua.type(leLua, leResult))
@@ -2014,6 +2019,7 @@ class Script
 		}
 		return false;
 	}
+	#end
 
 	public function luaTrace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false)
 	{
@@ -2334,6 +2340,7 @@ class Script
 		return coverMeInPiss;
 	}
 
+	#if LUA_ALLOWED
 	public function stop()
 	{
 		if (lua == null)
@@ -2342,6 +2349,7 @@ class Script
 		Lua.close(lua);
 		lua = null;
 	}
+	#end
 
 	inline static function getInstance()
 	{
@@ -2420,4 +2428,3 @@ class DebugLuaText extends FlxText
 			alpha = disableTime;
 	}
 }
-#end

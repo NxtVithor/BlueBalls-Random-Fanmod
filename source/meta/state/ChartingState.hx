@@ -28,17 +28,19 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.*;
 import meta.data.Conductor.BPMChangeEvent;
 import meta.data.Song.SwagSong;
+import openfl.Assets;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.geom.ColorTransform;
 import openfl.net.FileReference;
-#if !html5
+
+using StringTools;
+#if sys
 import sys.FileSystem;
 #end
 
-using StringTools;
 
-#if !html5
+#if sys
 import sys.thread.Thread;
 #end
 
@@ -292,7 +294,10 @@ class ChartingState extends MusicBeatState
 		stepperSpeed.name = 'song_speed';
 		steppers.push(stepperSpeed);
 
-		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		var characters:Array<String> = [];
+		var charListPath:String = Paths.getPreloadPath('characterList.txt');
+		if (Assets.exists(charListPath))
+			characters = CoolUtil.coolTextFile(charListPath);
 
 		#if MODS_ALLOWED
 		// check for modded characters
@@ -363,12 +368,10 @@ class ChartingState extends MusicBeatState
 			gfDropDown.selectedLabel = realGf;
 		dropDowns.push(gfDropDown);
 
-		// repeat moment
 		var stages:Array<String> = [];
-
-		for (stage in FileSystem.readDirectory(Paths.getPreloadPath('stages')))
-			if (stage.endsWith('.json'))
-				stages.push(stage.substring(0, stage.lastIndexOf('.')).substring(stage.lastIndexOf('/'), stage.length));
+		var stageListPath:String = Paths.getPreloadPath('characterList.txt');
+		if (Assets.exists(stageListPath))
+			characters = CoolUtil.coolTextFile(stageListPath);
 
 		#if MODS_ALLOWED
 		// check for modded stages

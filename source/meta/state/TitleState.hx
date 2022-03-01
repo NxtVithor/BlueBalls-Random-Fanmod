@@ -73,7 +73,7 @@ class TitleState extends MusicBeatState
 		if (!initialized)
 		{
 			///*
-			#if !html5
+			#if sys
 			Discord.changePresence('TITLE SCREEN', 'Main Menu');
 			#end
 
@@ -158,9 +158,10 @@ class TitleState extends MusicBeatState
 	function getIntroTextShit():Array<Array<String>>
 	{
 		var swagGoodArray:Array<Array<String>> = [];
-		if (Assets.exists(Paths.txt('introText')))
+		var swagPath:String = Paths.getPreloadPath('introText.txt');
+		if (Assets.exists(swagPath))
 		{
-			var fullText:String = Assets.getText(Paths.txt('introText'));
+			var fullText:String = Assets.getText(swagPath);
 			var firstArray:Array<String> = fullText.split('\n');
 
 			for (i in firstArray)

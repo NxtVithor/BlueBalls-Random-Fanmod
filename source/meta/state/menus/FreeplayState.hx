@@ -16,7 +16,7 @@ import openfl.media.Sound;
 
 using StringTools;
 
-#if !html5
+#if sys
 import sys.FileSystem;
 #end
 #if sys
@@ -40,10 +40,12 @@ class FreeplayState extends MusicBeatState
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
 
+	#if sys
 	var songThread:Thread;
 	var threadActive:Bool = true;
 	var mutex:Mutex;
 	var songToPlay:Sound;
+	#end
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 
@@ -70,9 +72,11 @@ class FreeplayState extends MusicBeatState
 		while (songs[curSelected] == null)
 			curSelected--;
 
+		#if sys
 		mutex = new Mutex();
+		#end
 
-		#if !html5
+		#if sys
 		Discord.changePresence('FREEPLAY MENU', 'Main Menu');
 		#end
 
@@ -133,8 +137,8 @@ class FreeplayState extends MusicBeatState
 		var coolDifficultyArray = [];
 		for (i in CoolUtil.difficulties)
 		{
-			if (FileSystem.exists(Paths.songJson(songName, songName + '-' + i.toLowerCase()))
-				|| (FileSystem.exists(Paths.songJson(songName, songName)) && i == "Normal"))
+			if (Paths.exists(Paths.songJson(songName, songName + '-' + i.toLowerCase()))
+				|| (Paths.exists(Paths.songJson(songName, songName)) && i == "Normal"))
 				coolDifficultyArray.push(i);
 		}
 
@@ -193,9 +197,11 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.BACK)
 		{
+			#if sys
 			threadActive = false;
-			ForeverTools.resetMenuMusic(false, true);
+			#end
 			Main.switchState(new MainMenuState());
+			ForeverTools.resetMenuMusic(false, true);
 		}
 
 		if (controls.ACCEPT)
@@ -213,7 +219,9 @@ class FreeplayState extends MusicBeatState
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.stop();
 
+			#if sys
 			threadActive = false;
+			#end
 
 			Main.switchState(new PlayState());
 		}
@@ -225,20 +233,15 @@ class FreeplayState extends MusicBeatState
 		scoreBG.x = FlxG.width - scoreBG.width;
 		diffText.x = scoreBG.x + (scoreBG.width / 2) - (diffText.width / 2);
 
+		#if sys
 		if (songToPlay != null)
 		{
 			FlxG.sound.playMusic(songToPlay);
-
-			if (FlxG.sound.music.fadeTween != null)
-				FlxG.sound.music.fadeTween.cancel();
-
-			FlxG.sound.music.volume = 0.0;
-			FlxG.sound.music.fadeIn(1.0, 0.0, 1.0);
-
+			musicFadeIn();
 			songToPlay = null;
-
 			Paths.clearUnusedMemory();
 		}
+		#end
 	}
 
 	var lastDifficulty:String;
@@ -292,6 +295,7 @@ class FreeplayState extends MusicBeatState
 
 		changeDiff();
 
+		#if sys
 		if (songThread == null)
 		{
 			songThread = Thread.create(function()
@@ -318,8 +322,21 @@ class FreeplayState extends MusicBeatState
 				}
 			});
 		}
-
 		songThread.sendMessage(curSelected);
+		#else
+		Paths.clearUnusedMemory();
+		FlxG.sound.playMusic(Paths.inst(songs[curSelected].songName));
+		musicFadeIn();
+		#end
+	}
+
+	function musicFadeIn()
+	{
+		if (FlxG.sound.music.fadeTween != null)
+			FlxG.sound.music.fadeTween.cancel();
+
+		FlxG.sound.music.volume = 0.0;
+		FlxG.sound.music.fadeIn(1.0, 0.0, 1.0);
 	}
 }
 

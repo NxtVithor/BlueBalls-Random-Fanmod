@@ -5,9 +5,8 @@ import flixel.graphics.tile.FlxGraphicsShader;
 import haxe.display.Display.Package;
 import meta.state.PlayState;
 import openfl.display.GraphicsShader;
-#if !html5
+#if sys
 import sys.FileSystem;
-import sys.io.File;
 #end
 
 /**
@@ -41,9 +40,9 @@ class DynamicShaderHandler
 		var vertSource:String = "";
 
 		if (Paths.exists(fragPath))
-			fragSource = File.getContent(fragPath);
+			fragSource = Paths.readFile(fragPath);
 		if (Paths.exists(vertPath))
-			vertSource = File.getContent(vertPath);
+			vertSource = Paths.readFile(vertPath);
 
 		if (fragPath != "" || vertPath != "")
 			shader = new FlxGraphicsShader(fragSource, optimize, vertSource);

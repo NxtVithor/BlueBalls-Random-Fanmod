@@ -13,7 +13,7 @@ import meta.data.dependency.FNFTransition;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
-#if !html5
+#if sys
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -101,7 +101,9 @@ class Main extends Sprite
 			note studders and shit its weird.
 		**/
 
+		#if sys
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		#end
 
 		#if html5
 		framerate = 60;
@@ -134,7 +136,7 @@ class Main extends Sprite
 		// addChild(new FPS(10, 3, 0xFFFFFF));
 
 		// begin the discord rich presence
-		#if !html5
+		#if sys
 		Discord.initializeRPC();
 		Discord.changePresence('');
 		#end
@@ -204,6 +206,7 @@ class Main extends Sprite
 		}
 	}
 
+	#if sys
 	function onCrash(e:UncaughtErrorEvent):Void
 	{
 		var errMsg:String = "Uncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/Stilic/Forever-Modding\n";
@@ -244,4 +247,5 @@ class Main extends Sprite
 
 		Sys.exit(1);
 	}
+	#end
 }
