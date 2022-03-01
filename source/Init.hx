@@ -284,8 +284,7 @@ class Init extends FlxState
 			|| trueSettings.get("Stage Opacity") > 100)
 			trueSettings.set("Stage Opacity", 100);
 
-		#if !html5
-		// fuck you html5
+		#if sys
 		// 'hardcoded' ui skins
 		gameSettings.get("UI Skin")[0] = CoolUtil.returnAssetsLibrary('UI');
 		if (!gameSettings.get("UI Skin")[0].contains(trueSettings.get("UI Skin")))
