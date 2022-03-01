@@ -35,11 +35,10 @@ import openfl.geom.ColorTransform;
 import openfl.net.FileReference;
 
 using StringTools;
+
 #if sys
 import sys.FileSystem;
 #end
-
-
 #if sys
 import sys.thread.Thread;
 #end
@@ -91,8 +90,6 @@ class ChartingState extends MusicBeatState
 	// ui shit
 	var uiBox:FlxUITabMenu;
 	var infoTxt:FlxText;
-
-	var typingShit:FlxInputText;
 
 	var steppers:Array<FlxUINumericStepper> = [];
 	var dropDowns:Array<FlxUIDropDownMenu> = [];
@@ -228,8 +225,7 @@ class ChartingState extends MusicBeatState
 
 		FlxG.camera.follow(strumLineCam);
 
-		infoTxt = new FlxText(FlxG.width * 0.775, 50, 0, "", 22);
-		infoTxt.setFormat(Paths.font("vcr.ttf"), 22, FlxColor.WHITE, LEFT);
+		infoTxt = new FlxText(FlxG.width * 0.775, 50, 0, "", 20);
 		infoTxt.scrollFactor.set();
 		add(infoTxt);
 
@@ -247,7 +243,6 @@ class ChartingState extends MusicBeatState
 
 		// init song tab
 		songTitleInput = new FlxUIInputText(10, 10, 70, _song.song, 8);
-		typingShit = songTitleInput;
 
 		var checkVoices = new FlxUICheckBox(10, 30, null, null, "Has voice track", 100);
 		checkVoices.checked = _song.needsVoices;
@@ -567,11 +562,9 @@ class ChartingState extends MusicBeatState
 
 		Conductor.songPosition = FlxG.sound.music.time;
 
-		_song.song = typingShit.text;
+		_song.song = songTitleInput.text;
 
 		super.update(elapsed);
-
-		infoTxt.text = "Section: " + curSection + " / " + _song.notes.length + "\nBeat: " + curBeat + "\nStep: " + curStep + "\n";
 
 		// strumline camera stuffs!
 		strumLine.y = getYfromStrum(Conductor.songPosition);
@@ -579,6 +572,16 @@ class ChartingState extends MusicBeatState
 
 		coolGradient.y = strumLineCam.y - (FlxG.height / 2);
 		coolGrid.y = strumLineCam.y - (FlxG.height / 2);
+
+		infoTxt.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2))
+			+ " / "
+			+ Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2))
+			+ "\nSection: "
+			+ curSection
+			+ "\n\nBeat: "
+			+ curBeat
+			+ "\n\nStep: "
+			+ curStep;
 
 		if (FlxG.mouse.x > fullGrid.x
 			&& FlxG.mouse.x < fullGrid.x + fullGrid.width
