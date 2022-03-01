@@ -179,7 +179,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 		var ret:Dynamic = PlayState.instance.callOnLuas('onRecalculateRating', []);
 
-		Timings.skipCalculations = ret != Script.Function_Stop && !PlayState.cpuControlled;
+		Timings.skipCalculations = ret != Script.Function_Stop || !PlayState.cpuControlled;
 
 		if (ret != Script.Function_Stop)
 		{

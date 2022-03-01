@@ -66,7 +66,8 @@ class PlayState extends MusicBeatState
 	// lazy moment
 	private var isTutorial:Bool = false;
 
-	public static var songMusic:FlxSound;
+	public static var inst:Sound;
+
 	public static var vocals:FlxSound;
 
 	public static var campaignScore:Int = 0;
@@ -238,8 +239,6 @@ class PlayState extends MusicBeatState
 
 		// stop any existing music tracks playing
 		resetMusic();
-		if (FlxG.sound.music != null)
-			FlxG.sound.music.stop();
 
 		// create the game camera
 		camGame = new FlxCamera();
@@ -370,7 +369,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// generate the song
-		generateSong(SONG.song);
+		generateSong();
 
 		// set the camera position to the center of the stage
 		camPos.set(gf.x + (gf.frameWidth / 2), gf.y + (gf.frameHeight / 2));
@@ -664,7 +663,7 @@ class PlayState extends MusicBeatState
 			if (generatedMusic)
 			{
 				var previousTime:Float = Conductor.songPosition;
-				Conductor.songPosition = songMusic.time;
+				Conductor.songPosition = FlxG.sound.music.time;
 				// improved this a little bit, maybe its a lil
 				var possibleNoteList:Array<Note> = [];
 				var pressedNotes:Array<Note> = [];
@@ -955,7 +954,6 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				// Conductor.songPosition = FlxG.sound.music.time;
 				Conductor.songPosition += elapsed * 1000;
 
 				if (!paused)
@@ -972,9 +970,6 @@ class PlayState extends MusicBeatState
 						// trace('MISSED FRAME');
 					}
 				}
-
-				// Conductor.lastSongPos = FlxG.sound.music.time;
-				// song shit for testing lols
 			}
 
 			// boyfriend.playAnim('singLEFT', true);
@@ -1715,15 +1710,15 @@ class PlayState extends MusicBeatState
 
 		if (!paused)
 		{
-			songMusic.play();
-			songMusic.onComplete = endSong;
+			FlxG.sound.playMusic(inst, 1, false);
+			FlxG.sound.music.onComplete = endSong;
 			vocals.play();
 
 			resyncVocals();
 
 			#if !html5
 			// Song duration in a float, useful for the time left feature
-			songLength = songMusic.length;
+			songLength = FlxG.sound.music.length;
 
 			// Updating Discord Rich Presence (with Time Left)
 			updateRPC(false);
@@ -1734,12 +1729,11 @@ class PlayState extends MusicBeatState
 		callOnLuas('onSongStart', []);
 	}
 
-	private function generateSong(dataPath:String)
+	private function generateSong()
 	{
 		// FlxG.log.add(ChartParser.parse());
 
-		var songData = SONG;
-		Conductor.changeBPM(songData.bpm);
+		Conductor.changeBPM(SONG.bpm);
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 		songDetails = SONG.song + ' - ' + CoolUtil.difficulties[storyDifficulty];
@@ -1753,15 +1747,16 @@ class PlayState extends MusicBeatState
 		// Updating Discord Rich Presence.
 		updateRPC(false);
 
-		curSong = songData.song;
-		songMusic = new FlxSound().loadEmbedded(Paths.inst(SONG.song), false, true);
+		curSong = SONG.song;
+
+		// cache momento
+		inst = Paths.inst(curSong);
 
 		if (SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(SONG.song), false, true);
+			vocals = new FlxSound().loadEmbedded(Paths.voices(curSong), false, true);
 		else
 			vocals = new FlxSound();
 
-		FlxG.sound.list.add(songMusic);
 		FlxG.sound.list.add(vocals);
 
 		// generate the chart
@@ -1782,10 +1777,10 @@ class PlayState extends MusicBeatState
 	function resyncVocals()
 	{
 		// trace('resyncing vocal time ${vocals.time}');
-		songMusic.pause();
 		vocals.pause();
-		vocals.time = Conductor.songPosition = songMusic.time;
-		songMusic.play();
+		FlxG.sound.music.play();
+		Conductor.songPosition = FlxG.sound.music.time;
+		vocals.time = Conductor.songPosition;
 		vocals.play();
 		// trace('new vocal time ${Conductor.songPosition}');
 	}
@@ -1793,7 +1788,7 @@ class PlayState extends MusicBeatState
 	override function stepHit()
 	{
 		super.stepHit();
-		if (Math.abs(songMusic.time - (Conductor.songPosition - Conductor.offset)) > 20
+		if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > 20
 			|| (SONG.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
 			resyncVocals();
 
@@ -1874,8 +1869,8 @@ class PlayState extends MusicBeatState
 
 	static function resetMusic()
 	{
-		if (songMusic != null)
-			songMusic.stop();
+		if (FlxG.sound.music != null)
+			FlxG.sound.music.stop();
 
 		if (vocals != null)
 			vocals.stop();
@@ -1886,10 +1881,10 @@ class PlayState extends MusicBeatState
 		if (paused)
 		{
 			// trace('null song');
-			if (songMusic != null)
+			if (FlxG.sound.music != null)
 			{
 				//	trace('nulled song');
-				songMusic.pause();
+				FlxG.sound.music.pause();
 				vocals.pause();
 				//	trace('nulled song finished');
 			}
@@ -1908,7 +1903,7 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
-			if (songMusic != null && !startingSong)
+			if (FlxG.sound.music != null && !startingSong)
 				resyncVocals();
 
 			if (startTimer != null && !startTimer.finished)
@@ -1938,7 +1933,7 @@ class PlayState extends MusicBeatState
 
 		if (ret != Script.Function_Stop)
 		{
-			songMusic.volume = 0;
+			FlxG.sound.music.volume = 0;
 			vocals.volume = 0;
 			if (SONG.validScore)
 				Highscore.saveScore(SONG.song, songScore, storyDifficulty);
@@ -2022,7 +2017,8 @@ class PlayState extends MusicBeatState
 
 		PlayState.SONG = Song.loadFromJson(CoolUtil.formatSong(PlayState.storyPlaylist[0].toLowerCase(), storyDifficulty),
 			CoolUtil.coolFormat(PlayState.storyPlaylist[0]));
-		ForeverTools.killMusic([songMusic, vocals]);
+		FlxG.sound.music.stop();
+		ForeverTools.killMusic([vocals]);
 
 		persistentUpdate = false;
 
