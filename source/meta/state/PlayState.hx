@@ -205,6 +205,8 @@ class PlayState extends MusicBeatState
 
 	// stores the last judgement object
 	public static var lastRating:FlxSprite;
+	// store the last note hit timing text
+	public static var lastDiffText:FlxSprite;
 	// stores the last combo objects in an array
 	public static var lastCombo:Array<FlxSprite>;
 
@@ -1678,7 +1680,11 @@ class PlayState extends MusicBeatState
 			diffText.y += rating.y + 115;
 			if (diff != null && diff > 0)
 			{
+				if (diffText != null)
+					diffText.kill();
 				add(diffText);
+				lastDiffText = diffText;
+
 				FlxTween.tween(diffText, {alpha: 0}, 0.3, {
 					onComplete: function(tween:FlxTween)
 					{

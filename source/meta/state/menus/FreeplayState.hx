@@ -29,6 +29,7 @@ class FreeplayState extends MusicBeatState
 	var songs:Array<SongMetadata> = [];
 
 	static var curSelected:Int = 0;
+	static var lastDifficultyName:String = '';
 
 	var curSongPlaying:Int = -1;
 
@@ -54,8 +55,6 @@ class FreeplayState extends MusicBeatState
 	private var mainColor = FlxColor.WHITE;
 	private var bg:FlxSprite;
 	private var bgColorTween:FlxTween;
-
-	private var existingDifficulties:Array<Array<String>> = [];
 
 	override function create()
 	{
@@ -126,6 +125,10 @@ class FreeplayState extends MusicBeatState
 
 		add(scoreText);
 
+		if (lastDifficultyName == '')
+			lastDifficultyName = CoolUtil.defaultDifficulty;
+		curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(lastDifficultyName)));
+
 		changeSelection();
 		changeDiff();
 	}
@@ -133,20 +136,7 @@ class FreeplayState extends MusicBeatState
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, songColor:FlxColor)
 	{
 		Week.setDirectoryFromWeek(Week.loadedWeeks[weekNum]);
-
-		var coolDifficultyArray = [];
-		for (i in CoolUtil.difficulties)
-		{
-			if (Paths.exists(Paths.songJson(songName, songName + '-' + i.toLowerCase()))
-				|| (Paths.exists(Paths.songJson(songName, songName)) && i == "Normal"))
-				coolDifficultyArray.push(i);
-		}
-
-		if (coolDifficultyArray.length > 0)
-		{
-			songs.push(new SongMetadata(songName, weekNum, songCharacter, songColor, ModManager.currentModDirectory));
-			existingDifficulties.push(coolDifficultyArray);
-		}
+		songs.push(new SongMetadata(songName, weekNum, songCharacter, songColor, ModManager.currentModDirectory));
 	}
 
 	public function addWeek(week:Week, weekNum:Int)
@@ -208,10 +198,9 @@ class FreeplayState extends MusicBeatState
 		{
 			Week.setDirectoryFromWeek(Week.loadedWeeks[songs[curSelected].week]);
 
-			var diffNum:Int = CoolUtil.difficulties.indexOf(existingDifficulties[curSelected][curDifficulty]);
-			PlayState.SONG = Song.loadFromJson(CoolUtil.formatSong(songs[curSelected].songName, diffNum), songs[curSelected].songName.toLowerCase());
+			PlayState.SONG = Song.loadFromJson(CoolUtil.formatSong(songs[curSelected].songName, curDifficulty), songs[curSelected].songName.toLowerCase());
 			PlayState.isStoryMode = false;
-			PlayState.storyDifficulty = diffNum;
+			PlayState.storyDifficulty = curDifficulty;
 
 			PlayState.storyWeek = songs[curSelected].week;
 			// trace('CUR WEEK' + PlayState.storyWeek);
@@ -244,24 +233,20 @@ class FreeplayState extends MusicBeatState
 		#end
 	}
 
-	var lastDifficulty:String;
-
 	function changeDiff(change:Int = 0)
 	{
 		curDifficulty += change;
-		if (lastDifficulty != null && change != 0)
-			while (existingDifficulties[curSelected][curDifficulty] == lastDifficulty)
-				curDifficulty += change;
 
 		if (curDifficulty < 0)
-			curDifficulty = existingDifficulties[curSelected].length - 1;
-		if (curDifficulty > existingDifficulties[curSelected].length - 1)
+			curDifficulty = CoolUtil.difficulties.length - 1;
+		if (curDifficulty > CoolUtil.difficulties.length - 1)
 			curDifficulty = 0;
+
+		lastDifficultyName = CoolUtil.difficulties[curDifficulty];
 
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 
-		diffText.text = '< ' + existingDifficulties[curSelected][curDifficulty].toUpperCase() + ' >';
-		lastDifficulty = existingDifficulties[curSelected][curDifficulty].toUpperCase();
+		diffText.text = '< ' + CoolUtil.difficulties[curDifficulty].toUpperCase() + ' >';
 	}
 
 	function changeSelection(change:Int = 0)
@@ -273,7 +258,7 @@ class FreeplayState extends MusicBeatState
 		if (curSelected >= songs.length)
 			curSelected = 0;
 
-		Week.setDirectoryFromWeek(Week.loadedWeeks[songs[curSelected].week]);
+		ModManager.currentModDirectory = songs[curSelected].directory;
 
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 
@@ -292,6 +277,18 @@ class FreeplayState extends MusicBeatState
 			if (item.targetY == 0)
 				item.alpha = 1;
 		}
+
+		CoolUtil.loadDiffs(songs[curSelected].week);
+
+		if (CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
+			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
+		else
+			curDifficulty = 0;
+
+		var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
+		// trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
+		if (newPos > -1)
+			curDifficulty = newPos;
 
 		changeDiff();
 

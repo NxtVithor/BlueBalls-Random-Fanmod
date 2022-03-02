@@ -1,5 +1,6 @@
 package meta;
 
+import meta.data.Week;
 import lime.app.Application;
 import haxe.Exception;
 import haxe.Json;
@@ -20,6 +21,34 @@ class CoolUtil
 	public static var defaultDifficulty:String = 'Normal';
 
 	public static var difficulties:Array<String> = [];
+
+	public static function loadDiffs(week:Int)
+	{
+		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+		var diffStr:String = Week.loadedWeeks[week].difficulties;
+		// fuck you html
+		if (diffStr != null)
+			diffStr = diffStr.trim();
+
+		if (diffStr != null && diffStr.length > 0)
+		{
+			var diffs:Array<String> = diffStr.split(',');
+			var i:Int = diffs.length - 1;
+			while (i > 0)
+			{
+				if (diffs[i] != null)
+				{
+					diffs[i] = diffs[i].trim();
+					if (diffs[i].length < 1)
+						diffs.remove(diffs[i]);
+				}
+				--i;
+			}
+
+			if (diffs.length > 0 && diffs[0].length > 0)
+				CoolUtil.difficulties = diffs;
+		}
+	}
 
 	public static function formatDifficulty(?num:Int)
 	{

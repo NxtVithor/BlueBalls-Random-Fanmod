@@ -77,7 +77,7 @@ class Week
 			if (!weekFiles.contains(daPath))
 			{
 				weekFiles.push(daPath);
-				weekNames.push(CoolUtil.removeExt(week));
+				weekNames.push(week);
 				directoriesShit.push('');
 			}
 		}

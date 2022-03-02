@@ -26,6 +26,7 @@ class StoryMenuState extends MusicBeatState
 
 	var txtWeekTitle:FlxText;
 
+	static var lastDifficultyName:String = '';
 	static var curWeek:Int = 0;
 
 	var txtTracklist:FlxText;
@@ -138,6 +139,11 @@ class StoryMenuState extends MusicBeatState
 		leftArrow.animation.addByPrefix('press', "arrow push left");
 		leftArrow.animation.play('idle');
 		difficultySelectors.add(leftArrow);
+
+		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+		if (lastDifficultyName == '')
+			lastDifficultyName = CoolUtil.defaultDifficulty;
+		curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(lastDifficultyName)));
 
 		sprDifficulty = new FlxSprite(leftArrow.x + 130, leftArrow.y);
 		sprDifficulty.frames = ui_tex;
@@ -336,6 +342,17 @@ class StoryMenuState extends MusicBeatState
 				item.alpha = 0.6;
 			bullShit++;
 		}
+
+		CoolUtil.loadDiffs(curWeek);
+
+		if (CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
+			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
+		else
+			curDifficulty = 0;
+
+		var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
+		if (newPos > -1)
+			curDifficulty = newPos;
 
 		updateText();
 	}

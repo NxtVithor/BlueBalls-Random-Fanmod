@@ -929,6 +929,22 @@ class Script
 			var cam:FlxCamera = cameraFromString(camera);
 			return FlxG.mouse.getScreenPosition(cam).y;
 		});
+		Lua_helper.add_callback(lua, "getScreenPositionX", function(variable:String)
+		{
+			var obj:FlxObject = getObjectDirectly(variable);
+			if (obj != null)
+				return obj.getScreenPosition().x;
+
+			return 0;
+		});
+		Lua_helper.add_callback(lua, "getScreenPositionY", function(variable:String)
+		{
+			var obj:FlxObject = getObjectDirectly(variable);
+			if (obj != null)
+				return obj.getScreenPosition().y;
+
+			return 0;
+		});
 		Lua_helper.add_callback(lua, "characterPlayAnim", function(character:String, anim:String, ?forced:Bool = false)
 		{
 			switch (character.toLowerCase())
@@ -1306,9 +1322,9 @@ class Script
 				}
 			}
 
-			if (!objectsArray.contains(null))
+			if (!objectsArray.contains(null) && FlxG.overlap(objectsArray[0], objectsArray[1]))
 			{
-				return FlxG.collide(objectsArray[0], objectsArray[1]);
+				return true;
 			}
 			return false;
 		});
