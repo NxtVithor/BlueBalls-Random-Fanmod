@@ -1,6 +1,5 @@
 package gameObjects.userInterface;
 
-import meta.data.Script;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -20,6 +19,7 @@ import flixel.util.FlxTimer;
 import meta.CoolUtil;
 import meta.InfoHud;
 import meta.data.Conductor;
+import meta.data.Script;
 import meta.data.Timings;
 import meta.state.PlayState;
 
@@ -29,7 +29,9 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 {
 	// set up variables and stuff here
 	public var infoBar:FlxText; // small side bar like kade engine that tells you engine info
-	public var scoreBar:FlxText;
+	public var scoreTxt:FlxText;
+
+	public var scoreTxtTween:FlxTween;
 
 	var scoreLast:Float = -1;
 
@@ -79,12 +81,12 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		grpIcons.add(iconP2);
 
-		scoreBar = new FlxText(0, healthBarBG.y + 40, 0, '', 20);
-		scoreBar.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		scoreBar.screenCenter(X);
+		scoreTxt = new FlxText(0, healthBarBG.y + 40, 0, '', 20);
+		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scoreTxt.screenCenter(X);
 		updateScoreText();
-		scoreBar.scrollFactor.set();
-		add(scoreBar);
+		scoreTxt.scrollFactor.set();
+		add(scoreTxt);
 
 		// small info bar based on scoretxt, kinda like the KE watermark
 		var infoDisplay:String = CoolUtil.dashToSpace(PlayState.SONG.song) + ' - ' + CoolUtil.difficulties[PlayState.storyDifficulty];
@@ -141,9 +143,11 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	override public function update(elapsed:Float)
 	{
-		// force score text to be updated on botplay
 		if (PlayState.cpuControlled)
-			updateScoreText();
+			scoreTxt.text = 'Botplay';
+		else
+			scoreTxt.text = lastScoreText;
+		scoreTxt.x = FlxG.width / 2 - scoreTxt.width / 2;
 
 		// pain, this is like the 7th attempt
 		healthBar.percent = (PlayState.health * 50);
@@ -171,6 +175,8 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	static final divider:String = ' - ';
 
+	var lastScoreText:String;
+
 	public function updateScoreText()
 	{
 		PlayState.instance.setOnLuas('score', PlayState.songScore);
@@ -179,31 +185,22 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 		var ret:Dynamic = PlayState.instance.callOnLuas('onRecalculateRating', []);
 
-		Timings.skipCalculations = ret != Script.Function_Stop || !PlayState.cpuControlled;
-
 		if (ret != Script.Function_Stop)
 		{
-			if (!PlayState.cpuControlled)
+			lastScoreText = 'Score: ' + PlayState.songScore;
+			if (Init.trueSettings.get('Display Accuracy'))
 			{
-				scoreBar.text = 'Score: ' + PlayState.songScore;
-				if (Init.trueSettings.get('Display Accuracy'))
-				{
-					scoreBar.text += divider + 'Combo Breaks: ' + PlayState.misses;
-					scoreBar.text += divider + 'Accuracy: ' + Math.floor(Timings.getAccuracy() * 100) / 100 + '%' + Timings.comboDisplay;
-					scoreBar.text += divider + Timings.ratingFinal;
-				}
+				lastScoreText += divider + 'Combo Breaks: ' + PlayState.misses;
+				lastScoreText += divider + 'Accuracy: ' + Std.string(Math.floor(Timings.trueAccuracy * 100) / 100) + '%' + Timings.comboDisplay;
+				lastScoreText += divider + Timings.ratingFinal;
 			}
-			else
-				scoreBar.text = 'Botplay';
 		}
-
-		scoreBar.x = (FlxG.width / 2 - scoreBar.width / 2);
 
 		// update counter
 		updateCounter();
 
 		// update playstate
-		PlayState.detailsSub = scoreBar.text;
+		PlayState.detailsSub = scoreTxt.text;
 		PlayState.updateRPC(false);
 	}
 

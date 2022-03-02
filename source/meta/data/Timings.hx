@@ -8,8 +8,6 @@ import meta.state.PlayState;
 **/
 class Timings
 {
-	public static var skipCalculations:Bool = false;
-
 	public static var accuracy:Float;
 	public static var trueAccuracy:Float;
 	public static var judgementRates:Array<Float>;
@@ -17,9 +15,9 @@ class Timings
 	// from left to right
 	// max milliseconds, score from it and percentage
 	public static var judgementsMap:Map<String, Array<Dynamic>> = [
-		"sick" => [0, 55, 350, 100, ' [SFC]'],
-		"good" => [1, 80, 150, 75, ' [GFC]'],
-		"bad" => [2, 100, 0, 25, ' [FC]'],
+		"sick" => [0, 55, 350, 50, ' [SFC]'],
+		"good" => [1, 80, 150, 25, ' [GFC]'],
+		"bad" => [2, 100, 0, 5, ' [FC]'],
 		"shit" => [3, 120, -50, -75],
 		"miss" => [4, 140, -100, -50],
 	];
@@ -38,7 +36,7 @@ class Timings
 		"F" => 65,
 	];
 
-	public static var ratingFinal:String = "?";
+	public static var ratingFinal:String = "F";
 	public static var notesHit:Int = 0;
 	public static var segmentsHit:Int = 0;
 	public static var comboDisplay:String = '';
@@ -90,21 +88,17 @@ class Timings
 
 	public static function updateAccuracy(judgement:Int, ?isSustain:Bool = false, ?segmentCount:Int = 1)
 	{
-		if (!skipCalculations) {
-			if (!isSustain)
-			{
-				notesHit++;
-				accuracy += (Math.max(0, judgement));
-			}
-			else
-			{
-				accuracy += (Math.max(0, judgement) / segmentCount);
-			}
-			trueAccuracy = (accuracy / notesHit);
-
-			updateFCDisplay();
-			updateScoreRating();
+		if (!isSustain)
+		{
+			notesHit++;
+			accuracy += Math.max(0, judgement);
 		}
+		else
+			accuracy += Math.max(0, judgement) / segmentCount;
+		trueAccuracy = accuracy / notesHit;
+
+		updateFCDisplay();
+		updateScoreRating();
 	}
 
 	public static function updateFCDisplay()
@@ -116,11 +110,6 @@ class Timings
 
 		// this updates the most so uh
 		PlayState.instance.uiHUD.updateScoreText();
-	}
-
-	public static function getAccuracy()
-	{
-		return trueAccuracy;
 	}
 
 	public static function updateScoreRating()

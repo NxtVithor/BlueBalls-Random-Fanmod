@@ -205,8 +205,6 @@ class PlayState extends MusicBeatState
 
 	// stores the last judgement object
 	public static var lastRating:FlxSprite;
-	// store the last note hit timing text
-	public static var lastDiffText:FlxSprite;
 	// stores the last combo objects in an array
 	public static var lastCombo:Array<FlxSprite>;
 
@@ -279,7 +277,7 @@ class PlayState extends MusicBeatState
 			curStage = SONG.stage;
 
 		// cache shit
-		displayRating('sick', null, 'early', true);
+		displayRating('sick', 'early', true);
 		popUpCombo(true);
 
 		stageBuild = new Stage(curStage);
@@ -769,7 +767,6 @@ class PlayState extends MusicBeatState
 		luaArray = [];
 		#end
 
-		Timings.skipCalculations = false;
 		usedGameplayFeature = false;
 
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
@@ -1313,10 +1310,25 @@ class PlayState extends MusicBeatState
 				if (!coolNote.isSustainNote)
 				{
 					increaseCombo(foundRating, coolNote, character);
-					popUpScore(foundRating, noteDiff, ratingTiming, characterStrums, coolNote);
+					popUpScore(foundRating, ratingTiming, characterStrums, coolNote);
 					if (coolNote.childrenNotes.length > 0)
 						Timings.notesHit++;
 					healthCall(Timings.judgementsMap.get(foundRating)[3]);
+
+					if (coolNote.mustPress && !cpuControlled)
+					{
+						// funny score bar bounce on note hit
+						if (uiHUD.scoreTxtTween != null)
+							uiHUD.scoreTxtTween.cancel();
+						uiHUD.scoreTxt.scale.x = 1.1;
+						uiHUD.scoreTxtTween = FlxTween.tween(uiHUD.scoreTxt.scale, {x: 1}, 0.3, {
+							ease: FlxEase.cubeOut,
+							onComplete: function(twn:FlxTween)
+							{
+								uiHUD.scoreTxtTween = null;
+							}
+						});
+					}
 				}
 				else if (coolNote.isSustainNote)
 				{
@@ -1479,7 +1491,7 @@ class PlayState extends MusicBeatState
 	var animationsPlay:Array<Note> = [];
 	private var ratingTiming:String = "";
 
-	function popUpScore(baseRating:String, diff:Float, timing:String, strumline:Strumline, coolNote:Note)
+	function popUpScore(baseRating:String, timing:String, strumline:Strumline, coolNote:Note)
 	{
 		// set up the rating
 		var score:Int = 50;
@@ -1493,7 +1505,7 @@ class PlayState extends MusicBeatState
 			if (allSicks)
 				allSicks = false;
 
-		displayRating(baseRating, diff, timing);
+		displayRating(baseRating, timing);
 		Timings.updateAccuracy(Timings.judgementsMap.get(baseRating)[3]);
 		score = Std.int(Timings.judgementsMap.get(baseRating)[2]);
 
@@ -1578,7 +1590,7 @@ class PlayState extends MusicBeatState
 		// display negative combo
 		if (popMiss)
 		{
-			displayRating('miss', null, 'late');
+			displayRating('miss', 'late');
 			popUpCombo();
 		}
 
@@ -1644,55 +1656,6 @@ class PlayState extends MusicBeatState
 
 		if (!cache)
 		{
-			var diffText:FlxText = new FlxText(0, 0, 0, CoolUtil.truncateFloat(diff, 3) + ' ms');
-			if (cpuControlled)
-				diffText.text += ' (BOT)';
-			switch (daRating)
-			{
-				case 'shit' | 'bad':
-					diffText.color = FlxColor.RED;
-				case 'good':
-					diffText.color = FlxColor.GREEN;
-				case 'sick':
-					diffText.color = FlxColor.CYAN;
-			}
-			diffText.borderStyle = OUTLINE;
-			diffText.borderSize = 1;
-			diffText.borderColor = FlxColor.BLACK;
-			diffText.size = 20;
-
-			if (Init.trueSettings.get('Fixed Judgements'))
-			{
-				// bound to camera
-				rating.cameras = [camHUD];
-				rating.screenCenter();
-
-				diffText.cameras = [camHUD];
-			}
-			else
-				diffText.x += 215;
-
-			// bruh
-			if (assetModifier == 'pixel')
-				diffText.y -= 75;
-
-			diffText.x += rating.x + 100;
-			diffText.y += rating.y + 115;
-			if (diff != null && diff > 0)
-			{
-				if (diffText != null)
-					diffText.kill();
-				add(diffText);
-				lastDiffText = diffText;
-
-				FlxTween.tween(diffText, {alpha: 0}, 0.3, {
-					onComplete: function(tween:FlxTween)
-					{
-						diffText.kill();
-					}
-				});
-			}
-
 			// return the actual rating to the array of judgements
 			Timings.gottenJudgements.set(daRating, Timings.gottenJudgements.get(daRating) + 1);
 
