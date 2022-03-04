@@ -32,8 +32,7 @@ class MusicBeatState extends FNFUIState
 	{
 		// dump
 		Paths.clearStoredMemory();
-		if (!Std.isOfType(this, meta.state.PlayState))
-			Paths.clearUnusedMemory();
+		Paths.clearUnusedMemory();
 
 		// if (transIn != null)
 		// 	trace('reg ' + transIn.region);
