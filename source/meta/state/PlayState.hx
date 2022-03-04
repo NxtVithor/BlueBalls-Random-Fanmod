@@ -1656,6 +1656,13 @@ class PlayState extends MusicBeatState
 
 		if (!cache)
 		{
+			if (Init.trueSettings.get('Fixed Judgements'))
+			{
+				// bound to camera
+				rating.cameras = [camHUD];
+				rating.screenCenter();
+			}
+
 			// return the actual rating to the array of judgements
 			Timings.gottenJudgements.set(daRating, Timings.gottenJudgements.get(daRating) + 1);
 
