@@ -89,7 +89,6 @@ class ChartingState extends MusicBeatState
 
 	// ui shit
 	var uiBox:FlxUITabMenu;
-	var infoTxt:FlxText;
 
 	var steppers:Array<FlxUINumericStepper> = [];
 	var dropDowns:Array<FlxUIDropDownMenu> = [];
@@ -224,10 +223,6 @@ class ChartingState extends MusicBeatState
 		add(strumLine);
 
 		FlxG.camera.follow(strumLineCam);
-
-		infoTxt = new FlxText(FlxG.width * 0.775, 50, 0, "", 20);
-		infoTxt.scrollFactor.set();
-		add(infoTxt);
 
 		// init ui
 		uiBox = new FlxUITabMenu(null, [
@@ -556,7 +551,10 @@ class ChartingState extends MusicBeatState
 		curSection = Std.int(curStep / 16);
 
 		if (lastSection != curSection)
+		{
+			updateGrid();
 			updateUI();
+		}
 
 		lastSection = curSection;
 
@@ -572,16 +570,6 @@ class ChartingState extends MusicBeatState
 
 		coolGradient.y = strumLineCam.y - (FlxG.height / 2);
 		coolGrid.y = strumLineCam.y - (FlxG.height / 2);
-
-		infoTxt.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2))
-			+ " / "
-			+ Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2))
-			+ "\nSection: "
-			+ curSection
-			+ "\n\nBeat: "
-			+ curBeat
-			+ "\n\nStep: "
-			+ curStep;
 
 		if (FlxG.mouse.x > fullGrid.x
 			&& FlxG.mouse.x < fullGrid.x + fullGrid.width
@@ -613,6 +601,8 @@ class ChartingState extends MusicBeatState
 
 					if (FlxG.keys.pressed.CONTROL)
 						_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteType]);
+
+					updateGrid();
 
 					FlxG.save.data.autosave = Json.stringify({
 						"song": _song
@@ -867,6 +857,7 @@ class ChartingState extends MusicBeatState
 
 		FlxG.sound.playMusic(Paths.inst(daSong), 1);
 		FlxG.sound.music.pause();
+		FlxG.sound.music.time = 0;
 
 		if (_song.needsVoices)
 			vocals = new FlxSound().loadEmbedded(Paths.voices(daSong));
@@ -891,18 +882,26 @@ class ChartingState extends MusicBeatState
 
 	private function updateGrid()
 	{
-		curRenderedNotes.clear();
-		curRenderedSustains.clear();
+		/*
+			you may asking why we can't just clear these groups
+			this is because flixel is dumb for clear correctly the groups in da ram
+			so we do the another way
+		 */
+		while (curRenderedNotes.members.length > 0)
+			curRenderedNotes.remove(curRenderedNotes.members[0], true);
+		while (curRenderedSustains.members.length > 0)
+			curRenderedSustains.remove(curRenderedSustains.members[0], true);
 
-		for (section in 0..._song.notes.length)
+		for (e in 0...3)
 		{
-			for (i in _song.notes[section].sectionNotes)
+			var leSection:Int = curSection + e;
+			for (i in _song.notes[leSection].sectionNotes)
 			{
 				// note stuffs
 				var daNoteAlt = 0;
 				if (i.length > 2)
 					daNoteAlt = i[3];
-				generateChartNote(i[1], i[0], i[2], daNoteAlt, section);
+				generateChartNote(i[1], i[0], i[2], daNoteAlt, leSection);
 			}
 		}
 	}
