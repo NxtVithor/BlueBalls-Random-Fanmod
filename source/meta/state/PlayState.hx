@@ -1537,8 +1537,9 @@ class PlayState extends MusicBeatState
 		for (scoreInt in 0...stringArray.length)
 		{
 			// numScore.loadGraphic(Paths.image('UI/' + pixelModifier + 'num' + stringArray[scoreInt]));
-			var numScore = ForeverAssets.generateCombo('combo', stringArray[scoreInt], (!negative ? allSicks : false), assetModifier, changeableSkin, 'UI',
-				negative, createdColor, scoreInt);
+			var numScore = ForeverAssets.generateCombo('combo', stringArray[scoreInt], (!negative ? allSicks : false), assetModifier, changeableSkin,
+				assetModifier == 'pixel'
+				&& changeableSkin == 'default' ? 'pixelUI' : 'UI', negative, createdColor, scoreInt);
 			add(numScore);
 			// hardcoded lmao
 			if (!Init.trueSettings.get('Simply Judgements'))
@@ -1623,7 +1624,9 @@ class PlayState extends MusicBeatState
 			"oh but if the rating isn't sick why not just reset it"
 			because miss judgements can pop, and they dont mess with your sick combo
 		 */
-		var rating = ForeverAssets.generateRating('$daRating', (daRating == 'sick' ? allSicks : false), timing, assetModifier, changeableSkin, 'UI');
+		var rating = ForeverAssets.generateRating('$daRating', (daRating == 'sick' ? allSicks : false), timing, assetModifier, changeableSkin,
+			assetModifier == 'pixel'
+			&& changeableSkin == 'default' ? 'pixelUI' : 'UI');
 		add(rating);
 
 		if (!Init.trueSettings.get('Simply Judgements'))
@@ -2198,8 +2201,17 @@ class PlayState extends MusicBeatState
 					ForeverTools.returnSkinAsset('set', assetModifier, changeableSkin, 'UI'),
 					ForeverTools.returnSkinAsset('go', assetModifier, changeableSkin, 'UI')
 				]);
+				introAssets.set('pixel', [
+					ForeverTools.returnSkinAsset('ready-pixel', assetModifier, changeableSkin, 'pixelUI'),
+					ForeverTools.returnSkinAsset('set-pixel', assetModifier, changeableSkin, 'pixelUI'),
+					ForeverTools.returnSkinAsset('go-pixel', assetModifier, changeableSkin, 'pixelUI')
+				]);
 
-				var introAlts:Array<String> = introAssets.get('default');
+				var leModifier:String = 'default';
+				if (introAssets.exists(assetModifier))
+					leModifier = assetModifier;
+
+				var introAlts:Array<String> = introAssets.get(leModifier);
 				for (value in introAssets.keys())
 				{
 					if (value == PlayState.curStage)

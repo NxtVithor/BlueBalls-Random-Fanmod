@@ -17,10 +17,10 @@ import meta.data.Week;
 import meta.state.PlayState;
 
 using StringTools;
+
 #if sys
 import sys.FileSystem;
 #end
-
 
 /**
 	Forever Assets is a class that manages the different asset types, basically a compilation of switch statements that are
@@ -89,7 +89,8 @@ class ForeverAssets
 			height = 32;
 		}
 		var rating:FlxSprite = new FlxSprite().loadGraphic(Paths.image(ForeverTools.returnSkinAsset('judgements', assetModifier, changeableSkin,
-			baseLibrary)), true, width, height);
+			baseLibrary)),
+			true, width, height);
 		switch (assetModifier)
 		{
 			default:
@@ -127,7 +128,9 @@ class ForeverAssets
 		switch (assetModifier)
 		{
 			case 'pixel':
-				tempSplash.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('splash-pixel', assetModifier, changeableSkin, baseLibrary)), true, 34, 34);
+				tempSplash.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('noteSplashes', assetModifier, changeableSkin,
+					changeableSkin == 'default' ? 'pixelUI' : 'noteskins/notes')),
+					true, 34, 34);
 				tempSplash.animation.add('anim1', [noteData, 4 + noteData, 8 + noteData, 12 + noteData], 24, false);
 				tempSplash.animation.add('anim2', [16 + noteData, 20 + noteData, 24 + noteData, 28 + noteData], 24, false);
 				tempSplash.addOffset('anim1', -85, -75);
@@ -161,6 +164,7 @@ class ForeverAssets
 
 	public static function generateUIArrows(x:Float, y:Float, ?staticArrowType:Int = 0, ?assetModifier:String = 'base'):UIStaticArrow
 	{
+		var leSkin:String = Init.trueSettings.get("Note Skin");
 		var newStaticArrow:UIStaticArrow = new UIStaticArrow(x, y, assetModifier);
 		switch (assetModifier)
 		{
@@ -168,8 +172,9 @@ class ForeverAssets
 				// look man you know me I fucking hate repeating code
 				// not even just a cleanliness thing it's just so annoying to tweak if something goes wrong like
 				// genuinely more programmers should make their code more modular
-				var framesArgument:String = "arrows-pixels";
-				var graphicPath:String = ForeverTools.returnSkinAsset('$framesArgument', assetModifier, Init.trueSettings.get("Note Skin"), 'noteskins/notes');
+				var framesArgument:String = "NOTE_assets";
+				var graphicPath:String = ForeverTools.returnSkinAsset('$framesArgument', assetModifier, leSkin,
+					leSkin == 'default' ? 'pixelUI' : 'noteskins/notes');
 				newStaticArrow.loadGraphic(Paths.image(graphicPath));
 				newStaticArrow.width = newStaticArrow.width / 4;
 				newStaticArrow.height = newStaticArrow.height / 5;
@@ -187,8 +192,10 @@ class ForeverAssets
 				// call arrow type I think
 				stringSect = UIStaticArrow.getArrowFromNumber(staticArrowType);
 
-				newStaticArrow.frames = Paths.getSparrowAtlas(ForeverTools.returnSkinAsset('NOTE_assets', assetModifier,
-					Init.trueSettings.get("Note Skin"), ''));
+				var framesArgument:String = "NOTE_assets";
+
+				newStaticArrow.frames = Paths.getSparrowAtlas(ForeverTools.returnSkinAsset('$framesArgument', assetModifier,
+					Init.trueSettings.get("Note Skin"), 'noteskins/notes'));
 
 				newStaticArrow.animation.addByPrefix('static', 'arrow' + stringSect.toUpperCase());
 				newStaticArrow.animation.addByPrefix('pressed', stringSect + ' press', 24, false);

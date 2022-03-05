@@ -26,30 +26,32 @@ class ForeverTools
 	public static function returnSkinAsset(asset:String, assetModifier:String = 'base', changeableSkin:String = 'default', baseLibrary:String,
 			?defaultChangeableSkin:String = 'default', ?defaultBaseAsset:String = 'base'):String
 	{
-		var realAsset = '$baseLibrary/$asset';
+		var realAsset = '$baseLibrary/$changeableSkin/$assetModifier/$asset';
 		var failedShit = function()
 		{
 			return !Paths.exists(Paths.getPath('images/' + realAsset + '.png', IMAGE));
 		}
+
 		// awesome tree lmao
 		if (failedShit())
 		{
-			realAsset = asset;
+			realAsset = '$baseLibrary/$asset-$assetModifier';
 			if (failedShit())
 			{
-				realAsset = '$baseLibrary/$asset-$assetModifier';
+				realAsset = '$baseLibrary/$asset';
 				if (failedShit())
 				{
-					realAsset = '$baseLibrary/$changeableSkin/$assetModifier/$asset';
+					realAsset = '$baseLibrary/$defaultChangeableSkin/$assetModifier/$asset';
 					if (failedShit())
 					{
-						realAsset = '$baseLibrary/$defaultChangeableSkin/$assetModifier/$asset';
+						realAsset = '$baseLibrary/$defaultChangeableSkin/$defaultBaseAsset/$asset';
 						if (failedShit())
-							realAsset = '$baseLibrary/$defaultChangeableSkin/$defaultBaseAsset/$asset';
+							realAsset = asset;
 					}
 				}
 			}
 		}
+
 		return realAsset;
 	}
 

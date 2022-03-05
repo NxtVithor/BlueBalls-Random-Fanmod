@@ -135,7 +135,6 @@ class FreeplayState extends MusicBeatState
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, songColor:FlxColor)
 	{
-		Week.setDirectoryFromWeek(Week.loadedWeeks[weekNum]);
 		songs.push(new SongMetadata(songName, weekNum, songCharacter, songColor, ModManager.currentModDirectory));
 	}
 
@@ -145,6 +144,8 @@ class FreeplayState extends MusicBeatState
 			&& ((week.weekBefore != null && week.weekBefore.length > 0 && Week.completedWeeks.get(week.weekBefore)) || week.startUnlocked))
 		{
 			var num:Int = 0;
+
+			Week.setDirectoryFromWeek(Week.loadedWeeks[weekNum]);
 
 			for (song in week.songs)
 			{

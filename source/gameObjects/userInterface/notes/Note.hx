@@ -103,6 +103,7 @@ class Note extends FNFSprite
 	**/
 	public static function returnDefaultNote(assetModifier, strumTime, noteData, noteType, noteAlt, ?isSustainNote:Bool = false, ?prevNote:Note = null):Note
 	{
+		var leSkin:String = Init.trueSettings.get("Note Skin");
 		var newNote:Note = new Note(strumTime, noteData, noteAlt, prevNote, isSustainNote);
 
 		// frames originally go here
@@ -111,9 +112,9 @@ class Note extends FNFSprite
 			case 'pixel': // pixel arrows default
 				if (isSustainNote)
 				{
-					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('NOTE_assetsENDS', assetModifier, Init.trueSettings.get("Note Skin"),
-						'pixelUI')), true, 7,
-						6);
+					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('NOTE_assetsENDS', assetModifier, leSkin,
+						leSkin == 'default' ? 'pixelUI' : 'noteskins/notes')),
+						true, 7, 6);
 					newNote.animation.add('purpleholdend', [4]);
 					newNote.animation.add('greenholdend', [6]);
 					newNote.animation.add('redholdend', [7]);
@@ -125,8 +126,8 @@ class Note extends FNFSprite
 				}
 				else
 				{
-					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('NOTE_assets', assetModifier, Init.trueSettings.get("Note Skin"),
-						'pixelUI')),
+					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('NOTE_assets', assetModifier, leSkin,
+						leSkin == 'default' ? 'pixelUI' : 'noteskins/notes')),
 						true, 17, 17);
 					newNote.animation.add('greenScroll', [6]);
 					newNote.animation.add('redScroll', [7]);
