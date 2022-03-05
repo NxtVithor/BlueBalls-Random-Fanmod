@@ -202,6 +202,20 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		PlayState.updateRPC(false);
 	}
 
+	public function scoreBarBounce()
+	{
+		if (scoreTxtTween != null)
+			scoreTxtTween.cancel();
+		scoreTxt.scale.x = 1.15;
+		scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1}, 0.4, {
+			ease: FlxEase.cubeOut,
+			onComplete: function(twn:FlxTween)
+			{
+				scoreTxtTween = null;
+			}
+		});
+	}
+
 	function updateCounter()
 	{
 		if (Init.trueSettings.get('Counter') != 'None')

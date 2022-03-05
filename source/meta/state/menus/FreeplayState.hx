@@ -188,11 +188,13 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.BACK)
 		{
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.stop();
 			#if sys
 			threadActive = false;
 			#end
-			Main.switchState(new MainMenuState());
 			ForeverTools.resetMenuMusic(false, true);
+			Main.switchState(new MainMenuState());
 		}
 
 		if (controls.ACCEPT)

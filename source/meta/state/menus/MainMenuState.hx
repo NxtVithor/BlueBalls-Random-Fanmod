@@ -115,9 +115,7 @@ class MainMenuState extends MusicBeatState
 			menuItem.updateHitbox();
 		}
 
-		// set the camera to actually follow the camera object that was created before
-		var camLerp = Main.framerateAdjust(0.10);
-		FlxG.camera.follow(camFollow, LOCKON, camLerp);
+		FlxG.camera.follow(camFollow, LOCKON, Main.framerateAdjust(0.07));
 
 		updateSelection();
 

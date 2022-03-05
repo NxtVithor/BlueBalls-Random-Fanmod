@@ -1347,20 +1347,9 @@ class PlayState extends MusicBeatState
 						Timings.notesHit++;
 					healthCall(Timings.judgementsMap.get(foundRating)[3]);
 
+					// funny score bar bounce on note hit
 					if (coolNote.mustPress && !cpuControlled)
-					{
-						// funny score bar bounce on note hit
-						if (uiHUD.scoreTxtTween != null)
-							uiHUD.scoreTxtTween.cancel();
-						uiHUD.scoreTxt.scale.x = 1.1;
-						uiHUD.scoreTxtTween = FlxTween.tween(uiHUD.scoreTxt.scale, {x: 1}, 0.3, {
-							ease: FlxEase.cubeOut,
-							onComplete: function(twn:FlxTween)
-							{
-								uiHUD.scoreTxtTween = null;
-							}
-						});
-					}
+						uiHUD.scoreBarBounce();
 				}
 				else if (coolNote.isSustainNote)
 				{
