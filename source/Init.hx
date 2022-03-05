@@ -96,7 +96,7 @@ class Init extends FlxState
 			NOT_FORCED
 		],
 		'No Camera Note Movement' => [
-			false,
+			true,
 			Checkmark,
 			'When enabled, left and right notes no longer move the camera.',
 			NOT_FORCED
