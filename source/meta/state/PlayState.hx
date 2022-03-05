@@ -94,7 +94,7 @@ class PlayState extends MusicBeatState
 	private var allSicks:Bool = true;
 
 	// if you ever wanna add more keys
-	private var numberOfKeys:Int = 4;
+	private final numberOfKeys:Int = 4;
 
 	// get it cus release
 	// I'm funny just trust me
@@ -1352,10 +1352,7 @@ class PlayState extends MusicBeatState
 		if (playSound)
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 		if (includeAnimation)
-		{
-			camDisplace(direction);
 			character.playAnim('sing' + UIStaticArrow.getArrowFromNumber(direction).toUpperCase() + 'miss', lockMiss);
-		}
 		decreaseCombo(popMiss);
 	}
 
@@ -1923,9 +1920,9 @@ class PlayState extends MusicBeatState
 
 			if (!isStoryMode)
 			{
-				cpuControlled = false;
 				persistentUpdate = false;
 				Main.switchState(new FreeplayState());
+				cpuControlled = false;
 			}
 			else
 			{
@@ -1945,8 +1942,6 @@ class PlayState extends MusicBeatState
 					transIn = FlxTransitionableState.defaultTransIn;
 					transOut = FlxTransitionableState.defaultTransOut;
 
-					cpuControlled = false;
-
 					persistentUpdate = false;
 
 					// yeah we completed the week!!
@@ -1961,6 +1956,8 @@ class PlayState extends MusicBeatState
 
 					// flush the save
 					FlxG.save.flush();
+
+					cpuControlled = false;
 				}
 				else
 				{

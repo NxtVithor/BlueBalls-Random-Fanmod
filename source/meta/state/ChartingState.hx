@@ -1,6 +1,5 @@
 package meta.state;
 
-import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -56,7 +55,7 @@ class ChartingState extends MusicBeatState
 	var _song:SwagSong;
 
 	var vocals:FlxSound;
-	private var keysTotal:Int = 8;
+	private final keysTotal:Int = 8;
 
 	var strumLine:FlxSprite;
 
@@ -85,7 +84,6 @@ class ChartingState extends MusicBeatState
 	private var dummyArrow:FlxSprite;
 	private var curRenderedNotes:FlxTypedGroup<Note>;
 	private var curRenderedSustains:FlxTypedGroup<FlxSprite>;
-	private var curRenderedSections:FlxTypedGroup<FlxBasic>;
 
 	// ui shit
 	var uiBox:FlxUITabMenu;
@@ -136,7 +134,7 @@ class ChartingState extends MusicBeatState
 		var base:FlxSprite = FlxGridOverlay.create(gridSize, gridSize, gridSize * 2, gridSize * 2, true, FlxColor.WHITE, FlxColor.BLACK);
 		fullGrid = new FlxTiledSprite(null, gridSize * keysTotal, gridSize);
 		// base graphic change data
-		var newAlpha = (26 / 255);
+		var newAlpha = 26 / 255;
 		base.graphic.bitmap.colorTransform(base.graphic.bitmap.rect, new ColorTransform(1, 1, 1, newAlpha));
 		fullGrid.loadGraphic(base.graphic);
 		fullGrid.screenCenter(X);
@@ -152,7 +150,6 @@ class ChartingState extends MusicBeatState
 
 		curRenderedNotes = new FlxTypedGroup<Note>();
 		curRenderedSustains = new FlxTypedGroup<FlxSprite>();
-		curRenderedSections = new FlxTypedGroup<FlxBasic>();
 
 		// GENERATING THE GRID NOTES!
 		// pregenerate assets so it doesnt destroy your ram later
@@ -180,7 +177,7 @@ class ChartingState extends MusicBeatState
 			var sectionCamera:FlxSprite = new FlxSprite(FlxG.width / 2 - (gridSize * (keysTotal / 2)) + (sectionExtend), placement);
 			sectionCamera.frames = sectionCameraGraphic.imageFrame;
 			sectionCamera.alpha = alphaShit;
-			curRenderedSections.add(sectionCamera);
+			add(sectionCamera);
 
 			// set up section numbers
 			for (i in 0...2)
@@ -194,7 +191,7 @@ class ChartingState extends MusicBeatState
 				sectionNumber.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE);
 				sectionNumber.antialiasing = false;
 				sectionNumber.alpha = sectionLine.alpha;
-				curRenderedSections.add(sectionNumber);
+				add(sectionNumber);
 			}
 
 			for (i in 1...Std.int(_song.notes[section].lengthInSteps / 4))
@@ -203,14 +200,13 @@ class ChartingState extends MusicBeatState
 				var sectionStep:FlxSprite = new FlxSprite(FlxG.width / 2 - (gridSize * (keysTotal / 2)) - (extraSize / 2), placement + (i * (gridSize * 4)));
 				sectionStep.frames = sectionStepGraphic.imageFrame;
 				sectionStep.alpha = sectionLine.alpha;
-				curRenderedSections.add(sectionStep);
+				add(sectionStep);
 			}
 
-			curRenderedSections.add(sectionLine);
+			add(sectionLine);
 		}
 		updateGrid();
 
-		add(curRenderedSections);
 		add(curRenderedSustains);
 		add(curRenderedNotes);
 
@@ -401,6 +397,7 @@ class ChartingState extends MusicBeatState
 
 		if (_song.stage != null && !stages.contains(_song.stage))
 			stages.push(_song.stage);
+		trace(stages);
 		var stageDropDown = new FlxUIDropDownMenu(player2DropDown.x, gfDropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(stage:String)
 		{
 			_song.stage = stages[Std.parseInt(stage)];
@@ -591,16 +588,17 @@ class ChartingState extends MusicBeatState
 				{
 					// add note funny
 					var noteStrum = getStrumTime(dummyArrow.y);
-					var noteData = adjustSide(Math.floor((dummyArrow.x - fullGrid.x) / gridSize), _song.notes[curSection].mustHitSection);
+					var notesSection = Math.floor(noteStrum / (Conductor.stepCrochet * 16));
+					var noteData = adjustSide(Math.floor((dummyArrow.x - fullGrid.x) / gridSize), _song.notes[notesSection].mustHitSection);
 					var noteType = curNoteType; // define notes as the current type
 					var noteSus = 0; // ninja you will NOT get away with this
 
-					_song.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, noteType]);
+					_song.notes[notesSection].sectionNotes.push([noteStrum, noteData, noteSus, noteType]);
 
-					curSelectedNote = _song.notes[curSection].sectionNotes[_song.notes[curSection].sectionNotes.length - 1];
+					curSelectedNote = _song.notes[notesSection].sectionNotes[_song.notes[notesSection].sectionNotes.length - 1];
 
 					if (FlxG.keys.pressed.CONTROL)
-						_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteType]);
+						_song.notes[notesSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteType]);
 
 					updateGrid();
 
@@ -617,15 +615,17 @@ class ChartingState extends MusicBeatState
 
 						if (FlxG.mouse.overlaps(note))
 						{
+							var leSection = Math.floor(note.strumTime / (Conductor.stepCrochet * 16));
+
 							if (FlxG.keys.pressed.CONTROL)
 							{
 								// select note
 								var swagNum:Int = 0;
 
-								for (i in _song.notes[curSection].sectionNotes)
+								for (i in _song.notes[leSection].sectionNotes)
 								{
 									if (i.strumTime == note.strumTime && i.noteData % 4 == note.noteData)
-										curSelectedNote = _song.notes[curSection].sectionNotes[swagNum];
+										curSelectedNote = _song.notes[leSection].sectionNotes[swagNum];
 
 									swagNum += 1;
 								}
@@ -633,10 +633,10 @@ class ChartingState extends MusicBeatState
 							else
 							{
 								// remove note
-								for (i in _song.notes[curSection].sectionNotes)
+								for (i in _song.notes[leSection].sectionNotes)
 								{
 									if (i[0] == note.strumTime && i[1] % 4 == note.noteData)
-										_song.notes[curSection].sectionNotes.remove(i);
+										_song.notes[leSection].sectionNotes.remove(i);
 								}
 								curRenderedNotes.remove(note);
 								note.destroy();
@@ -721,7 +721,7 @@ class ChartingState extends MusicBeatState
 		// call all rendered notes lol
 		curRenderedNotes.forEach(function(epicNote:Note)
 		{
-			if ((epicNote.y > strumLineCam.y - FlxG.height / 2 - epicNote.height) || (epicNote.y < strumLineCam.y + FlxG.height / 2))
+			if (epicNote.y > strumLineCam.y - FlxG.height / 2 - epicNote.height || epicNote.y < strumLineCam.y + FlxG.height / 2)
 			{
 				epicNote.alive = true;
 				epicNote.visible = true;
@@ -857,20 +857,19 @@ class ChartingState extends MusicBeatState
 
 		FlxG.sound.playMusic(Paths.inst(daSong), 1);
 		FlxG.sound.music.pause();
-		FlxG.sound.music.time = 0;
 
 		if (_song.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(daSong));
+			vocals = new FlxSound().loadEmbedded(Paths.voices(daSong), true);
 		else
 			vocals = new FlxSound();
 		FlxG.sound.list.add(vocals);
 
 		songPosition = 0;
 
-		FlxG.sound.music.time = Math.max(FlxG.sound.music.time, 0);
-		FlxG.sound.music.time = Math.min(FlxG.sound.music.time, FlxG.sound.music.length);
-
 		pauseMusic();
+
+		Conductor.songPosition = 0;
+		FlxG.sound.music.time = Conductor.songPosition;
 	}
 
 	function loadJson(song:String)
@@ -882,25 +881,12 @@ class ChartingState extends MusicBeatState
 
 	private function updateGrid()
 	{
-		/*
-			you may asking why we can't just clear these groups
-			this is because flixel is dumb for clear correctly the groups in da ram
-			so we do the another way
-		 */
-		while (curRenderedNotes.members.length > 0)
-		{
-			curRenderedNotes.members[0].destroy();
-			curRenderedNotes.remove(curRenderedNotes.members[0], true);
-		}
-		while (curRenderedSustains.members.length > 0)
-		{
-			curRenderedSustains.members[0].destroy();
-			curRenderedSustains.remove(curRenderedSustains.members[0], true);
-		}
+		curRenderedNotes.clear();
+		curRenderedSustains.clear();
 
-		for (e in 0...4)
+		for (s in 0...3)
 		{
-			var leSection:Int = curSection + e;
+			var leSection:Int = curSection + s;
 			for (i in _song.notes[leSection].sectionNotes)
 			{
 				// note stuffs
