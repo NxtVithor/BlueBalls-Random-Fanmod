@@ -332,7 +332,7 @@ class PlayState extends MusicBeatState
 		add(gf);
 
 		// add limo cus dumb layering
-		if (curStage == 'limo')
+		if (curStage == 'highway')
 			add(stageBuild.limo);
 
 		add(dadOpponent);
@@ -889,12 +889,14 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
+		if (PlayState.cpuControlled)
+			uiHUD.scoreTxt.text = 'Botplay';
+
 		if (health > 2)
 			health = 2;
 
 		// sync botplay to bf strums autoplay
-		if (playerStrums.autoplay != cpuControlled)
-			playerStrums.autoplay = cpuControlled;
+		playerStrums.autoplay = cpuControlled;
 
 		var curSection = SONG.notes[Std.int(curStep / 16)];
 		if (generatedMusic && curSection != null)
@@ -1061,7 +1063,7 @@ class PlayState extends MusicBeatState
 			var getCenterY = char.getMidpoint().y - 100;
 			switch (curStage)
 			{
-				case 'limo':
+				case 'highway':
 					getCenterX = char.getMidpoint().x - 300;
 				case 'mall':
 					getCenterY = char.getMidpoint().y - 200;
@@ -2191,6 +2193,8 @@ class PlayState extends MusicBeatState
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
 				charactersDance(curBeat);
+
+				stageBuild.stageUpdate(curBeat, boyfriend, gf, dadOpponent);
 
 				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 				introAssets.set('default', [

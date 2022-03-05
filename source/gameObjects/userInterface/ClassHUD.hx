@@ -143,10 +143,6 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	override public function update(elapsed:Float)
 	{
-		if (PlayState.cpuControlled)
-			scoreTxt.text = 'Botplay';
-		else
-			scoreTxt.text = lastScoreText;
 		scoreTxt.x = FlxG.width / 2 - scoreTxt.width / 2;
 
 		// pain, this is like the 7th attempt
@@ -175,7 +171,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	static final divider:String = ' - ';
 
-	var lastScoreText:String;
+	public var lastScoreText:String;
 
 	public function updateScoreText()
 	{
@@ -187,12 +183,12 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 		if (ret != Script.Function_Stop)
 		{
-			lastScoreText = 'Score: ' + PlayState.songScore;
+			scoreTxt.text = 'Score: ' + PlayState.songScore;
 			if (Init.trueSettings.get('Display Accuracy'))
 			{
-				lastScoreText += divider + 'Combo Breaks: ' + PlayState.misses;
-				lastScoreText += divider + 'Accuracy: ' + Std.string(Math.floor(Timings.trueAccuracy * 100) / 100) + '%' + Timings.comboDisplay;
-				lastScoreText += divider + Timings.ratingFinal;
+				scoreTxt.text += divider + 'Combo Breaks: ' + PlayState.misses;
+				scoreTxt.text += divider + 'Accuracy: ' + Std.string(Math.floor(Timings.trueAccuracy * 100) / 100) + '%' + Timings.comboDisplay;
+				scoreTxt.text += divider + Timings.ratingFinal;
 			}
 		}
 

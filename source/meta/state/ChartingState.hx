@@ -355,9 +355,9 @@ class ChartingState extends MusicBeatState
 		dropDowns.push(gfDropDown);
 
 		var stages:Array<String> = [];
-		var stageListPath:String = Paths.getPreloadPath('characterList.txt');
+		var stageListPath:String = Paths.getPreloadPath('stageList.txt');
 		if (Assets.exists(stageListPath))
-			characters = CoolUtil.coolTextFile(stageListPath);
+			stages = CoolUtil.coolTextFile(stageListPath);
 
 		#if MODS_ALLOWED
 		// check for modded stages
@@ -397,7 +397,6 @@ class ChartingState extends MusicBeatState
 
 		if (_song.stage != null && !stages.contains(_song.stage))
 			stages.push(_song.stage);
-		trace(stages);
 		var stageDropDown = new FlxUIDropDownMenu(player2DropDown.x, gfDropDown.y, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(stage:String)
 		{
 			_song.stage = stages[Std.parseInt(stage)];

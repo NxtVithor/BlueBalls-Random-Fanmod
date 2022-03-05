@@ -81,7 +81,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 					case 'pico' | 'blammed' | 'philly-nice':
 						curStage = 'philly';
 					case 'milf' | 'satin-panties' | 'high':
-						curStage = 'limo';
+						curStage = 'highway';
 					case 'cocoa' | 'eggnog':
 						curStage = 'mall';
 					case 'winter-horrorland':
@@ -163,7 +163,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 				var street:FNFSprite = new FNFSprite(-40, streetBehind.y).loadGraphic(Paths.image('backgrounds/' + curStage + '/street'));
 				add(street);
-			case 'limo':
+			case 'highway':
 				var skyBG:FNFSprite = new FNFSprite(-120, -50).loadGraphic(Paths.image('backgrounds/' + curStage + '/limoSunset'));
 				skyBG.scrollFactor.set(0.1, 0.1);
 				add(skyBG);
@@ -392,7 +392,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 
 		switch (curStage)
 		{
-			case 'limo':
+			case 'highway':
 				gfVersion = 'gf-car';
 			case 'mall' | 'mallEvil':
 				gfVersion = 'gf-christmas';
@@ -454,7 +454,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		// trace('update backgrounds');
 		switch (PlayState.curStage)
 		{
-			case 'limo':
+			case 'highway':
 				// trace('limo update');
 				grpLimoDancers.forEach(function(dancer:BackgroundDancer)
 				{
