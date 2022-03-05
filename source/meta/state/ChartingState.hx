@@ -888,11 +888,17 @@ class ChartingState extends MusicBeatState
 			so we do the another way
 		 */
 		while (curRenderedNotes.members.length > 0)
+		{
+			curRenderedNotes.members[0].destroy();
 			curRenderedNotes.remove(curRenderedNotes.members[0], true);
+		}
 		while (curRenderedSustains.members.length > 0)
+		{
+			curRenderedSustains.members[0].destroy();
 			curRenderedSustains.remove(curRenderedSustains.members[0], true);
+		}
 
-		for (e in 0...3)
+		for (e in 0...4)
 		{
 			var leSection:Int = curSection + e;
 			for (i in _song.notes[leSection].sectionNotes)
