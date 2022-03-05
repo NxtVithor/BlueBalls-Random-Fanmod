@@ -63,7 +63,7 @@ class ModsMenuState extends MusicBeatState
 		Discord.changePresence('MODS MENU', 'Main Menu');
 		#end
 
-		bg = new FlxSprite().loadGraphic(Paths.image('menus/base/menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		add(bg);
 
 		grpModsText = new FlxTypedGroup<Alphabet>();
@@ -92,7 +92,7 @@ class ModsMenuState extends MusicBeatState
 				icon.animation.play("icon");
 			}
 			else
-				icon.loadGraphic(Paths.image('menus/base/modsmenu/unknownMod'));
+				icon.loadGraphic(Paths.image('modsmenu/unknownMod'));
 
 			icon.copyAlpha = true;
 

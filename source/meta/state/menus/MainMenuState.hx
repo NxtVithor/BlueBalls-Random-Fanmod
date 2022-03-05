@@ -37,6 +37,8 @@ class MainMenuState extends MusicBeatState
 	{
 		super.create();
 
+		ModManager.loadTheFirstEnabledMod();
+
 		// set the transitions to the previously set ones
 		transIn = FlxTransitionableState.defaultTransIn;
 		transOut = FlxTransitionableState.defaultTransOut;
@@ -57,7 +59,7 @@ class MainMenuState extends MusicBeatState
 		var sizeMult:Float = 1.1;
 
 		bg = new FlxSprite(-85);
-		bg.loadGraphic(Paths.image('menus/base/menuBG'));
+		bg.loadGraphic(Paths.image('menuBG'));
 		bg.scrollFactor.x = 0;
 		bg.scrollFactor.y = scrollY;
 		bg.setGraphicSize(Std.int(bg.width * sizeMult));
@@ -66,7 +68,7 @@ class MainMenuState extends MusicBeatState
 		bg.antialiasing = true;
 		add(bg);
 
-		magenta = new FlxSprite(bg.x).loadGraphic(Paths.image('menus/base/menuDesat'));
+		magenta = new FlxSprite(bg.x).loadGraphic(Paths.image('menuDesat'));
 		magenta.scrollFactor.x = 0;
 		magenta.scrollFactor.y = scrollY;
 		magenta.setGraphicSize(Std.int(magenta.width * sizeMult));
@@ -90,7 +92,7 @@ class MainMenuState extends MusicBeatState
 		for (i in 0...optionShit.length)
 		{
 			var menuItem:FlxSprite = new FlxSprite(0, 50 + i * 160);
-			menuItem.frames = Paths.getSparrowAtlas('menus/base/mainmenu/menu_' + optionShit[i]);
+			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_' + optionShit[i]);
 			// add the animations in a cool way
 			menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
 			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);

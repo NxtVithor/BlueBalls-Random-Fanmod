@@ -31,14 +31,23 @@ class ForeverTools
 		{
 			return !Paths.exists(Paths.getPath('images/' + realAsset + '.png', IMAGE));
 		}
+		// awesome tree lmao
 		if (failedShit())
 		{
-			realAsset = '$baseLibrary/$changeableSkin/$assetModifier/$asset';
+			realAsset = asset;
 			if (failedShit())
 			{
-				realAsset = '$baseLibrary/$defaultChangeableSkin/$assetModifier/$asset';
+				realAsset = '$baseLibrary/$asset-$assetModifier';
 				if (failedShit())
-					realAsset = '$baseLibrary/$defaultChangeableSkin/$defaultBaseAsset/$asset';
+				{
+					realAsset = '$baseLibrary/$changeableSkin/$assetModifier/$asset';
+					if (failedShit())
+					{
+						realAsset = '$baseLibrary/$defaultChangeableSkin/$assetModifier/$asset';
+						if (failedShit())
+							realAsset = '$baseLibrary/$defaultChangeableSkin/$defaultBaseAsset/$asset';
+					}
+				}
 			}
 		}
 		return realAsset;

@@ -187,10 +187,8 @@ class ForeverAssets
 				// call arrow type I think
 				stringSect = UIStaticArrow.getArrowFromNumber(staticArrowType);
 
-				var framesArgument:String = "NOTE_assets";
-
-				newStaticArrow.frames = Paths.getSparrowAtlas(ForeverTools.returnSkinAsset('$framesArgument', assetModifier,
-					Init.trueSettings.get("Note Skin"), 'noteskins/notes'));
+				newStaticArrow.frames = Paths.getSparrowAtlas(ForeverTools.returnSkinAsset('NOTE_assets', assetModifier,
+					Init.trueSettings.get("Note Skin"), ''));
 
 				newStaticArrow.animation.addByPrefix('static', 'arrow' + stringSect.toUpperCase());
 				newStaticArrow.animation.addByPrefix('pressed', stringSect + ' press', 24, false);

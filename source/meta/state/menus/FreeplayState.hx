@@ -79,7 +79,7 @@ class FreeplayState extends MusicBeatState
 		Discord.changePresence('FREEPLAY MENU', 'Main Menu');
 		#end
 
-		bg = new FlxSprite().loadGraphic(Paths.image('menus/base/menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		add(bg);
 
 		grpSongs = new FlxTypedGroup<Alphabet>();

@@ -111,8 +111,8 @@ class Note extends FNFSprite
 			case 'pixel': // pixel arrows default
 				if (isSustainNote)
 				{
-					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('arrowEnds', assetModifier, Init.trueSettings.get("Note Skin"),
-						'noteskins/notes')), true, 7,
+					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('NOTE_assetsENDS', assetModifier, Init.trueSettings.get("Note Skin"),
+						'pixelUI')), true, 7,
 						6);
 					newNote.animation.add('purpleholdend', [4]);
 					newNote.animation.add('greenholdend', [6]);
@@ -125,8 +125,8 @@ class Note extends FNFSprite
 				}
 				else
 				{
-					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('arrows-pixels', assetModifier, Init.trueSettings.get("Note Skin"),
-						'noteskins/notes')),
+					newNote.loadGraphic(Paths.image(ForeverTools.returnSkinAsset('NOTE_assets', assetModifier, Init.trueSettings.get("Note Skin"),
+						'pixelUI')),
 						true, 17, 17);
 					newNote.animation.add('greenScroll', [6]);
 					newNote.animation.add('redScroll', [7]);

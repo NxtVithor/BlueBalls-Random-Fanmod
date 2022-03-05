@@ -1,7 +1,7 @@
 package gameObjects.userInterface.menu;
 
-import meta.CoolUtil;
 import flixel.FlxSprite;
+import meta.CoolUtil;
 
 using StringTools;
 
@@ -50,7 +50,7 @@ class MenuCharacter extends FlxSprite
 			// compatibility moment
 			var base:String = 'menucharacters';
 			if (!Paths.exists(Paths.json('images/$base/$character')))
-				base = 'menus/base/storymenu/characters';
+				base = 'storymenu/characters';
 			var charFile:MenuCharacterFile = cast CoolUtil.readJson(Paths.json('images/$base/$character'));
 			frames = Paths.getSparrowAtlas('$base/' + charFile.image);
 			animation.addByPrefix('idle', charFile.idle_anim, 24);

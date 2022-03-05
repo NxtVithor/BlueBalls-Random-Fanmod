@@ -16,7 +16,7 @@ class MenuItem extends FlxSprite
 		// compatibility lol
 		var daPath = 'storymenu/' + weekName;
 		if (!Paths.exists(Paths.file('images/$daPath.png', IMAGE)))
-			daPath = 'menus/base/storymenu/weeks/' + weekName;
+			daPath = 'storymenu/weeks/' + weekName;
 		loadGraphic(Paths.image(daPath));
 	}
 

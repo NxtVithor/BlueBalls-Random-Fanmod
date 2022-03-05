@@ -270,26 +270,26 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				evilSnow.antialiasing = true;
 				add(evilSnow);
 			case 'school':
-				var bgSky = new FNFSprite().loadGraphic(Paths.image('backgrounds/' + curStage + '/weebSky'));
+				var bgSky = new FNFSprite().loadGraphic(Paths.image('weeb/weebSky'));
 				bgSky.scrollFactor.set(0.1, 0.1);
 				add(bgSky);
 
 				var repositionShit = -200;
 
-				var bgSchool:FNFSprite = new FNFSprite(repositionShit, 0).loadGraphic(Paths.image('backgrounds/' + curStage + '/weebSchool'));
+				var bgSchool:FNFSprite = new FNFSprite(repositionShit, 0).loadGraphic(Paths.image('weeb/weebSchool'));
 				bgSchool.scrollFactor.set(0.6, 0.90);
 				add(bgSchool);
 
-				var bgStreet:FNFSprite = new FNFSprite(repositionShit).loadGraphic(Paths.image('backgrounds/' + curStage + '/weebStreet'));
+				var bgStreet:FNFSprite = new FNFSprite(repositionShit).loadGraphic(Paths.image('weeb/weebStreet'));
 				bgStreet.scrollFactor.set(0.95, 0.95);
 				add(bgStreet);
 
-				var fgTrees:FNFSprite = new FNFSprite(repositionShit + 170, 130).loadGraphic(Paths.image('backgrounds/' + curStage + '/weebTreesBack'));
+				var fgTrees:FNFSprite = new FNFSprite(repositionShit + 170, 130).loadGraphic(Paths.image('weeb/weebTreesBack'));
 				fgTrees.scrollFactor.set(0.9, 0.9);
 				add(fgTrees);
 
 				var bgTrees:FNFSprite = new FNFSprite(repositionShit - 380, -800);
-				var treetex = Paths.getPackerAtlas('backgrounds/' + curStage + '/weebTrees');
+				var treetex = Paths.getPackerAtlas('weeb/weebTrees');
 				bgTrees.frames = treetex;
 				bgTrees.animation.add('treeLoop', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 12);
 				bgTrees.animation.play('treeLoop');
@@ -297,7 +297,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				add(bgTrees);
 
 				var treeLeaves:FNFSprite = new FNFSprite(repositionShit, -40);
-				treeLeaves.frames = Paths.getSparrowAtlas('backgrounds/' + curStage + '/petals');
+				treeLeaves.frames = Paths.getSparrowAtlas('weeb/petals');
 				treeLeaves.animation.addByPrefix('leaves', 'PETALS ALL', 24, true);
 				treeLeaves.animation.play('leaves');
 				treeLeaves.scrollFactor.set(0.85, 0.85);
@@ -332,7 +332,7 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				var posX = 400;
 				var posY = 200;
 				var bg:FNFSprite = new FNFSprite(posX, posY);
-				bg.frames = Paths.getSparrowAtlas('backgrounds/' + curStage + '/animatedEvilSchool');
+				bg.frames = Paths.getSparrowAtlas('weeb/animatedEvilSchool');
 				bg.animation.addByPrefix('idle', 'background 2', 24);
 				bg.animation.play('idle');
 				bg.scrollFactor.set(0.8, 0.9);

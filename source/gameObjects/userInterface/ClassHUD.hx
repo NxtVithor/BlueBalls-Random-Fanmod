@@ -154,7 +154,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 		grpIcons.forEachAlive(function(icon:HealthIcon)
 		{
-			icon.setGraphicSize(Std.int(FlxMath.lerp(icon.width, 150, 0.09)));
+			icon.setGraphicSize(Std.int(FlxMath.lerp(icon.width, 150, Main.framerateAdjust(0.07))));
 			icon.updateHitbox();
 		});
 

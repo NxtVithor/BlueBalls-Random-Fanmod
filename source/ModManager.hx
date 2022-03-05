@@ -51,12 +51,12 @@ class ModManager
 		if (!FileSystem.exists(modsListPath))
 			saveModsList();
 		// first read the file
-		var leMods:Array<String> = CoolUtil.coolTextFile(modsListPath);
-		for (i in 0...leMods.length)
+		var rawModsList:Array<String> = CoolUtil.coolTextFile(modsListPath);
+		for (mod in rawModsList)
 		{
-			if (leMods.length > 1 && leMods[0].length > 0)
+			if (rawModsList.length > 1 && rawModsList[0].length > 0)
 			{
-				var modSplit:Array<String> = leMods[i].split('|');
+				var modSplit:Array<String> = mod.split('|');
 				if (!ignoredDirectories.contains(modSplit[0].toLowerCase()))
 					modsList.set(modSplit[0], modSplit[1] == '1');
 			}
@@ -66,6 +66,21 @@ class ModManager
 		for (directory in modsDirectories)
 			if (!modsList.exists(directory))
 				modsList.set(directory, false);
+		#end
+	}
+
+	public static function loadTheFirstEnabledMod()
+	{
+		#if MODS_ALLOWED
+		currentModDirectory = '';
+		for (mod in modsList.keys())
+		{
+			if (modsList.get(mod))
+			{
+				currentModDirectory = mod;
+				break;
+			}
+		}
 		#end
 	}
 

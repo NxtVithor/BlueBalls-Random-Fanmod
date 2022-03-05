@@ -37,6 +37,8 @@ class OptionsMenuState extends MusicBeatState
 	{
 		super.create();
 
+		ModManager.loadTheFirstEnabledMod();
+
 		// define the categories
 		/* 
 			To explain how these will work, each main category is just any group of options, the options in the category are defined
@@ -69,11 +71,12 @@ class OptionsMenuState extends MusicBeatState
 			],
 			'appearance' => [
 				[
-					['Judgements', null], ['', null], #if sys ["UI Skin", getFromOption] #end, ['Fixed Judgements', getFromOption], ['Simply Judgements', getFromOption],
-					['Counter', getFromOption], ['', null], ['Notes', null], ['', null], #if sys ["Note Skin", getFromOption] #end, ["Clip Style", getFromOption],
-					['No Camera Note Movement', getFromOption], ['Disable Note Splashes', getFromOption], ['Opaque Arrows', getFromOption],
-					['Opaque Holds', getFromOption], ['', null], ['Accessibility Settings', null], ['', null], ['Filter', getFromOption],
-					['Disable Flashing Lights', getFromOption], ['Disable Antialiasing', getFromOption], ["Stage Opacity", getFromOption], ["Opacity Type", getFromOption],
+					['Judgements', null], ['', null], #if sys ["UI Skin", getFromOption] #end, ['Fixed Judgements', getFromOption],
+					['Simply Judgements', getFromOption], ['Counter', getFromOption], ['', null], ['Notes', null], ['', null],
+					#if sys ["Note Skin", getFromOption] #end, ["Clip Style", getFromOption], ['No Camera Note Movement', getFromOption],
+					['Disable Note Splashes', getFromOption], ['Opaque Arrows', getFromOption], ['Opaque Holds', getFromOption], ['', null],
+					['Accessibility Settings', null], ['', null], ['Filter', getFromOption], ['Disable Flashing Lights', getFromOption],
+					['Disable Antialiasing', getFromOption], ["Stage Opacity", getFromOption], ["Opacity Type", getFromOption],
 					['Reduced Movements', getFromOption],
 				]
 			]
@@ -87,7 +90,7 @@ class OptionsMenuState extends MusicBeatState
 
 		// call the options menu
 		var bg = new FlxSprite(-85);
-		bg.loadGraphic(Paths.image('menus/base/menuDesat'));
+		bg.loadGraphic(Paths.image('menuDesat'));
 		bg.scrollFactor.x = 0;
 		bg.scrollFactor.y = 0.18;
 		bg.setGraphicSize(Std.int(bg.width * 1.1));
