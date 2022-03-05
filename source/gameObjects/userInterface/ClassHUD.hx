@@ -143,6 +143,9 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 
 	override public function update(elapsed:Float)
 	{
+		if (PlayState.cpuControlled)
+			scoreTxt.text = 'Botplay';
+
 		scoreTxt.x = FlxG.width / 2 - scoreTxt.width / 2;
 
 		// pain, this is like the 7th attempt
@@ -180,8 +183,7 @@ class ClassHUD extends FlxTypedGroup<FlxBasic>
 		PlayState.instance.setOnLuas('hits', PlayState.songHits);
 
 		var ret:Dynamic = PlayState.instance.callOnLuas('onRecalculateRating', []);
-
-		if (ret != Script.Function_Stop)
+		if (!PlayState.cpuControlled && ret != Script.Function_Stop)
 		{
 			scoreTxt.text = 'Score: ' + PlayState.songScore;
 			if (Init.trueSettings.get('Display Accuracy'))

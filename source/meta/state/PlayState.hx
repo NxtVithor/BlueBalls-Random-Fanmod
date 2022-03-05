@@ -96,10 +96,6 @@ class PlayState extends MusicBeatState
 	// if you ever wanna add more keys
 	private final numberOfKeys:Int = 4;
 
-	// get it cus release
-	// I'm funny just trust me
-	private var curSection:Int = 0;
-
 	private var camFollow:FlxPoint;
 	private var camFollowPos:FlxObject;
 
@@ -889,18 +885,11 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		if (PlayState.cpuControlled)
-			uiHUD.scoreTxt.text = 'Botplay';
-
 		if (health > 2)
 			health = 2;
 
 		// sync botplay to bf strums autoplay
 		playerStrums.autoplay = cpuControlled;
-
-		var curSection = SONG.notes[Std.int(curStep / 16)];
-		if (generatedMusic && curSection != null)
-			moveCamera(!curSection.mustHitSection);
 
 		var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4, 0, 1);
 		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
@@ -1023,8 +1012,23 @@ class PlayState extends MusicBeatState
 			i(elapsed);
 	}
 
+	var lastSection:Int = 0;
+
 	public function moveCamera(isDad:Bool)
 	{
+		var curSection = Std.int(curStep / 16);
+		if (curSection != lastSection)
+		{
+			// section reset stuff
+			var lastMustHit:Bool = PlayState.SONG.notes[lastSection].mustHitSection;
+			if (PlayState.SONG.notes[curSection].mustHitSection != lastMustHit)
+			{
+				camDisplaceX = 0;
+				camDisplaceY = 0;
+			}
+			lastSection = curSection;
+		}
+
 		var char:Character = dadOpponent;
 
 		if (isDad)
@@ -1211,6 +1215,9 @@ class PlayState extends MusicBeatState
 						&& (daNote.tooLate || daNote.wasGoodHit))
 						destroyNote(strumline, daNote);
 				});
+
+				// unoptimised asf camera control based on strums
+				strumCameraRoll(strumline.receptors, strumline == playerStrums);
 			}
 
 			// reset bf's animation
@@ -1221,6 +1228,31 @@ class PlayState extends MusicBeatState
 				&& (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')))
 				boyfriend.dance();
 		}
+	}
+
+	function strumCameraRoll(cStrum:FlxTypedGroup<UIStaticArrow>, mustHit:Bool)
+	{
+		if (!Init.trueSettings.get('No Camera Note Movement'))
+		{
+			var camDisplaceExtend:Float = 15;
+			if (PlayState.SONG.notes[Std.int(curStep / 16)] != null)
+			{
+				if ((PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && mustHit)
+					|| (!PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && !mustHit))
+				{
+					if (cStrum.members[0].animation.curAnim.name == 'confirm')
+						camDisplaceX = -camDisplaceExtend;
+					if (cStrum.members[3].animation.curAnim.name == 'confirm')
+						camDisplaceX = camDisplaceExtend;
+
+					if (cStrum.members[1].animation.curAnim.name == 'confirm')
+						camDisplaceY = camDisplaceExtend;
+					if (cStrum.members[2].animation.curAnim.name == 'confirm')
+						camDisplaceY = -camDisplaceExtend;
+				}
+			}
+		}
+		//
 	}
 
 	function noteMissLua(daNote:Note)
@@ -1280,10 +1312,6 @@ class PlayState extends MusicBeatState
 				coolNote.noteType,
 				coolNote.isSustainNote
 			]);
-
-			var daSection:SwagSection = SONG.notes[Math.floor(curStep / 16)];
-			if (daSection != null && coolNote.mustPress == daSection.mustHitSection)
-				camDisplace(coolNote.noteData);
 
 			// special thanks to sam, they gave me the original system which kinda inspired my idea for this new one
 			if (canDisplayJudgement)
@@ -1423,28 +1451,6 @@ class PlayState extends MusicBeatState
 					if (coolNote.canBeHit && coolNote.mustPress && coolNote.isSustainNote && holdControls[coolNote.noteData])
 						goodNoteHit(coolNote, char, strumline);
 				});
-			}
-		}
-	}
-
-	function camDisplace(direction:Int)
-	{
-		if (!Init.trueSettings.get('No Camera Note Movement'))
-		{
-			camDisplaceX = 0;
-			camDisplaceY = 0;
-
-			var camDisplaceExtend:Float = 15;
-			switch (direction)
-			{
-				case 0:
-					camDisplaceX = -camDisplaceExtend;
-				case 1:
-					camDisplaceY = camDisplaceExtend;
-				case 2:
-					camDisplaceY = -camDisplaceExtend;
-				case 3:
-					camDisplaceX = camDisplaceExtend;
 			}
 		}
 	}
@@ -1814,15 +1820,8 @@ class PlayState extends MusicBeatState
 			setOnLuas('altAnim', daSection.altAnim);
 			setOnLuas('gfSection', dadOpponent.curCharacter.startsWith('gf') && daSection.mustHitSection);
 
-			// reset cam displace
-			if (((!boyfriend.animation.curAnim.name.startsWith('sing') || boyfriend.animation.curAnim.name.endsWith('miss'))
-				&& daSection.mustHitSection)
-				|| ((!dadOpponent.animation.curAnim.name.startsWith('sing') || dadOpponent.animation.curAnim.name.endsWith('miss'))
-					&& !daSection.mustHitSection))
-			{
-				camDisplaceX = 0;
-				camDisplaceY = 0;
-			}
+			if (generatedMusic)
+				moveCamera(!daSection.mustHitSection);
 		}
 
 		if (camZooming && FlxG.camera.zoom < 1.35 && !Init.trueSettings.get('Reduced Movements') && curBeat % 4 == 0)
