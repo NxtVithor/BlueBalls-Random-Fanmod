@@ -90,7 +90,7 @@ class Week
 		{
 			for (week in FileSystem.readDirectory(path))
 			{
-				if (week.endsWith('.json'))
+				if (!FileSystem.isDirectory(week) && week.endsWith('.json'))
 				{
 					var daPath:String = '$path/$week';
 					if (!weekFiles.contains(daPath))
@@ -112,7 +112,7 @@ class Week
 				{
 					for (week in FileSystem.readDirectory(path))
 					{
-						if (week.endsWith('.json'))
+						if (!FileSystem.isDirectory(week) && week.endsWith('.json'))
 						{
 							var daPath:String = '$path/$week';
 

@@ -445,7 +445,7 @@ class PlayState extends MusicBeatState
 		// for global scripts
 		var scripts:Array<String> = FileSystem.readDirectory(path);
 		for (script in FileSystem.readDirectory(path))
-			if (script.endsWith('.lua'))
+			if (!FileSystem.isDirectory(script) && script.endsWith('.lua'))
 				scripts.push('$path/$script');
 		#if MODS_ALLOWED
 		// for root mods directory
@@ -453,7 +453,7 @@ class PlayState extends MusicBeatState
 		if (FileSystem.isDirectory(path))
 		{
 			for (script in FileSystem.readDirectory(path))
-				if (script.endsWith('.lua'))
+				if (!FileSystem.isDirectory(script) && script.endsWith('.lua'))
 					scripts.push('$path/$script');
 		}
 		// for active mods directory
@@ -463,7 +463,7 @@ class PlayState extends MusicBeatState
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))
-					if (script.endsWith('.lua'))
+					if (!FileSystem.isDirectory(script) && script.endsWith('.lua'))
 						scripts.push('$path/$script');
 			}
 		}

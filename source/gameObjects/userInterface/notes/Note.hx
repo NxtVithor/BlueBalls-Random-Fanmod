@@ -1,16 +1,8 @@
 package gameObjects.userInterface.notes;
 
-import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.math.FlxMath;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-import gameObjects.userInterface.notes.*;
 import gameObjects.userInterface.notes.Strumline.UIStaticArrow;
-import meta.*;
 import meta.data.*;
-import meta.data.Section.SwagSection;
 import meta.data.dependency.FNFSprite;
 import meta.state.PlayState;
 
@@ -37,6 +29,11 @@ class Note extends FNFSprite
 	// only useful for charting stuffs
 	public var chartSustain:FlxSprite = null;
 	public var rawNoteData:Int;
+
+	public var eventName:String = '';
+	public var eventLength:Int = 0;
+	public var eventVal1:String = '';
+	public var eventVal2:String = '';
 
 	// not set initially
 	public var noteQuant:Int = -1;
