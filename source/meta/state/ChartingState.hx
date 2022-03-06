@@ -873,11 +873,20 @@ class ChartingState extends MusicBeatState
 			if (note.strumTime <= Conductor.songPosition)
 				note.alpha = 0.4;
 
-			if (curSelectedNote != null && curSelectedNote[0] == note.strumTime)
+			if (curSelectedNote != null)
 			{
-				colorSine += elapsed;
-				var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
-				note.color = FlxColor.fromRGBFloat(colorVal, colorVal, colorVal, 0.999);
+				var noteDataToCheck:Int = note.noteData;
+				if (noteDataToCheck > -1 && note.mustPress != _song.notes[curSection].mustHitSection)
+					noteDataToCheck += 4;
+
+				if (curSelectedNote[0] == note.strumTime
+					&& ((curSelectedNote[2] == null && noteDataToCheck < 0)
+						|| (curSelectedNote[2] != null && curSelectedNote[1] == noteDataToCheck)))
+				{
+					colorSine += elapsed;
+					var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
+					note.color = FlxColor.fromRGBFloat(colorVal, colorVal, colorVal, 0.999);
+				}
 			}
 		});
 
