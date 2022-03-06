@@ -867,6 +867,20 @@ class ChartingState extends MusicBeatState
 		coolGradient.y = strumLineCam.y - (FlxG.height / 2);
 		coolGrid.y = strumLineCam.y - (FlxG.height / 2);
 
+		curRenderedNotes.forEachAlive(function(note:Note)
+		{
+			note.alpha = 1;
+			if (note.strumTime <= Conductor.songPosition)
+				note.alpha = 0.4;
+
+			if (curSelectedNote != null && curSelectedNote[0] == note.strumTime)
+			{
+				colorSine += elapsed;
+				var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
+				note.color = FlxColor.fromRGBFloat(colorVal, colorVal, colorVal, 0.999);
+			}
+		});
+
 		if (FlxG.mouse.x > fullGrid.x
 			&& FlxG.mouse.x < fullGrid.x + fullGrid.width
 			&& FlxG.mouse.y > 0
@@ -930,17 +944,6 @@ class ChartingState extends MusicBeatState
 				{
 					curRenderedNotes.forEachAlive(function(note:Note)
 					{
-						note.alpha = 1;
-						if (note.strumTime <= Conductor.songPosition)
-							note.alpha = 0.4;
-
-						if (curSelectedNote != null && curSelectedNote[0] == note.strumTime)
-						{
-							colorSine += elapsed;
-							var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
-							note.color = FlxColor.fromRGBFloat(colorVal, colorVal, colorVal, 0.999);
-						}
-
 						if (FlxG.mouse.overlaps(note))
 						{
 							var leSection = Math.floor(note.strumTime / (Conductor.stepCrochet * 16));
