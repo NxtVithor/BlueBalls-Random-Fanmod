@@ -2,7 +2,7 @@
 
 A fork of Forever Engine with a ton of shit added, like a real in-game modding support (for compiled and source code builds).
 
-CREDITS:
+CREDITS
 ----------------------------------------------
 I do not own Forever Engine. Credits of the original engine goes to Yoshubs and the engine's contributors.
 
