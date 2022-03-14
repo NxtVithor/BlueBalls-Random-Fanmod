@@ -175,7 +175,7 @@ class Main extends Sprite
 		}
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
-			FlxG.state.openSubState(new FNFTransition(0.6, false));
+			FlxG.state.openSubState(new FNFTransition(null, false));
 			FNFTransition.finishCallback = swagSwitch;
 		}
 		else

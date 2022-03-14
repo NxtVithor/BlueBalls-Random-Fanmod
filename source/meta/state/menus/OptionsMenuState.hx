@@ -73,7 +73,7 @@ class OptionsMenuState extends MusicBeatState
 				[
 					['Judgements', null], ['', null], #if sys ["UI Skin", getFromOption] #end, ['Fixed Judgements', getFromOption],
 					['Simply Judgements', getFromOption], ['Counter', getFromOption], ['', null], ['Notes', null], ['', null],
-					#if sys ["Note Skin", getFromOption] #end, ["Clip Style", getFromOption], ['No Camera Note Movement', getFromOption],
+					#if sys ["Note Skin", getFromOption] #end, ["Clip Style", getFromOption],
 					['Disable Note Splashes', getFromOption], ['Opaque Arrows', getFromOption], ['Opaque Holds', getFromOption], ['', null],
 					['Accessibility Settings', null], ['', null], ['Filter', getFromOption], ['Disable Flashing Lights', getFromOption],
 					['Disable Antialiasing', getFromOption], ["Stage Opacity", getFromOption], ["Opacity Type", getFromOption],

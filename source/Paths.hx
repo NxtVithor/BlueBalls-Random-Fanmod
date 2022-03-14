@@ -278,10 +278,14 @@ class Paths
 
 	static public function songJson(song:String, secondSong:String, ?library:String)
 	{
+		song = CoolUtil.coolFormat(song);
+		secondSong = CoolUtil.coolFormat(secondSong);
+
 		// compatibility friend
-		var daPath:String = json('data/${CoolUtil.coolFormat(song)}/${CoolUtil.coolFormat(secondSong)}', library);
+		var daPath:String = json('data/$song/$secondSong', library);
 		if (!exists(daPath))
-			daPath = json('songs/${CoolUtil.coolFormat(song)}/${CoolUtil.coolFormat(secondSong)}', library);
+			daPath = json('songs/$song/$secondSong', library);
+
 		return daPath;
 	}
 
@@ -320,6 +324,16 @@ class Paths
 	{
 		var returnAsset:FlxGraphic = returnGraphic(key, library, textureCompression);
 		return returnAsset;
+	}
+
+	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
+	{
+		#if (MODS_ALLOWED && sys)
+		var lePath:String = getPath(key, TEXT, null, ignoreMods);
+		if (FileSystem.exists(lePath))
+			return File.getContent(lePath);
+		#end
+		return Assets.getText(getPath(key, TEXT, null, false));
 	}
 
 	inline static public function font(key:String)

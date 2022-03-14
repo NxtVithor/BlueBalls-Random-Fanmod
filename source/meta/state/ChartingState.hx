@@ -674,7 +674,7 @@ class ChartingState extends MusicBeatState
 					var realEvent:String = event.substring(0, event.lastIndexOf('.')).substring(event.lastIndexOf('/'), event.length);
 					if (!leEvents.contains(realEvent))
 					{
-						eventStuff.push([realEvent, File.getContent('$path/$event')]);
+						eventStuff.push([realEvent, Paths.getTextFromFile('$path/$event')]);
 						leEvents.push(realEvent);
 					}
 				}
@@ -694,7 +694,7 @@ class ChartingState extends MusicBeatState
 						var realEvent:String = event.substring(0, event.lastIndexOf('.')).substring(event.lastIndexOf('/'), event.length);
 						if (!leEvents.contains(realEvent))
 						{
-							eventStuff.push([realEvent, File.getContent('$path/$event')]);
+							eventStuff.push([realEvent, Paths.getTextFromFile('$path/$event')]);
 							leEvents.push(realEvent);
 						}
 					}
@@ -717,10 +717,8 @@ class ChartingState extends MusicBeatState
 			descText.text = eventStuff[selectedEvent][1];
 			if (curSelectedNote != null && eventStuff != null)
 			{
-				if (curSelectedNote != null && curSelectedNote[2] == null)
-				{
+				if (curSelectedNote[2] == null)
 					curSelectedNote[1][curEventSelected][0] = eventStuff[selectedEvent][0];
-				}
 				updateGrid();
 			}
 		});
@@ -974,6 +972,10 @@ class ChartingState extends MusicBeatState
 											break;
 										}
 									}
+
+									note.kill();
+									curRenderedNotes.remove(note);
+									note.destroy();
 								}
 								else
 								{
@@ -986,16 +988,6 @@ class ChartingState extends MusicBeatState
 											break;
 										}
 									}
-
-									curRenderedNoteType.forEachAlive(function(text:AttachedFlxText)
-									{
-										if (text.sprTracker == note)
-										{
-											text.kill();
-											curRenderedNoteType.remove(text);
-											text.destroy();
-										}
-									});
 
 									for (i in _song.events)
 									{
@@ -1011,11 +1003,9 @@ class ChartingState extends MusicBeatState
 											break;
 										}
 									}
-								}
 
-								note.kill();
-								curRenderedNotes.remove(note);
-								note.destroy();
+									updateGrid();
+								}
 							}
 						}
 					});
@@ -1335,32 +1325,35 @@ class ChartingState extends MusicBeatState
 					daNoteAlt = i[3];
 				generateChartNote(i[1], i[0], i[2], daNoteAlt, leSection);
 			}
-		}
 
-		var startThing:Float = sectionStartTime();
-		var endThing:Float = sectionStartTime(1);
-		for (i in _song.events)
-		{
-			if (endThing > i[0] && i[0] >= startThing)
+			var leAdd:Int = s;
+			if (curSection > 0)
+				leAdd -= 1;
+			var startThing:Float = sectionStartTime(leAdd);
+			var endThing:Float = sectionStartTime(leAdd + 1);
+			for (i in _song.events)
 			{
-				var note:Note = generateChartNote(i[1], i[0], i[2], 0, curSection);
+				if (endThing > i[0] && i[0] >= startThing)
+				{
+					var note:Note = generateChartNote(i[1], i[0], i[2], 0, curSection);
 
-				var text:String = 'Event: ' + note.eventName + ' (' + Math.floor(note.strumTime) + ' ms)' + '\nValue 1: ' + note.eventVal1 + '\nValue 2: '
-					+ note.eventVal2;
-				if (note.eventLength > 1)
-					text = note.eventLength + ' Events:\n' + note.eventName;
+					var text:String = 'Event: ' + note.eventName + ' (' + Math.floor(note.strumTime) + ' ms)' + '\nValue 1: ' + note.eventVal1
+						+ '\nValue 2: ' + note.eventVal2;
+					if (note.eventLength > 1)
+						text = note.eventLength + ' Events:\n' + note.eventName;
 
-				var daText:AttachedFlxText = new AttachedFlxText(0, 0, 400, text, 12);
-				daText.visible = false;
-				daText.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
-				daText.xAdd = -150;
-				daText.yAdd = -6;
-				daText.borderSize = 1;
-				if (note.eventLength > 1)
-					daText.yAdd += 8;
-				curRenderedNoteType.add(daText);
-				daText.sprTracker = note;
-				daText.visible = true;
+					var daText:AttachedFlxText = new AttachedFlxText(0, 0, 400, text, 12);
+					daText.visible = false;
+					daText.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+					daText.xAdd = -235;
+					daText.yAdd = -6;
+					daText.borderSize = 1;
+					if (note.eventLength > 1)
+						daText.yAdd += 8;
+					curRenderedNoteType.add(daText);
+					daText.sprTracker = note;
+					daText.visible = true;
+				}
 			}
 		}
 	}

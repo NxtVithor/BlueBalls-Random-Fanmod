@@ -45,6 +45,11 @@ class Character extends FNFSprite
 	public var curCharacter:String = 'bf';
 
 	public var holdTimer:Float = 0;
+	public var heyTimer:Float = 0;
+
+	public var specialAnim:Bool = false;
+
+	public var idleSuffix:String = '';
 
 	var danceIdle:Bool = false;
 
@@ -119,8 +124,7 @@ class Character extends FNFSprite
 		else
 			quickAnimAdd('idle', 'BF idle dance');
 
-		danceIdle = animation.getByName('danceLeft') != null && animation.getByName('danceRight') != null;
-
+		recalculateDanceIdle();
 		dance();
 
 		if (isPlayer) // fuck you ninjamuffin lmao
@@ -132,6 +136,25 @@ class Character extends FNFSprite
 
 	override function update(elapsed:Float)
 	{
+		if (heyTimer > 0)
+		{
+			heyTimer -= elapsed;
+			if (heyTimer <= 0)
+			{
+				if (specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
+				{
+					specialAnim = false;
+					dance();
+				}
+				heyTimer = 0;
+			}
+		}
+		else if (specialAnim && animation.curAnim.finished)
+		{
+			specialAnim = false;
+			dance();
+		}
+
 		if (!isPlayer)
 		{
 			if (animation.curAnim.name.startsWith('sing'))
@@ -157,24 +180,44 @@ class Character extends FNFSprite
 	 */
 	public function dance()
 	{
-		if (!debugMode)
+		if (!debugMode && !specialAnim)
 		{
 			if (danceIdle)
 			{
 				danced = !danced;
 
 				if (danced)
-					playAnim('danceRight');
+					playAnim('danceRight' + idleSuffix);
 				else
-					playAnim('danceLeft');
+					playAnim('danceLeft' + idleSuffix);
 			}
-			else if (animation.getByName('idle') != null)
-				playAnim('idle');
+			else if (animation.getByName('idle' + idleSuffix) != null)
+				playAnim('idle' + idleSuffix);
+		}
+	}
+
+	public var danceEveryNumBeats:Int = 2;
+
+	public function recalculateDanceIdle()
+	{
+		var lastDanceIdle:Bool = danceIdle;
+		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
+
+		if (lastDanceIdle != danceIdle)
+		{
+			var calc:Float = danceEveryNumBeats;
+			if (danceIdle)
+				calc /= 2;
+			else
+				calc *= 2;
+			danceEveryNumBeats = Math.round(Math.max(calc, 1));
 		}
 	}
 
 	override public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
+		specialAnim = false;
+
 		if (animation.getByName(AnimName) != null)
 			super.playAnim(AnimName, Force, Reversed, Frame);
 

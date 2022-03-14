@@ -1,5 +1,6 @@
 package meta.data;
 
+import flixel.util.FlxSave;
 import Type.ValueType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -776,6 +777,18 @@ class Script
 			}
 			return key;
 		});
+		Lua_helper.add_callback(lua, "addCharacterToList", function(name:String, type:String)
+		{
+			var charType:Int = 0;
+			switch (type.toLowerCase())
+			{
+				case 'dad':
+					charType = 1;
+				case 'gf' | 'girlfriend':
+					charType = 2;
+			}
+			PlayState.instance.addCharacterToList(name, charType);
+		});
 		Lua_helper.add_callback(lua, "precacheImage", function(name:String)
 		{
 			Paths.returnGraphic(name);
@@ -788,12 +801,11 @@ class Script
 		{
 			CoolUtil.precacheMusic(name);
 		});
-		// coming soon lol
 		Lua_helper.add_callback(lua, "triggerEvent", function(name:String, arg1:Dynamic, arg2:Dynamic)
 		{
-			// var value1:String = arg1;
-			// var value2:String = arg2;
-			// PlayState.instance.triggerEventNote(name, value1, value2);
+			var value1:String = arg1;
+			var value2:String = arg2;
+			PlayState.instance.triggerEventNote(name, value1, value2);
 			// trace('Triggered event: ' + name + ', ' + value1 + ', ' + value2);
 		});
 
@@ -1731,6 +1743,51 @@ class Script
 				pee.destroy();
 				PlayState.instance.modchartTexts.remove(tag);
 			}
+		});
+
+		Lua_helper.add_callback(lua, "initSaveData", function(name:String, ?folder:String = 'psychenginemods')
+		{
+			if (!PlayState.instance.modchartSaves.exists(name))
+			{
+				var save:FlxSave = new FlxSave();
+				save.bind(name, folder);
+				PlayState.instance.modchartSaves.set(name, save);
+				return;
+			}
+			luaTrace('Save file already initialized: ' + name);
+		});
+		Lua_helper.add_callback(lua, "flushSaveData", function(name:String)
+		{
+			if (PlayState.instance.modchartSaves.exists(name))
+			{
+				PlayState.instance.modchartSaves.get(name).flush();
+				return;
+			}
+			luaTrace('Save file not initialized: ' + name);
+		});
+		Lua_helper.add_callback(lua, "getDataFromSave", function(name:String, field:String)
+		{
+			if (PlayState.instance.modchartSaves.exists(name))
+			{
+				var retVal:Dynamic = Reflect.field(PlayState.instance.modchartSaves.get(name).data, field);
+				return retVal;
+			}
+			luaTrace('Save file not initialized: ' + name);
+			return null;
+		});
+		Lua_helper.add_callback(lua, "setDataFromSave", function(name:String, field:String, value:Dynamic)
+		{
+			if (PlayState.instance.modchartSaves.exists(name))
+			{
+				Reflect.setField(PlayState.instance.modchartSaves.get(name).data, field, value);
+				return;
+			}
+			luaTrace('Save file not initialized: ' + name);
+		});
+
+		Lua_helper.add_callback(lua, "getTextFromFile", function(path:String, ?ignoreModFolders:Bool = false)
+		{
+			return Paths.getTextFromFile(path, ignoreModFolders);
 		});
 
 		// DEPRECATED, DONT MESS WITH THESE SHITS, ITS JUST THERE FOR BACKWARD COMPATIBILITY

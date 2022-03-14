@@ -8,8 +8,6 @@ import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
 import flixel.tweens.FlxTween;
 import gameObjects.background.*;
-import haxe.Exception;
-import haxe.Json;
 import meta.CoolUtil;
 import meta.data.Conductor;
 import meta.data.dependency.FNFSprite;
@@ -108,6 +106,13 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		PlayState.defaultCamZoom = stageData.defaultZoom;
 		isPixelStage = stageData.isPixelStage;
 
+		PlayState.BF_X = stageData.boyfriend[0];
+		PlayState.BF_Y = stageData.boyfriend[1];
+		PlayState.GF_X = stageData.girlfriend[0];
+		PlayState.GF_Y = stageData.girlfriend[1];
+		PlayState.DAD_X = stageData.opponent[0];
+		PlayState.DAD_Y = stageData.opponent[1];
+
 		// to apply to foreground use foreground.add(); instead of add();
 		foreground = new FlxTypedGroup<FlxBasic>();
 
@@ -122,7 +127,8 @@ class Stage extends FlxTypedGroup<FlxBasic>
 				halloweenBG.frames = hallowTex;
 				halloweenBG.animation.addByPrefix('idle', 'halloweem bg0');
 				halloweenBG.animation.addByPrefix('lightning', 'halloweem bg lightning strike', 24, false);
-				if (!Init.trueSettings.get('Disable Flashing Lights')) halloweenBG.animation.play('idle');
+				if (!Init.trueSettings.get('Disable Flashing Lights'))
+					halloweenBG.animation.play('idle');
 				halloweenBG.antialiasing = true;
 				add(halloweenBG);
 
@@ -403,41 +409,23 @@ class Stage extends FlxTypedGroup<FlxBasic>
 		return gfVersion;
 	}
 
-	// get the dad's position
-	public function dadPosition(curStage, boyfriend:Character, dad:Character, gf:Character, camPos:FlxPoint):Void
+	public function repositionPlayers(boyfriend:Character, dad:Character, gf:Character):Void
 	{
-		var characterArray:Array<Character> = [dad, boyfriend];
-		for (char in characterArray)
-		{
-			switch (char.curCharacter)
-			{
-				case 'gf':
-					char.setPosition(gf.x, gf.y);
-					gf.visible = false;
-					/*
-						if (isStoryMode)
-						{
-							camPos.x += 600;
-							tweenCamIn();
-					}*/
-					/*
-						case 'spirit':
-							var evilTrail = new FlxTrail(char, null, 4, 24, 0.3, 0.069);
-							evilTrail.changeValuesEnabled(false, false, false, false);
-							add(evilTrail);
-					 */
-			}
-		}
-	}
+		boyfriend.x += boyfriend.positionArray[0];
+		boyfriend.y += boyfriend.positionArray[1];
 
-	public function repositionPlayers(curStage, boyfriend:Character, dad:Character, gf:Character):Void
-	{
-		boyfriend.x = stageData.boyfriend[0] + boyfriend.positionArray[0];
-		boyfriend.y = stageData.boyfriend[1] + boyfriend.positionArray[1];
-		dad.x = stageData.opponent[0] + dad.positionArray[0];
-		dad.y = stageData.opponent[1] + dad.positionArray[1];
-		gf.x = stageData.girlfriend[0] + gf.positionArray[0];
-		gf.y = stageData.girlfriend[1] + gf.positionArray[1];
+		// IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+		if (dad.curCharacter.startsWith('gf'))
+		{
+			dad.setPosition(PlayState.GF_X, PlayState.GF_Y);
+			dad.scrollFactor.set(0.95, 0.95);
+			dad.danceEveryNumBeats = 2;
+		}
+		dad.x += dad.positionArray[0];
+		dad.y += dad.positionArray[1];
+
+		gf.x += gf.positionArray[0];
+		gf.y += gf.positionArray[1];
 	}
 
 	var curLight:Int = 0;

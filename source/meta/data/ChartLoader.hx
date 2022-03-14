@@ -1,5 +1,6 @@
 package meta.data;
 
+import gameObjects.userInterface.notes.Note.EventNote;
 import gameObjects.userInterface.notes.*;
 import meta.data.Section.SwagSection;
 import meta.data.Song.SwagSong;
@@ -14,7 +15,7 @@ import meta.state.PlayState;
 class ChartLoader
 {
 	// hopefully this makes it easier for people to load and save chart features and such, y'know the deal lol
-	public static function generateChartType(songData:SwagSong, ?typeOfChart:String = "FNF"):Array<Note>
+	public static function generateChartType(songData:SwagSong, ?typeOfChart:String = "FNF")
 	{
 		var unspawnNotes:Array<Note> = [];
 		var noteData:Array<SwagSection>;

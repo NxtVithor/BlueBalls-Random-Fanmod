@@ -8,6 +8,14 @@ import meta.state.PlayState;
 
 using StringTools;
 
+typedef EventNote =
+{
+	strumTime:Float,
+	event:String,
+	value1:String,
+	value2:String
+}
+
 class Note extends FNFSprite
 {
 	public var strumTime:Float = 0;

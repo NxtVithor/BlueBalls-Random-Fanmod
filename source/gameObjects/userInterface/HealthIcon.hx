@@ -11,14 +11,20 @@ class HealthIcon extends AttachedSprite
 	public var initialWidth:Float = 0;
 	public var initialHeight:Float = 0;
 
+	var isPlayer:Bool = false;
+
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
+		this.isPlayer = isPlayer;
 		updateIcon(char, isPlayer);
 	}
 
-	public function updateIcon(char:String = 'bf', isPlayer:Bool = false)
+	public function updateIcon(char:String = 'bf', ?isPlayer:Bool)
 	{
+		if (isPlayer == null)
+			isPlayer = this.isPlayer;
+
 		var path:String = 'icons/' + char;
 		if (!Paths.exists(Paths.getPath('images/' + path + '.png', IMAGE)))
 			path = 'icons/icon-' + char;

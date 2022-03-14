@@ -27,9 +27,12 @@ class FNFTransition extends MusicBeatSubState
 	var transBlack:FlxSprite;
 	var transGradient:FlxSprite;
 
-	public function new(duration:Float, isTransIn:Bool)
+	public function new(?duration:Float, isTransIn:Bool)
 	{
 		super();
+
+		if (duration == null)
+			duration = 0.7;
 
 		this.isTransIn = isTransIn;
 		var width:Int = Std.int(FlxG.width);

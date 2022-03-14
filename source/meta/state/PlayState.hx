@@ -1,5 +1,8 @@
 package meta.state;
 
+import flixel.util.FlxSave;
+import gameObjects.userInterface.notes.Note.EventNote;
+import flixel.group.FlxSpriteGroup;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -63,6 +66,11 @@ class PlayState extends MusicBeatState
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 2;
 
+	public var songSpeedTween:FlxTween;
+	public var songSpeed(default, set):Float = 1;
+
+	public var noteKillOffset:Float = 350;
+
 	// lazy moment
 	private var isTutorial:Bool = false;
 
@@ -85,10 +93,19 @@ class PlayState extends MusicBeatState
 	public static var GF_X:Float = 400;
 	public static var GF_Y:Float = 130;
 
+	public var boyfriendMap:Map<String, Boyfriend> = new Map<String, Boyfriend>();
+	public var dadMap:Map<String, Character> = new Map<String, Character>();
+	public var gfMap:Map<String, Character> = new Map<String, Character>();
+
+	public var boyfriendGroup:FlxSpriteGroup;
+	public var dadGroup:FlxSpriteGroup;
+	public var gfGroup:FlxSpriteGroup;
+
 	public static var assetModifier:String = 'base';
 	public static var changeableSkin:String = 'default';
 
 	public var unspawnNotes:Array<Note> = [];
+	public var eventNotes:Array<EventNote> = [];
 
 	private var ratingArray:Array<String> = [];
 	private var allSicks:Bool = true;
@@ -100,6 +117,8 @@ class PlayState extends MusicBeatState
 	private var camFollowPos:FlxObject;
 
 	private static var prevCamFollow:FlxPoint;
+
+	private var isCameraOnForcedPos:Bool = false;
 
 	// Discord RPC variables
 	public static var songDetails:String = "";
@@ -141,9 +160,14 @@ class PlayState extends MusicBeatState
 	// used by tutorial
 	var cameraTwn:FlxTween;
 
+	// shaders shit
 	public static var animatedShaders:Map<String, DynamicShaderHandler> = new Map<String, DynamicShaderHandler>();
 
 	public var shaderUpdates:Array<Float->Void> = [];
+
+	public var camGameShaders:Array<ShaderEffect> = [];
+	public var camHUDShaders:Array<ShaderEffect> = [];
+	public var camOtherShaders:Array<ShaderEffect> = [];
 
 	public var shader_chromatic_abberation:ChromaticAberrationEffect;
 
@@ -156,9 +180,7 @@ class PlayState extends MusicBeatState
 	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
 	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
 	public var modchartTexts:Map<String, ModchartText> = new Map<String, ModchartText>();
-	public var camGameShaders:Array<ShaderEffect> = [];
-	public var camHUDShaders:Array<ShaderEffect> = [];
-	public var camOtherShaders:Array<ShaderEffect> = [];
+	public var modchartSaves:Map<String, FlxSave> = new Map<String, FlxSave>();
 
 	private var luaDebugGroup:FlxTypedGroup<DebugLuaText>;
 
@@ -196,6 +218,8 @@ class PlayState extends MusicBeatState
 
 	public var strumLineNotes:FlxTypedGroup<UIStaticArrow>;
 	public var strumLines:FlxTypedGroup<Strumline>;
+
+	private var eventPushedMap:Map<String, Bool> = new Map<String, Bool>();
 
 	private var allUIs:Array<FlxCamera> = [];
 
@@ -257,7 +281,7 @@ class PlayState extends MusicBeatState
 
 		// default song
 		if (SONG == null)
-			SONG = Song.loadFromJson('test', 'test');
+			PlayState.SONG = Song.loadFromJson('test', 'test');
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -290,6 +314,11 @@ class PlayState extends MusicBeatState
 			engine for both myself and other modders to use!
 		 */
 
+		// set up characters groups
+		boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
+		dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+		gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+
 		// set up characters here too
 		var gfChar:String = SONG.gfVersion;
 		if (gfChar == null)
@@ -300,39 +329,37 @@ class PlayState extends MusicBeatState
 				gfChar = stageBuild.returnGFtype(curStage);
 			SONG.gfVersion = gfChar;
 		}
-		gf = new Character(GF_X, GF_Y, gfChar);
+		gf = new Character(0, 0, gfChar);
 		gf.scrollFactor.set(0.95, 0.95);
+		gfGroup.add(gf);
 
-		dadOpponent = new Character(DAD_X, DAD_Y, SONG.player2);
-		boyfriend = new Boyfriend(BF_X, BF_Y, SONG.player1);
+		dadOpponent = new Character(0, 0, SONG.player2);
+		dadGroup.add(dadOpponent);
+		boyfriend = new Boyfriend(0, 0, SONG.player1);
+		boyfriendGroup.add(boyfriend);
+
+		if (dadOpponent.curCharacter.startsWith('gf'))
+			dadOpponent.setPosition(GF_X, GF_Y);
 
 		var camPos:FlxPoint = new FlxPoint(gf.getGraphicMidpoint().x, gf.getGraphicMidpoint().y);
 		camPos.x += gf.cameraPosition[0];
 		camPos.y += gf.cameraPosition[1];
 
-		stageBuild.repositionPlayers(curStage, boyfriend, dadOpponent, gf);
-		stageBuild.dadPosition(curStage, boyfriend, dadOpponent, gf, camPos);
-
-		GF_X = gf.x;
-		GF_Y = gf.y;
-		DAD_X = dadOpponent.x;
-		DAD_Y = dadOpponent.y;
-		BF_X = boyfriend.x;
-		BF_Y = boyfriend.y;
+		stageBuild.repositionPlayers(boyfriend, dadOpponent, gf);
 
 		changeableSkin = Init.trueSettings.get("UI Skin");
 		if (curStage.startsWith("school") && (determinedChartType == "FNF"))
 			assetModifier = 'pixel';
 
 		// add characters
-		add(gf);
+		add(gfGroup);
 
 		// add limo cus dumb layering
 		if (curStage == 'highway')
 			add(stageBuild.limo);
 
-		add(dadOpponent);
-		add(boyfriend);
+		add(dadGroup);
+		add(boyfriendGroup);
 
 		#if LUA_ALLOWED
 		luaDebugGroup = new FlxTypedGroup<DebugLuaText>();
@@ -366,6 +393,19 @@ class PlayState extends MusicBeatState
 
 		// generate the song
 		generateSong();
+
+		// load custom events
+		#if LUA_ALLOWED
+		var eventsBase:String = 'custom_events';
+		for (event in eventPushedMap.keys())
+		{
+			var path:String = Paths.script('$eventsBase/$event');
+			if (Paths.exists(path))
+				luaArray.push(new Script(path));
+		}
+		#end
+		eventPushedMap.clear();
+		eventPushedMap = null;
 
 		// set the camera position to the center of the stage
 		camPos.set(gf.x + (gf.frameWidth / 2), gf.y + (gf.frameHeight / 2));
@@ -468,31 +508,44 @@ class PlayState extends MusicBeatState
 			}
 		}
 		#end
+
+		var doPush:Bool = false;
+		var checkIfCanPushScript = function()
+		{
+			for (lua in luaArray)
+			{
+				if (lua.scriptPath == path)
+				{
+					doPush = true;
+					return;
+				}
+			}
+		}
+
 		for (script in scripts)
-			// bitch why
-			if (script.endsWith('.lua'))
-				luaArray.push(new Script(script));
+		{
+			path = script;
+			checkIfCanPushScript();
+			if (doPush && Paths.exists(path))
+				luaArray.push(new Script(path));
+		}
 
 		// for the stage script
 		path = '';
 		path = Paths.script('stages/$curStage');
-		if (Paths.exists(path))
+		checkIfCanPushScript();
+		if (doPush && Paths.exists(path))
 			luaArray.push(new Script(path));
 
 		// for the characters scripts
-		var charBase:String = 'characters';
-		var charScripts:Array<String> = [
-			Paths.script('$charBase/${boyfriend.curCharacter}'),
-			Paths.script('$charBase/${dadOpponent.curCharacter}'),
-			Paths.script('$charBase/${gf.curCharacter}')
-		];
-		for (script in charScripts)
-			if (Paths.exists(script))
-				luaArray.push(new Script(script));
+		initCharLua(boyfriend.curCharacter);
+		initCharLua(dadOpponent.curCharacter);
+		initCharLua(gf.curCharacter);
 
 		// for the song script
 		path = Paths.script('data/${curSong.toLowerCase()}/script');
-		if (Paths.exists(path))
+		checkIfCanPushScript();
+		if (doPush && Paths.exists(path))
 			luaArray.push(new Script(path));
 		#end
 
@@ -549,6 +602,37 @@ class PlayState extends MusicBeatState
 		callOnLuas('onCreatePost', []);
 	}
 
+	function set_songSpeed(value:Float):Float
+	{
+		if (generatedMusic)
+		{
+			var ratio:Float = value / songSpeed;
+			for (strumline in strumLines)
+			{
+				for (note in strumline.allNotes)
+				{
+					if (note.isSustainNote && !note.animation.curAnim.name.endsWith('end'))
+					{
+						note.scale.y *= ratio;
+						note.updateHitbox();
+					}
+				}
+			}
+
+			for (note in unspawnNotes)
+			{
+				if (note.isSustainNote && !note.animation.curAnim.name.endsWith('end'))
+				{
+					note.scale.y *= ratio;
+					note.updateHitbox();
+				}
+			}
+		}
+		songSpeed = value;
+		noteKillOffset = 350 / songSpeed;
+		return value;
+	}
+
 	public var closeLuas:Array<Script> = [];
 
 	public function callOnLuas(event:String, args:Array<Dynamic>):Dynamic
@@ -575,11 +659,23 @@ class PlayState extends MusicBeatState
 	{
 		#if LUA_ALLOWED
 		for (i in 0...luaArray.length)
-		{
 			luaArray[i].set(variable, arg);
-		}
 		#end
 	}
+
+	#if LUA_ALLOWED
+	private function initCharLua(character:String)
+	{
+		var path:String = Paths.script('characters/$character');
+		for (lua in luaArray)
+		{
+			if (lua.scriptPath == path)
+				return;
+		}
+		if (Paths.exists(path))
+			luaArray.push(new Script(path));
+	}
+	#end
 
 	public static function copyKey(arrayToCopy:Array<FlxKey>):Array<FlxKey>
 	{
@@ -996,6 +1092,7 @@ class PlayState extends MusicBeatState
 
 			noteCalls();
 		}
+		eventNoteCalls();
 
 		setOnLuas('cameraX', camFollowPos.x);
 		setOnLuas('cameraY', camFollowPos.y);
@@ -1010,6 +1107,297 @@ class PlayState extends MusicBeatState
 
 		for (i in shaderUpdates)
 			i(elapsed);
+	}
+
+	function eventPushed(event:EventNote)
+	{
+		switch (event.event)
+		{
+			case 'Change Character':
+				var charType:Int = 0;
+				switch (event.value1.toLowerCase())
+				{
+					case 'gf' | 'girlfriend' | '1':
+						charType = 2;
+					case 'dad' | 'opponent' | '0':
+						charType = 1;
+					default:
+						charType = Std.parseInt(event.value1);
+						if (Math.isNaN(charType)) charType = 0;
+				}
+
+				var newCharacter:String = event.value2;
+				addCharacterToList(newCharacter, charType);
+		}
+
+		if (!eventPushedMap.exists(event.event))
+			eventPushedMap.set(event.event, true);
+	}
+
+	public function eventNoteCalls()
+	{
+		while (eventNotes.length > 0)
+		{
+			var leStrumTime:Float = eventNotes[0].strumTime;
+			if (Conductor.songPosition < leStrumTime)
+				break;
+
+			var value1:String = '';
+			if (eventNotes[0].value1 != null)
+				value1 = eventNotes[0].value1;
+
+			var value2:String = '';
+			if (eventNotes[0].value2 != null)
+				value2 = eventNotes[0].value2;
+
+			triggerEventNote(eventNotes[0].event, value1, value2);
+			eventNotes.shift();
+		}
+	}
+
+	public function triggerEventNote(eventName:String, value1:String, value2:String)
+	{
+		switch (eventName)
+		{
+			case 'Hey!':
+				var value:Int = 2;
+				switch (value1.toLowerCase().trim())
+				{
+					case 'bf' | 'boyfriend' | '0':
+						value = 0;
+					case 'gf' | 'girlfriend' | '1':
+						value = 1;
+				}
+
+				var time:Float = Std.parseFloat(value2);
+				if (Math.isNaN(time) || time <= 0)
+					time = 0.6;
+
+				if (value != 0)
+				{
+					if (dadOpponent.curCharacter.startsWith('gf'))
+					{
+						dadOpponent.playAnim('cheer', true);
+						dadOpponent.specialAnim = true;
+						dadOpponent.heyTimer = time;
+					}
+					else if (gf != null)
+					{
+						gf.playAnim('cheer', true);
+						gf.specialAnim = true;
+						gf.heyTimer = time;
+					}
+				}
+				if (value != 1)
+				{
+					boyfriend.playAnim('hey', true);
+					boyfriend.specialAnim = true;
+					boyfriend.heyTimer = time;
+				}
+
+			case 'Set GF Speed':
+				var value:Int = Std.parseInt(value1);
+				if (Math.isNaN(value) || value < 1)
+					value = 1;
+				gfSpeed = value;
+
+			case 'Add Camera Zoom':
+				if (!Init.trueSettings.get('Reduced Movements') && FlxG.camera.zoom < 1.35)
+				{
+					var camZoom:Float = Std.parseFloat(value1);
+					var hudZoom:Float = Std.parseFloat(value2);
+					if (Math.isNaN(camZoom))
+						camZoom = 0.015;
+					if (Math.isNaN(hudZoom))
+						hudZoom = 0.03;
+
+					FlxG.camera.zoom += camZoom;
+					camHUD.zoom += hudZoom;
+				}
+
+			case 'Play Animation':
+				// trace('Anim to play: ' + value1);
+				var char:Character = dadOpponent;
+				switch (value2.toLowerCase().trim())
+				{
+					case 'bf' | 'boyfriend':
+						char = boyfriend;
+					case 'gf' | 'girlfriend':
+						char = gf;
+					default:
+						var val2:Int = Std.parseInt(value2);
+						if (Math.isNaN(val2))
+							val2 = 0;
+
+						switch (val2)
+						{
+							case 1: char = boyfriend;
+							case 2: char = gf;
+						}
+				}
+
+				if (char != null)
+				{
+					char.playAnim(value1, true);
+					char.specialAnim = true;
+				}
+
+			case 'Camera Follow Pos':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val1))
+					val1 = 0;
+				if (Math.isNaN(val2))
+					val2 = 0;
+
+				isCameraOnForcedPos = false;
+				if (!Math.isNaN(Std.parseFloat(value1)) || !Math.isNaN(Std.parseFloat(value2)))
+				{
+					camFollow.x = val1;
+					camFollow.y = val2;
+					isCameraOnForcedPos = true;
+				}
+
+			case 'Alt Idle Animation':
+				var char:Character = dadOpponent;
+				switch (value1.toLowerCase())
+				{
+					case 'gf' | 'girlfriend':
+						char = gf;
+					case 'boyfriend' | 'bf':
+						char = boyfriend;
+					default:
+						var val:Int = Std.parseInt(value1);
+						if (Math.isNaN(val))
+							val = 0;
+
+						switch (val)
+						{
+							case 1: char = boyfriend;
+							case 2: char = gf;
+						}
+				}
+
+				if (char != null)
+				{
+					char.idleSuffix = value2;
+					char.recalculateDanceIdle();
+				}
+
+			case 'Screen Shake':
+				var valuesArray:Array<String> = [value1, value2];
+				var targetsArray:Array<FlxCamera> = [camGame, camHUD];
+				for (i in 0...targetsArray.length)
+				{
+					var split:Array<String> = valuesArray[i].split(',');
+					var duration:Float = 0;
+					var intensity:Float = 0;
+					if (split[0] != null)
+						duration = Std.parseFloat(split[0].trim());
+					if (split[1] != null)
+						intensity = Std.parseFloat(split[1].trim());
+					if (Math.isNaN(duration))
+						duration = 0;
+					if (Math.isNaN(intensity))
+						intensity = 0;
+
+					if (duration > 0 && intensity != 0)
+					{
+						targetsArray[i].shake(intensity, duration);
+					}
+				}
+
+			case 'Change Character':
+				var charType:Int = 0;
+				switch (value1)
+				{
+					case 'gf' | 'girlfriend':
+						charType = 2;
+					case 'dad' | 'opponent':
+						charType = 1;
+					default:
+						charType = Std.parseInt(value1);
+						if (Math.isNaN(charType)) charType = 0;
+				}
+
+				switch (charType)
+				{
+					case 0:
+						if (boyfriend.curCharacter != value2)
+						{
+							if (!boyfriendMap.exists(value2))
+								addCharacterToList(value2, charType);
+
+							var lastAlpha:Float = boyfriend.alpha;
+							boyfriend.alpha = 0.00001;
+							boyfriend = boyfriendMap.get(value2);
+							boyfriend.alpha = lastAlpha;
+							uiHUD.iconP1.updateIcon(boyfriend.healthIcon);
+						}
+						setOnLuas('boyfriendName', boyfriend.curCharacter);
+
+					case 1:
+						if (dadOpponent.curCharacter != value2)
+						{
+							if (!dadMap.exists(value2))
+								addCharacterToList(value2, charType);
+
+							var wasGf:Bool = dadOpponent.curCharacter.startsWith('gf');
+							var lastAlpha:Float = dadOpponent.alpha;
+							dadOpponent.alpha = 0.00001;
+							dadOpponent = dadMap.get(value2);
+							if (!dadOpponent.curCharacter.startsWith('gf'))
+							{
+								if (wasGf && gf != null)
+									gf.visible = true;
+							}
+							else if (gf != null)
+								gf.visible = false;
+							dadOpponent.alpha = lastAlpha;
+							uiHUD.iconP2.updateIcon(dadOpponent.healthIcon);
+						}
+						setOnLuas('dadName', dadOpponent.curCharacter);
+
+					case 2:
+						if (gf != null)
+						{
+							if (gf.curCharacter != value2)
+							{
+								if (!gfMap.exists(value2))
+									addCharacterToList(value2, charType);
+
+								var lastAlpha:Float = gf.alpha;
+								gf.alpha = 0.00001;
+								gf = gfMap.get(value2);
+								gf.alpha = lastAlpha;
+							}
+							setOnLuas('gfName', gf.curCharacter);
+						}
+				}
+				uiHUD.reloadHealthBarColors();
+
+			case 'Change Scroll Speed':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val1))
+					val1 = 1;
+				if (Math.isNaN(val2))
+					val2 = 0;
+
+				var newValue:Float = SONG.speed * val1;
+
+				if (val2 <= 0)
+					songSpeed = newValue;
+				else
+					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {
+						ease: FlxEase.linear,
+						onComplete: function(twn:FlxTween)
+						{
+							songSpeedTween = null;
+						}
+					});
+		}
+		callOnLuas('onEvent', [eventName, value1, value2]);
 	}
 
 	var lastSection:Int = 0;
@@ -1057,7 +1445,7 @@ class PlayState extends MusicBeatState
 					});
 			}
 			else
-				callOnLuas('onMoveCamera', ['dad']);
+				callOnLuas('onMoveCamera', ['dadOpponent']);
 		}
 		else
 		{
@@ -1210,14 +1598,9 @@ class PlayState extends MusicBeatState
 					}
 
 					// if the note is off screen (above)
-					if (((!strumline.downscroll && daNote.y < -daNote.height)
-						|| (strumline.downscroll && daNote.y > FlxG.height + daNote.height))
-						&& (daNote.tooLate || daNote.wasGoodHit))
+					if (Conductor.songPosition > noteKillOffset + daNote.strumTime && (daNote.tooLate || daNote.wasGoodHit))
 						destroyNote(strumline, daNote);
 				});
-
-				// unoptimised asf camera control based on strums
-				strumCameraRoll(strumline.receptors, strumline == playerStrums);
 			}
 
 			// reset bf's animation
@@ -1228,33 +1611,6 @@ class PlayState extends MusicBeatState
 				&& (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')))
 				boyfriend.dance();
 		}
-	}
-
-	function strumCameraRoll(cStrum:FlxTypedGroup<UIStaticArrow>, mustHit:Bool)
-	{
-		if (!Init.trueSettings.get('No Camera Note Movement'))
-		{
-			var camDisplaceExtend:Float = 15;
-			if (PlayState.SONG.notes[Std.int(curStep / 16)] != null)
-			{
-				if ((PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && mustHit)
-					|| (!PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && !mustHit))
-				{
-					camDisplaceX = 0;
-					if (cStrum.members[0].animation.curAnim.name == 'confirm')
-						camDisplaceX = -camDisplaceExtend;
-					if (cStrum.members[3].animation.curAnim.name == 'confirm')
-						camDisplaceX = camDisplaceExtend;
-
-					camDisplaceY = 0;
-					if (cStrum.members[1].animation.curAnim.name == 'confirm')
-						camDisplaceY = camDisplaceExtend;
-					if (cStrum.members[2].animation.curAnim.name == 'confirm')
-						camDisplaceY = -camDisplaceExtend;
-				}
-			}
-		}
-		//
 	}
 
 	function noteMissLua(daNote:Note)
@@ -1742,15 +2098,42 @@ class PlayState extends MusicBeatState
 		unspawnNotes = ChartLoader.generateChartType(SONG, determinedChartType);
 		// sometime my brain farts dont ask me why these functions were separated before
 
+		// generate the events
+		if (SONG.events == null && Paths.exists(Paths.songJson(SONG.song, 'events')))
+			SONG.events = Song.loadFromJson('events', CoolUtil.coolFormat(SONG.song)).events;
+		for (event in SONG.events)
+		{
+			for (i in 0...event[1].length)
+			{
+				var newEventNote:Array<Dynamic> = [event[0], event[1][i][0], event[1][i][1], event[1][i][2]];
+				var subEvent:EventNote = {
+					strumTime: newEventNote[0],
+					event: newEventNote[1],
+					value1: newEventNote[2],
+					value2: newEventNote[3]
+				};
+				eventNotes.push(subEvent);
+				eventPushed(subEvent);
+			}
+		}
+
 		// sort through them
 		unspawnNotes.sort(sortByShit);
+		if (eventNotes.length > 1)
+			eventNotes.sort(sortByTime);
 		// give the game the heads up to be able to start
 		generatedMusic = true;
 
 		Timings.accuracyMaxCalculation(unspawnNotes);
+
+		// FAST EVENTS!!!
+		eventNoteCalls();
 	}
 
 	function sortByShit(Obj1:Note, Obj2:Note):Int
+		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
+
+	function sortByTime(Obj1:EventNote, Obj2:EventNote):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 
 	function resyncVocals()
@@ -1811,7 +2194,7 @@ class PlayState extends MusicBeatState
 			setOnLuas('altAnim', daSection.altAnim);
 			setOnLuas('gfSection', dadOpponent.curCharacter.startsWith('gf') && daSection.mustHitSection);
 
-			if (generatedMusic)
+			if (generatedMusic && !isCameraOnForcedPos)
 				moveCamera(!daSection.mustHitSection);
 		}
 
@@ -1978,6 +2361,57 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+	}
+
+	public function addCharacterToList(newCharacter:String, type:Int)
+	{
+		switch (type)
+		{
+			case 0:
+				if (!boyfriendMap.exists(newCharacter))
+				{
+					var newBoyfriend:Boyfriend = new Boyfriend(0, 0, newCharacter);
+					boyfriendMap.set(newCharacter, newBoyfriend);
+					boyfriendGroup.add(newBoyfriend);
+					newBoyfriend.alpha = 0.00001;
+
+					newBoyfriend.x += newBoyfriend.positionArray[0];
+					newBoyfriend.y += newBoyfriend.positionArray[1];
+				}
+
+			case 1:
+				if (!dadMap.exists(newCharacter))
+				{
+					var newDad:Character = new Character(0, 0, newCharacter);
+					dadMap.set(newCharacter, newDad);
+					dadGroup.add(newDad);
+					newDad.alpha = 0.00001;
+
+					// IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+					if (newCharacter.startsWith('gf'))
+					{
+						newDad.setPosition(PlayState.GF_X, PlayState.GF_Y);
+						newDad.scrollFactor.set(0.95, 0.95);
+						newDad.danceEveryNumBeats = 2;
+					}
+					newDad.x += newDad.positionArray[0];
+					newDad.y += newDad.positionArray[1];
+				}
+
+			case 2:
+				if (gf != null && !gfMap.exists(newCharacter))
+				{
+					var newGf:Character = new Character(0, 0, newCharacter);
+					newGf.scrollFactor.set(0.95, 0.95);
+					gfMap.set(newCharacter, newGf);
+					gfGroup.add(newGf);
+					newGf.alpha = 0.00001;
+
+					newGf.x += newGf.positionArray[0];
+					newGf.y += newGf.positionArray[1];
+				}
+		}
+		initCharLua(newCharacter);
 	}
 
 	private function callDefaultSongEnd()

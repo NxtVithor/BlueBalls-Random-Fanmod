@@ -95,12 +95,6 @@ class Init extends FlxState
 			'Whether to disable Anti-aliasing. Helps improve performance in FPS.',
 			NOT_FORCED
 		],
-		'No Camera Note Movement' => [
-			true,
-			Checkmark,
-			'When enabled, left and right notes no longer move the camera.',
-			NOT_FORCED
-		],
 		'Disable Note Splashes' => [
 			false,
 			Checkmark,
