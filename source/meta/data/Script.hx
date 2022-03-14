@@ -1135,20 +1135,19 @@ class Script
 						}
 						else
 						{
-							var position:Int = PlayState.instance.members.indexOf(PlayState.instance.gf);
-							if (PlayState.instance.members.indexOf(PlayState.instance.boyfriend) < position)
+							var position:Int = PlayState.instance.members.indexOf(PlayState.instance.gfGroup);
+							if (PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.boyfriend);
+								position = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
 							}
-							else if (PlayState.instance.members.indexOf(PlayState.instance.dadOpponent) < position)
+							else if (PlayState.instance.members.indexOf(PlayState.instance.dadGroup) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.dadOpponent);
+								position = PlayState.instance.members.indexOf(PlayState.instance.dadGroup);
 							}
 							PlayState.instance.insert(position, shit);
 						}
 					}
 					shit.wasAdded = true;
-					// trace('added a thing: ' + tag);
 				}
 			}
 		});
