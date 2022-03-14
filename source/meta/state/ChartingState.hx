@@ -1,5 +1,6 @@
 package meta.state;
 
+import meta.data.Section.SwagSection;
 import flixel.util.FlxSort;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -871,13 +872,10 @@ class ChartingState extends MusicBeatState
 
 			if (curSelectedNote != null)
 			{
-				var noteDataToCheck:Int = note.noteData;
-				if (noteDataToCheck > -1 && note.mustPress != _song.notes[curSection].mustHitSection)
-					noteDataToCheck += 4;
+				var noteData = adjustSide(note.noteData, _song.notes[Math.floor(note.strumTime / (Conductor.stepCrochet * 16))].mustHitSection);
 
 				if (curSelectedNote[0] == note.strumTime
-					&& ((curSelectedNote[2] == null && noteDataToCheck < 0)
-						|| (curSelectedNote[2] != null && curSelectedNote[1] == noteDataToCheck)))
+					&& ((curSelectedNote[2] == null && noteData < 0) || (curSelectedNote[2] != null && curSelectedNote[1] == noteData)))
 				{
 					colorSine += elapsed;
 					var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
@@ -987,11 +985,11 @@ class ChartingState extends MusicBeatState
 								{
 									for (i in _song.notes[curSection].sectionNotes)
 									{
-										if (i[0] == note.strumTime && i[1] == note.noteData)
+										if (i[0] == note.strumTime && i[1] % 4 == note.noteData)
 										{
 											if (i == curSelectedNote)
 												curSelectedNote = null;
-											trace('FOUND EVIL NOTE!!!');
+											// trace('FOUND EVIL NOTE!!!');
 											_song.notes[curSection].sectionNotes.remove(i);
 											break;
 										}
@@ -1028,14 +1026,16 @@ class ChartingState extends MusicBeatState
 												curSelectedNote = null;
 												changeEventSelected();
 											}
-											trace('FOUND EVIL EVENT!!!');
+											// trace('FOUND EVIL EVENT!!!');
 											_song.events.remove(i);
 											break;
 										}
 									}
 								}
 
-								updateGrid();
+								note.kill();
+								curRenderedNotes.remove(note);
+								note.destroy();
 							}
 						}
 					});
