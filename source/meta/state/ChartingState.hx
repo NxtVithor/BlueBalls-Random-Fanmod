@@ -864,26 +864,6 @@ class ChartingState extends MusicBeatState
 		coolGradient.y = strumLineCam.y - (FlxG.height / 2);
 		coolGrid.y = strumLineCam.y - (FlxG.height / 2);
 
-		curRenderedNotes.forEachAlive(function(note:Note)
-		{
-			note.alpha = 1;
-			if (note.strumTime <= Conductor.songPosition)
-				note.alpha = 0.4;
-
-			if (curSelectedNote != null)
-			{
-				var noteData = adjustSide(note.noteData, _song.notes[Math.floor(note.strumTime / (Conductor.stepCrochet * 16))].mustHitSection);
-
-				if (curSelectedNote[0] == note.strumTime
-					&& ((curSelectedNote[2] == null && noteData < 0) || (curSelectedNote[2] != null && curSelectedNote[1] == noteData)))
-				{
-					colorSine += elapsed;
-					var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
-					note.color = FlxColor.fromRGBFloat(colorVal, colorVal, colorVal, 0.999);
-				}
-			}
-		});
-
 		if (FlxG.mouse.x > fullGrid.x
 			&& FlxG.mouse.x < fullGrid.x + fullGrid.width
 			&& FlxG.mouse.y > 0
@@ -1345,6 +1325,9 @@ class ChartingState extends MusicBeatState
 		for (s in 0...3)
 		{
 			var leSection:Int = curSection + s;
+			if (curSection > 0)
+				leSection -= 1;
+
 			for (i in _song.notes[leSection].sectionNotes)
 			{
 				var daNoteAlt = 0;
@@ -1356,7 +1339,6 @@ class ChartingState extends MusicBeatState
 
 		var startThing:Float = sectionStartTime();
 		var endThing:Float = sectionStartTime(1);
-		curRenderedNoteType.visible = false;
 		for (i in _song.events)
 		{
 			if (endThing > i[0] && i[0] >= startThing)
@@ -1369,17 +1351,18 @@ class ChartingState extends MusicBeatState
 					text = note.eventLength + ' Events:\n' + note.eventName;
 
 				var daText:AttachedFlxText = new AttachedFlxText(0, 0, 400, text, 12);
+				daText.visible = false;
 				daText.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
-				daText.xAdd = -135;
+				daText.xAdd = -150;
 				daText.yAdd = -6;
 				daText.borderSize = 1;
 				if (note.eventLength > 1)
 					daText.yAdd += 8;
-				daText.sprTracker = note;
 				curRenderedNoteType.add(daText);
+				daText.sprTracker = note;
+				daText.visible = true;
 			}
 		}
-		curRenderedNoteType.visible = true;
 	}
 
 	private function generateChartNote(daNoteInfo:Dynamic, daStrumTime:Float, ?daSus:Float, daNoteAlt:Float, noteSection:Int)
@@ -1420,8 +1403,7 @@ class ChartingState extends MusicBeatState
 		if (isEvent)
 		{
 			note.x += 53;
-			note.y += 16;
-
+			note.y += 15;
 			note.noteData = -1;
 			daNoteInfo = -1;
 		}
