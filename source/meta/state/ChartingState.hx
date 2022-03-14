@@ -134,6 +134,8 @@ class ChartingState extends MusicBeatState
 	private var curRenderedSustains:FlxTypedGroup<FlxSprite>;
 	private var curRenderedNoteType:FlxTypedGroup<AttachedFlxText>;
 
+	private var sustainsMap:Map<Note, FlxSprite> = new Map<Note, FlxSprite>();
+
 	// ui shit
 	var uiBox:FlxUITabMenu;
 
@@ -549,7 +551,7 @@ class ChartingState extends MusicBeatState
 			}
 		});
 
-		var pasteButton:FlxButton = new FlxButton(10, 180, "Paste Section", function()
+		var pasteButton:FlxButton = new FlxButton(10, 200, "Paste Section", function()
 		{
 			if (notesCopied == null || notesCopied.length < 1)
 				return;
@@ -906,18 +908,20 @@ class ChartingState extends MusicBeatState
 				{
 					// add note funny
 					var noteStrum = getStrumTime(dummyArrow.y);
+
 					var notesSection = Math.floor(noteStrum / (Conductor.stepCrochet * 16));
 					var noteData = Math.floor((dummyArrow.x - fullGrid.x) / gridSize);
+					var leGoodData = adjustSide(noteData, _song.notes[notesSection].mustHitSection);
 					var noteType = curNoteType; // define notes as the current type
 					var noteSus = 0; // ninja you will NOT get away with this
 
-					if (noteData <= keysTotal)
+					if (noteData != keysTotal - 1)
 					{
-						_song.notes[notesSection].sectionNotes.push([noteStrum, noteData, noteSus, noteType]);
+						_song.notes[notesSection].sectionNotes.push([noteStrum, leGoodData, noteSus, noteType]);
 						curSelectedNote = _song.notes[notesSection].sectionNotes[_song.notes[notesSection].sectionNotes.length - 1];
 						if (FlxG.keys.pressed.CONTROL)
-							_song.notes[notesSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteType]);
-						generateChartNote(noteData, noteStrum, noteSus, 0, notesSection);
+							_song.notes[notesSection].sectionNotes.push([noteStrum, (leGoodData + 4) % 8, noteSus, noteType]);
+						generateChartNote(leGoodData, noteStrum, noteSus, 0, notesSection);
 					}
 					else
 					{
@@ -983,9 +987,25 @@ class ChartingState extends MusicBeatState
 							{
 								if (note.noteData > -1)
 								{
-									note.kill();
-									curRenderedNotes.remove(note);
-									note.destroy();
+									if (sustainsMap.exists(note))
+									{
+										var leSusSpr:FlxSprite = sustainsMap.get(note);
+										leSusSpr.kill();
+										curRenderedSustains.remove(leSusSpr);
+										leSusSpr.destroy();
+										sustainsMap.remove(note);
+									}
+
+									for (i in _song.notes[curSection].sectionNotes)
+									{
+										if (i[0] == note.strumTime && i[1] == note.noteData)
+										{
+											if (i == curSelectedNote)
+												curSelectedNote = null;
+											_song.notes[curSection].sectionNotes.remove(i);
+											break;
+										}
+									}
 								}
 								else
 								{
@@ -1009,10 +1029,24 @@ class ChartingState extends MusicBeatState
 										}
 									});
 
-									note.kill();
-									curRenderedNotes.remove(note);
-									note.destroy();
+									for (i in _song.events)
+									{
+										if (i[0] == note.strumTime)
+										{
+											if (i == curSelectedNote)
+											{
+												curSelectedNote = null;
+												changeEventSelected();
+											}
+											_song.events.remove(i);
+											break;
+										}
+									}
 								}
+
+								note.kill();
+								curRenderedNotes.remove(note);
+								note.destroy();
 							}
 						}
 					});
@@ -1315,6 +1349,7 @@ class ChartingState extends MusicBeatState
 			curRenderedNotes.remove(curRenderedNotes.members[0], true);
 		while (curRenderedSustains.members.length > 0)
 			curRenderedSustains.remove(curRenderedSustains.members[0], true);
+		sustainsMap.clear();
 		while (curRenderedNoteType.members.length > 0)
 			curRenderedNoteType.remove(curRenderedNoteType.members[0], true);
 
@@ -1387,7 +1422,10 @@ class ChartingState extends MusicBeatState
 
 		note.screenCenter(X);
 		note.x -= gridSize * keysTotal / 2 - gridSize / 2;
-		note.x += Math.floor(adjustSide(daNoteInfo, _song.notes[noteSection].mustHitSection) * gridSize);
+		var xShit:Int = daNoteInfo;
+		if (!isEvent)
+			xShit = adjustSide(xShit, _song.notes[noteSection].mustHitSection);
+		note.x += Math.floor(xShit * gridSize);
 
 		note.y = Math.floor(getYfromStrum(daStrumTime));
 
@@ -1403,7 +1441,11 @@ class ChartingState extends MusicBeatState
 		curRenderedNotes.add(note);
 
 		if (daSus > 0)
-			curRenderedSustains.add(new FlxSprite(note.x + gridSize / 2.5, note.y + gridSize).makeGraphic(8, Math.floor(getYfromStrum(daSus))));
+		{
+			var susSpr:FlxSprite = new FlxSprite(note.x + gridSize / 2.5, note.y + gridSize).makeGraphic(8, Math.floor(getYfromStrum(daSus)));
+			curRenderedSustains.add(susSpr);
+			sustainsMap.set(note, susSpr);
+		}
 
 		return note;
 	}
