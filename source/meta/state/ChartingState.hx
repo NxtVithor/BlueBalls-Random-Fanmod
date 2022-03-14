@@ -134,8 +134,6 @@ class ChartingState extends MusicBeatState
 	private var curRenderedSustains:FlxTypedGroup<FlxSprite>;
 	private var curRenderedNoteType:FlxTypedGroup<AttachedFlxText>;
 
-	private var sustainsMap:Map<Note, FlxSprite> = new Map<Note, FlxSprite>();
-
 	// ui shit
 	var uiBox:FlxUITabMenu;
 
@@ -987,21 +985,13 @@ class ChartingState extends MusicBeatState
 							{
 								if (note.noteData > -1)
 								{
-									if (sustainsMap.exists(note))
-									{
-										var leSusSpr:FlxSprite = sustainsMap.get(note);
-										leSusSpr.kill();
-										curRenderedSustains.remove(leSusSpr);
-										leSusSpr.destroy();
-										sustainsMap.remove(note);
-									}
-
 									for (i in _song.notes[curSection].sectionNotes)
 									{
 										if (i[0] == note.strumTime && i[1] == note.noteData)
 										{
 											if (i == curSelectedNote)
 												curSelectedNote = null;
+											trace('FOUND EVIL NOTE!!!');
 											_song.notes[curSection].sectionNotes.remove(i);
 											break;
 										}
@@ -1038,15 +1028,14 @@ class ChartingState extends MusicBeatState
 												curSelectedNote = null;
 												changeEventSelected();
 											}
+											trace('FOUND EVIL EVENT!!!');
 											_song.events.remove(i);
 											break;
 										}
 									}
 								}
 
-								note.kill();
-								curRenderedNotes.remove(note);
-								note.destroy();
+								updateGrid();
 							}
 						}
 					});
@@ -1349,7 +1338,6 @@ class ChartingState extends MusicBeatState
 			curRenderedNotes.remove(curRenderedNotes.members[0], true);
 		while (curRenderedSustains.members.length > 0)
 			curRenderedSustains.remove(curRenderedSustains.members[0], true);
-		sustainsMap.clear();
 		while (curRenderedNoteType.members.length > 0)
 			curRenderedNoteType.remove(curRenderedNoteType.members[0], true);
 
@@ -1441,11 +1429,7 @@ class ChartingState extends MusicBeatState
 		curRenderedNotes.add(note);
 
 		if (daSus > 0)
-		{
-			var susSpr:FlxSprite = new FlxSprite(note.x + gridSize / 2.5, note.y + gridSize).makeGraphic(8, Math.floor(getYfromStrum(daSus)));
-			curRenderedSustains.add(susSpr);
-			sustainsMap.set(note, susSpr);
-		}
+			curRenderedSustains.add(new FlxSprite(note.x + gridSize / 2.5, note.y + gridSize).makeGraphic(8, Math.floor(getYfromStrum(daSus))));
 
 		return note;
 	}
