@@ -136,39 +136,42 @@ class Character extends FNFSprite
 
 	override function update(elapsed:Float)
 	{
-		if (heyTimer > 0)
+		if (animation.curAnim != null)
 		{
-			heyTimer -= elapsed;
-			if (heyTimer <= 0)
+			if (heyTimer > 0)
 			{
-				if (specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
+				heyTimer -= elapsed;
+				if (heyTimer <= 0)
 				{
-					specialAnim = false;
-					dance();
+					if (specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
+					{
+						specialAnim = false;
+						dance();
+					}
+					heyTimer = 0;
 				}
-				heyTimer = 0;
 			}
-		}
-		else if (specialAnim && animation.curAnim.finished)
-		{
-			specialAnim = false;
-			dance();
-		}
-
-		if (!isPlayer)
-		{
-			if (animation.curAnim.name.startsWith('sing'))
-				holdTimer += elapsed;
-
-			if (holdTimer >= Conductor.stepCrochet * 0.001 * singDuration)
+			else if (specialAnim && animation.curAnim.finished)
 			{
+				specialAnim = false;
 				dance();
-				holdTimer = 0;
 			}
-		}
 
-		if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
-			playAnim(animation.curAnim.name + '-loop');
+			if (!isPlayer)
+			{
+				if (animation.curAnim.name.startsWith('sing'))
+					holdTimer += elapsed;
+
+				if (holdTimer >= Conductor.stepCrochet * 0.001 * singDuration)
+				{
+					dance();
+					holdTimer = 0;
+				}
+			}
+
+			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
+				playAnim(animation.curAnim.name + '-loop');
+		}
 
 		super.update(elapsed);
 	}
