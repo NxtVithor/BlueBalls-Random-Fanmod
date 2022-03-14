@@ -485,16 +485,22 @@ class PlayState extends MusicBeatState
 		// for global scripts
 		var scripts:Array<String> = FileSystem.readDirectory(path);
 		for (script in FileSystem.readDirectory(path))
-			if (!FileSystem.isDirectory(script) && script.endsWith('.lua'))
-				scripts.push('$path/$script');
+		{
+			var lePath:String = '$path/$script';
+			if (!scripts.contains(lePath) && !FileSystem.isDirectory(script) && script.endsWith('.lua'))
+				scripts.push(lePath);
+		}
 		#if MODS_ALLOWED
 		// for root mods directory
 		path = ModManager.modStr('scripts');
 		if (FileSystem.isDirectory(path))
 		{
 			for (script in FileSystem.readDirectory(path))
-				if (!FileSystem.isDirectory(script) && script.endsWith('.lua'))
-					scripts.push('$path/$script');
+			{
+				var lePath:String = '$path/$script';
+				if (!scripts.contains(lePath) && !FileSystem.isDirectory(script) && script.endsWith('.lua'))
+					scripts.push(lePath);
+			}
 		}
 		// for active mods directory
 		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
@@ -503,38 +509,25 @@ class PlayState extends MusicBeatState
 			if (FileSystem.isDirectory(path))
 			{
 				for (script in FileSystem.readDirectory(path))
-					if (!FileSystem.isDirectory(script) && script.endsWith('.lua'))
-						scripts.push('$path/$script');
+				{
+					var lePath:String = '$path/$script';
+					if (!scripts.contains(lePath) && !FileSystem.isDirectory(script) && script.endsWith('.lua'))
+						scripts.push(lePath);
+				}
 			}
 		}
 		#end
 
-		var doPush:Bool = false;
-		var checkIfCanPushScript = function()
-		{
-			for (lua in luaArray)
-			{
-				if (lua.scriptPath == path)
-				{
-					doPush = true;
-					return;
-				}
-			}
-		}
-
 		for (script in scripts)
 		{
 			path = script;
-			checkIfCanPushScript();
-			if (doPush && Paths.exists(path))
+			if (Paths.exists(path))
 				luaArray.push(new Script(path));
 		}
 
 		// for the stage script
-		path = '';
 		path = Paths.script('stages/$curStage');
-		checkIfCanPushScript();
-		if (doPush && Paths.exists(path))
+		if (!scripts.contains(path) && Paths.exists(path))
 			luaArray.push(new Script(path));
 
 		// for the characters scripts
@@ -544,8 +537,7 @@ class PlayState extends MusicBeatState
 
 		// for the song script
 		path = Paths.script('data/${curSong.toLowerCase()}/script');
-		checkIfCanPushScript();
-		if (doPush && Paths.exists(path))
+		if (!scripts.contains(path) && Paths.exists(path))
 			luaArray.push(new Script(path));
 		#end
 
@@ -667,12 +659,18 @@ class PlayState extends MusicBeatState
 	private function initCharLua(character:String)
 	{
 		var path:String = Paths.script('characters/$character');
+
+		var doPush:Bool = true;
 		for (lua in luaArray)
 		{
 			if (lua.scriptPath == path)
-				return;
+			{
+				doPush = false;
+				break;
+			}
 		}
-		if (Paths.exists(path))
+
+		if (doPush && Paths.exists(path))
 			luaArray.push(new Script(path));
 	}
 	#end
@@ -1892,6 +1890,8 @@ class PlayState extends MusicBeatState
 			var numScore = ForeverAssets.generateCombo('combo', stringArray[scoreInt], (!negative ? allSicks : false), assetModifier, changeableSkin,
 				assetModifier == 'pixel'
 				&& changeableSkin == 'default' ? 'pixelUI' : 'UI', negative, createdColor, scoreInt);
+			if (cache)
+				numScore.visible = false;
 			add(numScore);
 			// hardcoded lmao
 			if (!Init.trueSettings.get('Simply Judgements'))
@@ -2028,6 +2028,8 @@ class PlayState extends MusicBeatState
 					Timings.smallestRating = daRating;
 			}
 		}
+		else
+			rating.visible = false;
 	}
 
 	function healthCall(?ratingMultiplier:Float = 0)
