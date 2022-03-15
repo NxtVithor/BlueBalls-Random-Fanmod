@@ -184,8 +184,7 @@ class PlayState extends MusicBeatState
 
 	private var luaDebugGroup:FlxTypedGroup<DebugLuaText>;
 
-	var camDisplaceX:Float = 0;
-	var camDisplaceY:Float = 0; // might not use depending on result
+	private var tweenUtil:TweenHandler;
 
 	public static var cameraSpeed:Float = 1;
 
@@ -285,6 +284,9 @@ class PlayState extends MusicBeatState
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
+
+		// init the tween util
+		tweenUtil = new TweenHandler();
 
 		/// here we determine the chart type!
 		// determine the chart type here
@@ -1398,23 +1400,8 @@ class PlayState extends MusicBeatState
 		callOnLuas('onEvent', [eventName, value1, value2]);
 	}
 
-	var lastSection:Int = 0;
-
 	public function moveCamera(isDad:Bool)
 	{
-		var curSection = Std.int(curStep / 16);
-		if (curSection != lastSection)
-		{
-			// section reset stuff
-			var lastMustHit:Bool = PlayState.SONG.notes[lastSection].mustHitSection;
-			if (PlayState.SONG.notes[curSection].mustHitSection != lastMustHit)
-			{
-				camDisplaceX = 0;
-				camDisplaceY = 0;
-			}
-			lastSection = curSection;
-		}
-
 		var char:Character = dadOpponent;
 
 		if (isDad)
@@ -1427,8 +1414,8 @@ class PlayState extends MusicBeatState
 					getCenterX = char.getMidpoint().x + 200;
 			}
 
-			camFollow.x = getCenterX + camDisplaceX + char.cameraPosition[0];
-			camFollow.y = getCenterY + camDisplaceY + char.cameraPosition[1];
+			camFollow.x = getCenterX + char.cameraPosition[0];
+			camFollow.y = getCenterY + char.cameraPosition[1];
 
 			if (isTutorial)
 			{
@@ -1465,8 +1452,8 @@ class PlayState extends MusicBeatState
 					getCenterY = char.getMidpoint().y - 225;
 			}
 
-			camFollow.x = getCenterX + camDisplaceX - char.cameraPosition[0];
-			camFollow.y = getCenterY + camDisplaceY + char.cameraPosition[1];
+			camFollow.x = getCenterX - char.cameraPosition[0];
+			camFollow.y = getCenterY + char.cameraPosition[1];
 
 			if (isTutorial && cameraTwn == null && FlxG.camera.zoom != defaultCamZoom)
 				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.stepCrochet * 4 / 1000), {
@@ -2152,6 +2139,10 @@ class PlayState extends MusicBeatState
 	override function stepHit()
 	{
 		super.stepHit();
+
+		// update the tweens stored in the tween util
+		tweenUtil.update(curStep);
+
 		if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > 20
 			|| (SONG.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
 			resyncVocals();

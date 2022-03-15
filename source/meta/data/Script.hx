@@ -373,7 +373,7 @@ class Script
 			if (penisExam != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {x: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -392,7 +392,7 @@ class Script
 			if (penisExam != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {y: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -411,7 +411,7 @@ class Script
 			if (penisExam != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {angle: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -430,7 +430,7 @@ class Script
 			if (penisExam != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {alpha: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -449,7 +449,7 @@ class Script
 			if (penisExam != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {zoom: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -474,7 +474,7 @@ class Script
 				var curColor:FlxColor = penisExam.color;
 				curColor.alphaFloat = penisExam.alpha;
 				PlayState.instance.modchartTweens.set(tag, FlxTween.color(penisExam, duration, curColor, color, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.modchartTweens.remove(tag);
@@ -499,7 +499,7 @@ class Script
 			if (testicle != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {x: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -518,7 +518,7 @@ class Script
 			if (testicle != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {y: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -537,7 +537,7 @@ class Script
 			if (testicle != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {angle: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -556,7 +556,7 @@ class Script
 			if (testicle != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {direction: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -612,7 +612,7 @@ class Script
 			if (testicle != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {angle: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -631,7 +631,7 @@ class Script
 			if (testicle != null)
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {alpha: value}, duration, {
-					ease: getFlxEaseByString(ease),
+					ease: CoolUtil.getFlxEaseByString(ease),
 					onComplete: function(twn:FlxTween)
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -901,7 +901,7 @@ class Script
 		});
 		Lua_helper.add_callback(lua, "cameraShake", function(camera:String, intensity:Float, duration:Float)
 		{
-			cameraFromString(camera).shake(intensity, duration);
+			CoolUtil.cameraFromString(camera).shake(intensity, duration);
 		});
 
 		Lua_helper.add_callback(lua, "cameraFlash", function(camera:String, color:String, duration:Float, forced:Bool)
@@ -909,14 +909,14 @@ class Script
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
 				colorNum = Std.parseInt('0xff' + color);
-			cameraFromString(camera).flash(colorNum, duration, null, forced);
+			CoolUtil.cameraFromString(camera).flash(colorNum, duration, null, forced);
 		});
 		Lua_helper.add_callback(lua, "cameraFade", function(camera:String, color:String, duration:Float, forced:Bool)
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
 				colorNum = Std.parseInt('0xff' + color);
-			cameraFromString(camera).fade(colorNum, duration, false, null, forced);
+			CoolUtil.cameraFromString(camera).fade(colorNum, duration, false, null, forced);
 		});
 		Lua_helper.add_callback(lua, "setRatingPercent", function(value:Float)
 		{
@@ -933,12 +933,12 @@ class Script
 		});
 		Lua_helper.add_callback(lua, "getMouseX", function(camera:String)
 		{
-			var cam:FlxCamera = cameraFromString(camera);
+			var cam:FlxCamera = CoolUtil.cameraFromString(camera);
 			return FlxG.mouse.getScreenPosition(cam).x;
 		});
 		Lua_helper.add_callback(lua, "getMouseY", function(camera:String)
 		{
-			var cam:FlxCamera = cameraFromString(camera);
+			var cam:FlxCamera = CoolUtil.cameraFromString(camera);
 			return FlxG.mouse.getScreenPosition(cam).y;
 		});
 		Lua_helper.add_callback(lua, "getScreenPositionX", function(variable:String)
@@ -1245,19 +1245,19 @@ class Script
 		{
 			if (PlayState.instance.modchartSprites.exists(obj))
 			{
-				PlayState.instance.modchartSprites.get(obj).cameras = [cameraFromString(camera)];
+				PlayState.instance.modchartSprites.get(obj).cameras = [CoolUtil.cameraFromString(camera)];
 				return true;
 			}
 			else if (PlayState.instance.modchartTexts.exists(obj))
 			{
-				PlayState.instance.modchartTexts.get(obj).cameras = [cameraFromString(camera)];
+				PlayState.instance.modchartTexts.get(obj).cameras = [CoolUtil.cameraFromString(camera)];
 				return true;
 			}
 
 			var object:FlxObject = Reflect.getProperty(getInstance(), obj);
 			if (object != null)
 			{
-				object.cameras = [cameraFromString(camera)];
+				object.cameras = [CoolUtil.cameraFromString(camera)];
 				return true;
 			}
 			luaTrace("Object " + obj + " doesn't exist!");
@@ -1267,14 +1267,14 @@ class Script
 		{
 			if (PlayState.instance.modchartSprites.exists(obj))
 			{
-				PlayState.instance.modchartSprites.get(obj).blend = blendModeFromString(blend);
+				PlayState.instance.modchartSprites.get(obj).blend = CoolUtil.blendModeFromString(blend);
 				return true;
 			}
 
 			var spr:FlxSprite = Reflect.getProperty(getInstance(), obj);
 			if (spr != null)
 			{
-				spr.blend = blendModeFromString(blend);
+				spr.blend = CoolUtil.blendModeFromString(blend);
 				return true;
 			}
 			luaTrace("Object " + obj + " doesn't exist!");
@@ -1847,7 +1847,7 @@ class Script
 			luaTrace("setLuaSpriteCamera is deprecated! Use setObjectCamera instead", false, true);
 			if (PlayState.instance.modchartSprites.exists(tag))
 			{
-				PlayState.instance.modchartSprites.get(tag).cameras = [cameraFromString(camera)];
+				PlayState.instance.modchartSprites.get(tag).cameras = [CoolUtil.cameraFromString(camera)];
 				return true;
 			}
 			luaTrace("Lua sprite with tag: " + tag + " doesn't exist!");
@@ -1970,14 +1970,14 @@ class Script
 				shaderArray.push(new ShaderFilter(PlayState.instance.luaShaders[i].shader));
 			}
 
-			cameraFromString(cameraName).setFilters(shaderArray);
+			CoolUtil.cameraFromString(cameraName).setFilters(shaderArray);
 		});
 
 		// shader clear
 
 		Lua_helper.add_callback(lua, "clearShadersFromCamera", function(cameraName)
 		{
-			cameraFromString(cameraName).setFilters([]);
+			CoolUtil.cameraFromString(cameraName).setFilters([]);
 		});
 
 		Lua_helper.add_callback(lua, "addGlitchEffect", function(camera:String, waveSpeed:Float = 0.1, waveFrq:Float = 0.1, waveAmp:Float = 0.1)
@@ -2251,136 +2251,6 @@ class Script
 			theTimer.cancel();
 			theTimer.destroy();
 			PlayState.instance.modchartTimers.remove(tag);
-		}
-	}
-
-	// Better optimized than using some getProperty shit or idk
-	static function getFlxEaseByString(?ease:String = '')
-	{
-		switch (ease.toLowerCase().trim())
-		{
-			case 'backin':
-				return FlxEase.backIn;
-			case 'backinout':
-				return FlxEase.backInOut;
-			case 'backout':
-				return FlxEase.backOut;
-			case 'bouncein':
-				return FlxEase.bounceIn;
-			case 'bounceinout':
-				return FlxEase.bounceInOut;
-			case 'bounceout':
-				return FlxEase.bounceOut;
-			case 'circin':
-				return FlxEase.circIn;
-			case 'circinout':
-				return FlxEase.circInOut;
-			case 'circout':
-				return FlxEase.circOut;
-			case 'cubein':
-				return FlxEase.cubeIn;
-			case 'cubeinout':
-				return FlxEase.cubeInOut;
-			case 'cubeout':
-				return FlxEase.cubeOut;
-			case 'elasticin':
-				return FlxEase.elasticIn;
-			case 'elasticinout':
-				return FlxEase.elasticInOut;
-			case 'elasticout':
-				return FlxEase.elasticOut;
-			case 'expoin':
-				return FlxEase.expoIn;
-			case 'expoinout':
-				return FlxEase.expoInOut;
-			case 'expoout':
-				return FlxEase.expoOut;
-			case 'quadin':
-				return FlxEase.quadIn;
-			case 'quadinout':
-				return FlxEase.quadInOut;
-			case 'quadout':
-				return FlxEase.quadOut;
-			case 'quartin':
-				return FlxEase.quartIn;
-			case 'quartinout':
-				return FlxEase.quartInOut;
-			case 'quartout':
-				return FlxEase.quartOut;
-			case 'quintin':
-				return FlxEase.quintIn;
-			case 'quintinout':
-				return FlxEase.quintInOut;
-			case 'quintout':
-				return FlxEase.quintOut;
-			case 'sinein':
-				return FlxEase.sineIn;
-			case 'sineinout':
-				return FlxEase.sineInOut;
-			case 'sineout':
-				return FlxEase.sineOut;
-			case 'smoothstepin':
-				return FlxEase.smoothStepIn;
-			case 'smoothstepinout':
-				return FlxEase.smoothStepInOut;
-			case 'smoothstepout':
-				return FlxEase.smoothStepInOut;
-			case 'smootherstepin':
-				return FlxEase.smootherStepIn;
-			case 'smootherstepinout':
-				return FlxEase.smootherStepInOut;
-			case 'smootherstepout':
-				return FlxEase.smootherStepOut;
-		}
-		return FlxEase.linear;
-	}
-
-	static function blendModeFromString(blend:String):BlendMode
-	{
-		switch (blend.toLowerCase().trim())
-		{
-			case 'add':
-				return ADD;
-			case 'alpha':
-				return ALPHA;
-			case 'darken':
-				return DARKEN;
-			case 'difference':
-				return DIFFERENCE;
-			case 'erase':
-				return ERASE;
-			case 'hardlight':
-				return HARDLIGHT;
-			case 'invert':
-				return INVERT;
-			case 'layer':
-				return LAYER;
-			case 'lighten':
-				return LIGHTEN;
-			case 'multiply':
-				return MULTIPLY;
-			case 'overlay':
-				return OVERLAY;
-			case 'screen':
-				return SCREEN;
-			case 'shader':
-				return SHADER;
-			case 'subtract':
-				return SUBTRACT;
-		}
-		return NORMAL;
-	}
-
-	static function cameraFromString(cam:String):FlxCamera
-	{
-		switch (cam.toLowerCase())
-		{
-			case 'camhud' | 'hud':
-				return PlayState.instance.camHUD;
-			case 'camother' | 'other':
-				return PlayState.instance.camOther;
-			default:
-				return PlayState.instance.camGame;
 		}
 	}
 
