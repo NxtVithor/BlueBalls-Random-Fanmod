@@ -22,6 +22,9 @@ typedef WeekFile =
 	var difficulties:String;
 };
 
+/**
+	This class manages everything about week data and Freeplay songs.
+ */
 class Week
 {
 	public static var loadedWeeks:Array<Week> = [];

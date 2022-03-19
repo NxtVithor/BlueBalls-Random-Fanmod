@@ -57,7 +57,7 @@ class ChartingState extends MusicBeatState
 
 	static final keysTotal:Int = 9;
 
-	var eventStuff:Array<Dynamic> = [
+	public static var eventStuff:Array<Dynamic> = [
 		['', "Nothing. Yep, that's right."],
 		[
 			'Hey!',
@@ -103,6 +103,11 @@ class ChartingState extends MusicBeatState
 			"Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."
 		]
 	];
+
+	public static var noteTypeList:Array<String> = ['', 'Alt Animation', 'Hey!', 'Hurt Note', 'GF Sing', 'No Animation'];
+
+	private var noteTypeIntMap:Map<Int, String> = new Map<Int, String>();
+	private var noteTypeMap:Map<String, Null<Int>> = new Map<String, Null<Int>>();
 
 	var strumLine:FlxSprite;
 
@@ -157,7 +162,10 @@ class ChartingState extends MusicBeatState
 
 	// note tab shit
 	var stepperSusLength:FlxUINumericStepper;
-	var stepperType:FlxUINumericStepper;
+	var strumTimeInputText:FlxUIInputText;
+	var noteTypeDropDown:FlxUIDropDownMenu;
+
+	var currentType:Int = 0;
 
 	// events tab shit
 	var value1InputText:FlxUIInputText;
@@ -642,17 +650,78 @@ class ChartingState extends MusicBeatState
 
 		var applyLength:FlxButton = new FlxButton(100, 10, 'Apply');
 
-		noteTab.add(stepperSusLength);
-		noteTab.add(applyLength);
+		strumTimeInputText = new FlxUIInputText(10, 65, 180, "0");
+		inputs.push(strumTimeInputText);
 
 		// note types
-		stepperType = new FlxUINumericStepper(10, 30, Conductor.stepCrochet / 125, 0, 0, (Conductor.stepCrochet / 125) + 10); // 10 is placeholder
-		stepperType.value = 0;
-		stepperType.name = 'note_type';
-		steppers.push(stepperType);
+		var key:Int = 0;
+		var displayNameList:Array<String> = [];
+		while (key < noteTypeList.length)
+		{
+			displayNameList.push(noteTypeList[key]);
+			noteTypeMap.set(noteTypeList[key], key);
+			noteTypeIntMap.set(key, noteTypeList[key]);
+			key++;
+		}
+
+		#if (MODS_ALLOWED && LUA_ALLOWED)
+		// check for custom note types
+		// for root mods directory
+		var path:String = ModManager.modStr('custom_notetypes');
+		if (FileSystem.isDirectory(path))
+		{
+			for (noteType in FileSystem.readDirectory(path))
+			{
+				if (!FileSystem.isDirectory(noteType) && noteType.endsWith('.json'))
+				{
+					var realNoteType:String = noteType.substring(0, noteType.lastIndexOf('.')).substring(noteType.lastIndexOf('/'), noteType.length);
+					if (!noteTypeList.contains(realNoteType))
+						noteTypeList.push(realNoteType);
+				}
+			}
+		}
+
+		// for active mods directory
+		if (ModManager.currentModDirectory != null && ModManager.currentModDirectory.length > 0)
+		{
+			var path:String = ModManager.modStr(ModManager.currentModDirectory + '/custom_notetypes');
+			if (FileSystem.isDirectory(path))
+			{
+				for (noteType in FileSystem.readDirectory(path))
+				{
+					if (!FileSystem.isDirectory(noteType) && noteType.endsWith('.json'))
+					{
+						var realNoteType:String = noteType.substring(0, noteType.lastIndexOf('.')).substring(noteType.lastIndexOf('/'), noteType.length);
+						if (!noteTypeList.contains(realNoteType))
+							noteTypeList.push(realNoteType);
+					}
+				}
+			}
+		}
+		#end
+
+		for (i in 1...displayNameList.length)
+			displayNameList[i] = i + '. ' + displayNameList[i];
+
+		noteTypeDropDown = new FlxUIDropDownMenu(10, 105, FlxUIDropDownMenu.makeStrIdLabelArray(displayNameList, true), function(character:String)
+		{
+			currentType = Std.parseInt(character);
+			if (curSelectedNote != null && curSelectedNote[1] > -1)
+			{
+				curSelectedNote[3] = noteTypeIntMap.get(currentType);
+				updateGrid();
+			}
+		});
+		dropDowns.push(noteTypeDropDown);
 
 		// add note tab
-		noteTab.add(stepperType);
+		noteTab.add(new FlxText(10, 10, 0, 'Sustain length:'));
+		noteTab.add(new FlxText(10, 50, 0, 'Strum time (in miliseconds):'));
+		noteTab.add(new FlxText(10, 90, 0, 'Note type:'));
+		noteTab.add(stepperSusLength);
+		noteTab.add(applyLength);
+		noteTab.add(strumTimeInputText);
+		noteTab.add(noteTypeDropDown);
 
 		uiBox.addGroup(noteTab);
 
@@ -1155,15 +1224,17 @@ class ChartingState extends MusicBeatState
 			if (curSelectedNote != null)
 			{
 				if (sender == value1InputText)
-				{
 					curSelectedNote[1][curEventSelected][1] = value1InputText.text;
-					updateGrid();
-				}
 				else if (sender == value2InputText)
-				{
 					curSelectedNote[1][curEventSelected][2] = value2InputText.text;
-					updateGrid();
+				else if (sender == strumTimeInputText)
+				{
+					var value:Float = Std.parseFloat(strumTimeInputText.text);
+					if (Math.isNaN(value))
+						value = 0;
+					curSelectedNote[0] = value;
 				}
+				updateGrid();
 			}
 		}
 	}
@@ -1186,7 +1257,17 @@ class ChartingState extends MusicBeatState
 		if (curSelectedNote != null)
 		{
 			if (curSelectedNote[2] != null)
+			{
 				stepperSusLength.value = curSelectedNote[2];
+				if (curSelectedNote[3] != null)
+				{
+					currentType = noteTypeMap.get(curSelectedNote[3]);
+					if (currentType <= 0)
+						noteTypeDropDown.selectedLabel = '';
+					else
+						noteTypeDropDown.selectedLabel = currentType + '. ' + curSelectedNote[3];
+				}
+			}
 			else
 			{
 				eventDropDown.selectedLabel = curSelectedNote[1][curEventSelected][0];
@@ -1196,6 +1277,7 @@ class ChartingState extends MusicBeatState
 				value1InputText.text = curSelectedNote[1][curEventSelected][1];
 				value2InputText.text = curSelectedNote[1][curEventSelected][2];
 			}
+			strumTimeInputText.text = '' + curSelectedNote[0];
 		}
 	}
 

@@ -20,7 +20,7 @@ import sys.FileSystem;
 
 	Please respect the effort but to this and credit us if used :]
 
-	Edited by Stilic for make shit work with da engine lol!!
+	Edited by Stilic for making it working on FE.
 
 	@author Kemo
  */
